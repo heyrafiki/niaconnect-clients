@@ -16,6 +16,7 @@ export default function ClientAuth() {
   const [isSignUp, setIsSignUp] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   // Form state
   const [firstName, setFirstName] = useState("")
@@ -25,7 +26,7 @@ export default function ClientAuth() {
   const [confirmPassword, setConfirmPassword] = useState("")
 
   // Auth context
-  const { login, signup, isLoading } = useAuth()
+  const { login, signup, loginWithGoogle, isLoading } = useAuth()
 
   const toggleAuthMode = () => {
     setIsSignUp(!isSignUp)
@@ -41,19 +42,25 @@ export default function ClientAuth() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError(null)
 
-    if (isSignUp) {
-      // Validate passwords match
-      if (password !== confirmPassword) {
-        alert("Passwords don't match")
-        return
+    try {
+      if (isSignUp) {
+        // Validate passwords match
+        if (password !== confirmPassword) {
+          setError("Passwords don't match")
+          return
+        }
+
+        // Sign up and redirect to onboarding
+        await signup(firstName, lastName, email, password)
+      } else {
+        // Login and redirect to dashboard
+        await login(email, password)
       }
-
-      // Sign up and redirect to onboarding
-      await signup(firstName, lastName, email, password)
-    } else {
-      // Login and redirect to dashboard
-      await login(email, password)
+    } catch (error: any) {
+      console.error('Auth error:', error)
+      setError(error.message || 'An error occurred during authentication')
     }
   }
 
@@ -113,6 +120,8 @@ export default function ClientAuth() {
               <Button
                 variant="outline"
                 className="w-full h-11 border-gray-300 hover:bg-gray-50 text-gray-700 rounded-2xl font-secondary text-sm"
+                onClick={loginWithGoogle}
+                disabled={isLoading}
               >
                 <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
                   <path
@@ -146,6 +155,12 @@ export default function ClientAuth() {
 
               {/* Form Fields */}
               <form className="space-y-4" onSubmit={handleSubmit}>
+                {error && (
+                  <div className="p-3 text-sm text-red-600 bg-red-50 rounded-lg">
+                    {error}
+                  </div>
+                )}
+
                 {isSignUp && (
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1">

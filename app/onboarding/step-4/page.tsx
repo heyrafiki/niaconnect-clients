@@ -7,6 +7,7 @@ import { Smile } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
 import { useRouter } from "next/navigation"
 import StepNavigation from "@/components/onboarding/step-navigation"
+import { supabase } from "@/lib/supabase"
 
 export default function MentalHealthScaleStep() {
   const [mentalHealthScale, setMentalHealthScale] = useState<number | null>(null)
@@ -20,17 +21,33 @@ export default function MentalHealthScaleStep() {
     }
   }, [user, isLoading, router])
 
-  const handleComplete = () => {
-    // In a real app, you would save all the onboarding data here
-    // and mark the user as onboarded in your database
-    if (user) {
-      const updatedUser = {
-        ...user,
-        isOnboarded: true
+  const handleComplete = async () => {
+    if (!user) return
+
+    try {
+      // Update user's onboarding status in Supabase
+      const { error } = await supabase
+        .from('profiles')
+        .update({ is_onboarded: true })
+        .eq('id', user.id)
+
+      if (error) throw error
+
+      // Update mental health scale in clients table
+      if (mentalHealthScale !== null) {
+        const { error: clientError } = await supabase
+          .from('clients')
+          .update({ mental_health_scale: mentalHealthScale })
+          .eq('id', user.id)
+
+        if (clientError) throw clientError
       }
-      localStorage.setItem("heyrafiki_client_user", JSON.stringify(updatedUser))
+
+      router.push('/dashboard')
+    } catch (error) {
+      console.error('Error completing onboarding:', error)
+      alert('Failed to complete onboarding. Please try again.')
     }
-    router.push("/dashboard")
   }
 
   if (isLoading || !user) {
