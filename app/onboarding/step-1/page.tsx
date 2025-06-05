@@ -31,16 +31,18 @@ export default function PersonalInformationStep() {
   // Redirect if not authenticated
   useEffect(() => {
     if (!isLoading && !user) {
-      router.push("/auth")
+      router.push("/auth/client")
     }
   }, [user, isLoading, router])
 
   // Pre-fill data from auth context
   useEffect(() => {
     if (user) {
+      // Pre-fill name from signup
       setFullName(`${user.firstName} ${user.lastName}`)
       setEmail(user.email)
 
+      // Generate avatar placeholder
       if (!user.avatar) {
         const generatedAvatar = generateAvatarUrl(user.firstName, user.lastName)
         setAvatarUrl(generatedAvatar)
@@ -54,6 +56,7 @@ export default function PersonalInformationStep() {
     const file = event.target.files?.[0]
     if (file) {
       setProfilePicture(file)
+      // Create a local URL for preview
       const objectUrl = URL.createObjectURL(file)
       setAvatarUrl(objectUrl)
     }
@@ -87,6 +90,7 @@ export default function PersonalInformationStep() {
             <div className="space-y-3">
               <Label className="text-gray-700 font-secondary font-medium text-sm">Profile Picture</Label>
               <div className="flex flex-col sm:flex-row items-center gap-6">
+                {/* Avatar Preview */}
                 <div className="relative w-24 h-24 rounded-full overflow-hidden border-2 border-heyrafiki-green">
                   {avatarUrl && (
                     <Image src={avatarUrl || "/placeholder.svg"} alt="Profile avatar" fill className="object-cover" />

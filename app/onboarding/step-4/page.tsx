@@ -12,14 +12,18 @@ export default function MentalHealthScaleStep() {
   const { user, isLoading } = useAuth()
   const router = useRouter()
 
+  // Redirect if not authenticated
   useEffect(() => {
     if (!isLoading && !user) {
-      router.push("/auth")
+      router.push("/auth/client")
     }
   }, [user, isLoading, router])
 
   const handleComplete = () => {
-    // In a real app, you would save all the onboarding data to your shared database
+    // In a real app, you would save all the onboarding data here
+    // and mark the user as onboarded in your database
+
+    // For now, we'll just redirect to the dashboard
     router.push("/dashboard")
   }
 
@@ -77,7 +81,7 @@ export default function MentalHealthScaleStep() {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => router.push("/onboarding/step-3")}
+                onClick={() => router.push("/onboarding/client/step-3")}
                 className="px-8 py-3 rounded-full font-secondary font-medium border-gray-300 text-gray-600 hover:bg-gray-50"
               >
                 Previous Step

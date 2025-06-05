@@ -17,9 +17,10 @@ export default function SessionPreferencesStep() {
   const { user, isLoading } = useAuth()
   const router = useRouter()
 
+  // Redirect if not authenticated
   useEffect(() => {
     if (!isLoading && !user) {
-      router.push("/auth")
+      router.push("/auth/client")
     }
   }, [user, isLoading, router])
 
