@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Smile } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
 import { useRouter } from "next/navigation"
+import StepNavigation from "@/components/onboarding/step-navigation"
 
 export default function MentalHealthScaleStep() {
   const [mentalHealthScale, setMentalHealthScale] = useState<number | null>(null)
@@ -22,8 +23,13 @@ export default function MentalHealthScaleStep() {
   const handleComplete = () => {
     // In a real app, you would save all the onboarding data here
     // and mark the user as onboarded in your database
-
-    // For now, we'll just redirect to the dashboard
+    if (user) {
+      const updatedUser = {
+        ...user,
+        isOnboarded: true
+      }
+      localStorage.setItem("heyrafiki_client_user", JSON.stringify(updatedUser))
+    }
     router.push("/dashboard")
   }
 
@@ -76,26 +82,7 @@ export default function MentalHealthScaleStep() {
               ))}
             </div>
 
-            {/* Navigation Buttons */}
-            <div className="flex justify-between items-center mt-12 pt-8 border-t border-gray-100">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => router.push("/onboarding/client/step-3")}
-                className="px-8 py-3 rounded-full font-secondary font-medium border-gray-300 text-gray-600 hover:bg-gray-50"
-              >
-                Previous Step
-              </Button>
-
-              <Button
-                type="button"
-                onClick={handleComplete}
-                disabled={!mentalHealthScale}
-                className="px-8 py-3 rounded-full font-secondary font-medium bg-heyrafiki-green hover:bg-heyrafiki-green-dark text-white disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Complete
-              </Button>
-            </div>
+            <StepNavigation currentStep={4} totalSteps={4} onComplete={handleComplete} />
           </div>
         </CardContent>
       </Card>
