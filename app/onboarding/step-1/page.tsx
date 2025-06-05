@@ -16,6 +16,17 @@ import { generateAvatarUrl } from "@/lib/avatar-utils"
 import Image from "next/image"
 
 const genderOptions = ["Male", "Female", "Non-binary", "Prefer not to say", "Other"]
+const countryOptions = [
+  "Kenya",
+  "Uganda",
+  "Tanzania",
+  "Rwanda",
+  "Ethiopia",
+  "Nigeria",
+  "South Africa",
+  "Ghana",
+  "Other"
+]
 
 export default function PersonalInformationStep() {
   const { user, isLoading } = useAuth()
@@ -27,6 +38,8 @@ export default function PersonalInformationStep() {
   const [email, setEmail] = useState("")
   const [phoneNumber, setPhoneNumber] = useState("")
   const [gender, setGender] = useState("")
+  const [dateOfBirth, setDateOfBirth] = useState("")
+  const [country, setCountry] = useState("")
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -176,6 +189,37 @@ export default function PersonalInformationStep() {
                   </SelectTrigger>
                   <SelectContent>
                     {genderOptions.map((option) => (
+                      <SelectItem key={option} value={option} className="font-secondary">
+                        {option}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="dateOfBirth" className="text-gray-700 font-secondary font-medium text-sm">
+                  Date of Birth
+                </Label>
+                <Input
+                  id="dateOfBirth"
+                  type="date"
+                  value={dateOfBirth}
+                  onChange={(e) => setDateOfBirth(e.target.value)}
+                  className="border-gray-300 focus:border-heyrafiki-green focus:ring-heyrafiki-green rounded-xl h-12 font-secondary bg-[#f5f5f5]"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="country" className="text-gray-700 font-secondary font-medium text-sm">
+                  Country
+                </Label>
+                <Select value={country} onValueChange={setCountry}>
+                  <SelectTrigger className="border-gray-300 focus:border-heyrafiki-green focus:ring-heyrafiki-green rounded-xl h-12 font-secondary">
+                    <SelectValue placeholder="Please select your country" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {countryOptions.map((option) => (
                       <SelectItem key={option} value={option} className="font-secondary">
                         {option}
                       </SelectItem>

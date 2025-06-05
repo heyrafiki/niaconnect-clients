@@ -13,7 +13,7 @@ const preferredTimeOptions = ["Morning Hours", "Afternoon", "Evening Hours", "Ni
 
 export default function SessionPreferencesStep() {
   const [sessionTypes, setSessionTypes] = useState<string[]>([])
-  const [preferredTime, setPreferredTime] = useState<string>("")
+  const [preferredTimes, setPreferredTimes] = useState<string[]>([])
   const { user, isLoading } = useAuth()
   const router = useRouter()
 
@@ -23,6 +23,12 @@ export default function SessionPreferencesStep() {
       router.push("/auth/client")
     }
   }, [user, isLoading, router])
+
+  const handleTimeToggle = (time: string) => {
+    setPreferredTimes((prev) =>
+      prev.includes(time) ? prev.filter((t) => t !== time) : [...prev, time]
+    )
+  }
 
   if (isLoading || !user) {
     return (
@@ -82,17 +88,17 @@ export default function SessionPreferencesStep() {
             {/* Preferred Time */}
             <div className="space-y-4">
               <h3 className="text-base font-semibold text-gray-900 font-secondary">
-                What time would you like to have your therapy sessions?
+                What time would you like to have your therapy sessions? (Select all that apply)
               </h3>
               <div className="grid md:grid-cols-4 gap-4">
                 {preferredTimeOptions.map((option) => (
                   <Button
                     key={option}
                     type="button"
-                    variant={preferredTime === option ? "default" : "outline"}
-                    onClick={() => setPreferredTime(option)}
+                    variant={preferredTimes.includes(option) ? "default" : "outline"}
+                    onClick={() => handleTimeToggle(option)}
                     className={`h-12 rounded-xl font-secondary ${
-                      preferredTime === option
+                      preferredTimes.includes(option)
                         ? "bg-heyrafiki-green hover:bg-heyrafiki-green-dark text-white"
                         : "border-gray-300 text-gray-700 hover:bg-gray-50 bg-[#f5f5f5]"
                     }`}

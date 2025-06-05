@@ -2,46 +2,52 @@
 
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
+import { ArrowLeft, ArrowRight } from "lucide-react"
 
 interface StepNavigationProps {
   currentStep: number
   totalSteps: number
+  onComplete?: () => void
 }
 
-export default function StepNavigation({ currentStep, totalSteps }: StepNavigationProps) {
+export default function StepNavigation({ currentStep, totalSteps, onComplete }: StepNavigationProps) {
   const router = useRouter()
-
-  const handlePrevious = () => {
-    if (currentStep > 1) {
-      router.push(`/onboarding/step-${currentStep - 1}`)
-    }
-  }
 
   const handleNext = () => {
     if (currentStep < totalSteps) {
       router.push(`/onboarding/step-${currentStep + 1}`)
+    } else if (onComplete) {
+      onComplete()
+    } else {
+      router.push("/dashboard")
+    }
+  }
+
+  const handleBack = () => {
+    if (currentStep > 1) {
+      router.push(`/onboarding/step-${currentStep - 1}`)
+    } else {
+      router.push("/")
     }
   }
 
   return (
-    <div className="flex justify-between items-center mt-12 pt-8 border-t border-gray-100">
+    <div className="flex justify-between items-center mt-8">
       <Button
-        type="button"
+        onClick={handleBack}
         variant="outline"
-        onClick={handlePrevious}
         disabled={currentStep === 1}
-        className="px-8 py-3 rounded-full font-secondary font-medium border-gray-300 text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="border-heyrafiki-green text-heyrafiki-green hover:bg-whitesmoke hover:text-gray-900 rounded-xl font-secondary disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        Previous Step
+        <ArrowLeft className="w-4 h-4 mr-2" />
+        Back
       </Button>
-
       <Button
-        type="button"
         onClick={handleNext}
-        disabled={currentStep === totalSteps}
-        className="px-8 py-3 rounded-full font-secondary font-medium bg-heyrafiki-green hover:bg-heyrafiki-green-dark text-white disabled:opacity-50 disabled:cursor-not-allowed"
+        className="bg-heyrafiki-green hover:bg-heyrafiki-green/90 text-white rounded-xl font-secondary"
       >
-        {currentStep === totalSteps ? "Complete" : "Next Step"}
+        {currentStep === totalSteps ? "Finish" : "Next"}
+        <ArrowRight className="w-4 h-4 ml-2" />
       </Button>
     </div>
   )
