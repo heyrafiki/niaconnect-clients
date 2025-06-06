@@ -12,7 +12,10 @@ import { Separator } from "@/components/ui/separator"
 import { Eye, EyeOff } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
 
+import { useRouter } from "next/navigation"
+
 export default function ClientAuth() {
+  const router = useRouter()
   const [isSignUp, setIsSignUp] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
@@ -49,8 +52,9 @@ export default function ClientAuth() {
         return
       }
 
-      // Sign up and redirect to onboarding
+      // Sign up and redirect to verify OTP
       await signup(firstName, lastName, email, password)
+      router.push('/verify-otp')
     } else {
       // Login and redirect to dashboard
       await login(email, password)
@@ -89,7 +93,7 @@ export default function ClientAuth() {
 
         {/* Auth Card */}
         <div className="relative z-10 w-full max-w-md">
-          <Card className="backdrop-blur-xl bg-white/80 lg:bg-white/90 border-white/30 shadow-2xl rounded-3xl border-2">
+          <Card className="backdrop-blur-xl bg-[#f3fcf8] border-2 border-[#36B37E]/20 shadow-2xl rounded-3xl">
             <CardHeader className="text-center space-y-2 pb-4">
               <div className="flex justify-center mb-4">
                 <Image
