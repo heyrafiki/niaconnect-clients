@@ -87,7 +87,6 @@ This document describes the schema design and authentication/onboarding flows fo
 
 ---
 
-## 5. Flow Diagrams
 
 ### Email/Password:
 ```
