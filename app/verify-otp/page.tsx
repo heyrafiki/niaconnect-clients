@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
@@ -9,14 +9,33 @@ import { useEffect } from "react";
 
 export default function VerifyOTP() {
   const router = useRouter();
+  const params = useSearchParams();
+  const email = params.get("email") || "";
   const [otp, setOtp] = useState("");
   const [resendActive, setResendActive] = useState(true);
   const [resendCountdown, setResendCountdown] = useState(60);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   // Resend OTP handler with 60s countdown
-  const handleResend = () => {
+  const handleResend = async () => {
     setResendActive(false);
     setResendCountdown(60);
+    setError(null);
+    setSuccess(null);
+    try {
+      const res = await fetch("/api/auth/resend-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to resend OTP");
+      setSuccess("OTP resent successfully!");
+    } catch (err: any) {
+      setError(err.message || "Failed to resend OTP");
+    }
   };
 
   useEffect(() => {
@@ -44,9 +63,36 @@ export default function VerifyOTP() {
     return () => clearTimeout(timer);
   }, [resendActive, resendCountdown]);
 
-  // Dummy handler for verify
-  const handleVerify = () => {
-    router.push("/onboarding");
+  // Handler for OTP verification
+  const handleVerify = async () => {
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
+    try {
+      const res = await fetch("/api/auth/verify-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, otp })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "OTP verification failed");
+      const from = params.get("from");
+      if (from === "signup") {
+        setSuccess("Email verified! Redirecting to onboarding...");
+        setTimeout(() => {
+          router.push("/onboarding/step-1");
+        }, 1200);
+      } else {
+        setSuccess("Email verified! Please log in to continue.");
+        setTimeout(() => {
+          router.push("/auth/signin?verified=1&email=" + encodeURIComponent(email));
+        }, 1200);
+      }
+    } catch (err: any) {
+      setError(err.message || "OTP verification failed");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -95,6 +141,12 @@ export default function VerifyOTP() {
               <h2 className="text-2xl font-bold text-[#36B37E] mb-1">Verify Your Email</h2>
               <p className="text-gray-700 text-base mb-4">Enter the 6-digit code sent to your email to continue.</p>
             </div>
+            {/* Show error if email is missing from query param */}
+            {!email && (
+              <div className="w-full text-center text-red-600 font-medium mb-2">
+                Error: Email is missing from the link. Please use the verification link sent to your email.
+              </div>
+            )}
             {/* OTP Input Centered */}
             <InputOTP
               maxLength={6}
@@ -102,7 +154,7 @@ export default function VerifyOTP() {
               onChange={setOtp}
               className="justify-center gap-2"
               inputMode="numeric"
-              autoFocus
+              autoFocus={!!email}
               style={{ letterSpacing: '0.3em' }}
             >
               <InputOTPGroup>
@@ -111,12 +163,18 @@ export default function VerifyOTP() {
                 ))}
               </InputOTPGroup>
             </InputOTP>
+            {error && <div className="w-full text-center text-red-600 font-medium mb-2">{error}</div>}
+            {success && <div className="w-full text-center text-green-600 font-medium mb-2">{success}</div>}
             <Button
               type="submit"
               className="mt-2 w-full bg-[#36B37E] hover:bg-[#2e9e6f] text-white font-semibold rounded-xl text-base h-12 disabled:opacity-60 disabled:cursor-not-allowed"
-              disabled={otp.length !== 6}
+              disabled={otp.length !== 6 || !email || loading}
             >
-              Verify
+              {loading ? (
+                <span className="flex items-center justify-center gap-2"><svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path></svg>Verifying...</span>
+              ) : (
+                "Verify"
+              )}
             </Button>
             <Button
               type="button"

@@ -13,6 +13,7 @@ import { Eye, EyeOff } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
 
 import { useRouter } from "next/navigation"
+import { signIn } from "next-auth/react"
 
 export default function ClientAuth() {
   const router = useRouter()
@@ -29,6 +30,13 @@ export default function ClientAuth() {
 
   // Auth context
   const { login, signup, isLoading } = useAuth()
+
+  // Google sign-in handler
+  const handleGoogleSignIn = async () => {
+    await signIn("google", {
+      callbackUrl: "/onboarding/step-1"
+    });
+  }
 
   const toggleAuthMode = () => {
     setIsSignUp(!isSignUp)
@@ -54,7 +62,6 @@ export default function ClientAuth() {
 
       // Sign up and redirect to verify OTP
       await signup(firstName, lastName, email, password)
-      router.push('/verify-otp')
     } else {
       // Login and redirect to dashboard
       await login(email, password)
@@ -114,14 +121,15 @@ export default function ClientAuth() {
 
             <CardContent className="space-y-4 px-6 pb-6">
               {/* Google OAuth Button */}
-              <Button
-                variant="outline"
-                className="w-full h-11 border-gray-300 hover:bg-gray-50 text-gray-700 rounded-2xl font-secondary text-sm"
+              <button
+                type="button"
+                className="flex items-center justify-center gap-2 w-full border border-gray-200 rounded-xl py-3 font-semibold text-gray-700 bg-white hover:bg-gray-50 transition"
+                onClick={handleGoogleSignIn}
               >
-                <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
+                <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none">
                   <path
                     fill="#4285F4"
-                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                    d="M21.805 10.023h-9.18v3.955h5.44c-.235 1.249-1.422 3.667-5.44 3.667-3.275 0-5.95-2.713-5.95-6.045s2.675-6.045 5.95-6.045c1.864 0 3.12.797 3.838 1.48l2.626-2.556C17.06 2.91 14.77 2 12.001 2 6.477 2 2 6.477 2 12c0 5.523 4.477 10 10 10 5.236 0 9.67-3.885 9.67-9.34 0-.627-.07-1.098-.165-1.637z"
                   />
                   <path
                     fill="#34A853"
@@ -137,7 +145,7 @@ export default function ClientAuth() {
                   />
                 </svg>
                 Continue with Google
-              </Button>
+              </button>
 
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">

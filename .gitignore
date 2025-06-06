@@ -26,3 +26,4 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 prompts.txt
+heyrafiki-google-project.json

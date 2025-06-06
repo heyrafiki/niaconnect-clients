@@ -43,27 +43,36 @@ export default function PersonalInformationStep() {
 
   // Redirect if not authenticated
   useEffect(() => {
-    if (!isLoading && !user) {
-      router.push("/auth/client")
+    const params = new URLSearchParams(window.location.search);
+    const qpFirst = params.get("first_name");
+    const qpLast = params.get("last_name");
+    const qpEmail = params.get("email");
+    if (!isLoading && !user && !(qpFirst && qpLast && qpEmail)) {
+      router.push("/auth/client");
     }
-  }, [user, isLoading, router])
+  }, [user, isLoading, router]);
 
-  // Pre-fill data from auth context
+  // Pre-fill data from auth context or query params
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const qpFirst = params.get("first_name");
+    const qpLast = params.get("last_name");
+    const qpEmail = params.get("email");
     if (user) {
-      // Pre-fill name from signup
-      setFullName(`${user.firstName} ${user.lastName}`)
-      setEmail(user.email)
-
-      // Generate avatar placeholder
+      setFullName(`${user.firstName} ${user.lastName}`);
+      setEmail(user.email);
       if (!user.avatar) {
-        const generatedAvatar = generateAvatarUrl(user.firstName, user.lastName)
-        setAvatarUrl(generatedAvatar)
+        const generatedAvatar = generateAvatarUrl(user.firstName, user.lastName);
+        setAvatarUrl(generatedAvatar);
       } else {
-        setAvatarUrl(user.avatar)
+        setAvatarUrl(user.avatar);
       }
+    } else if (qpFirst && qpLast && qpEmail) {
+      setFullName(`${qpFirst} ${qpLast}`);
+      setEmail(qpEmail);
+      setAvatarUrl(generateAvatarUrl(qpFirst, qpLast));
     }
-  }, [user])
+  }, [user]);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]

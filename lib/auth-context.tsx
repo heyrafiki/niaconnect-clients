@@ -5,12 +5,12 @@ import { createContext, useContext, useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 
 interface User {
-  id?: string
-  firstName: string
-  lastName: string
-  email: string
-  avatar?: string
-  isOnboarded?: boolean
+  id?: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  avatar?: string;
+  isOnboarded?: boolean;
 }
 
 interface AuthContextType {
@@ -28,65 +28,79 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
 
-  // Check if user is logged in on mount
+  // No persistent login for now; session handled server-side
   useEffect(() => {
-    const storedUser = localStorage.getItem("heyrafiki_client_user")
-    if (storedUser) {
-      setUser(JSON.parse(storedUser))
-    }
-    setIsLoading(false)
+    setIsLoading(false);
   }, [])
 
-  // Mock login function
   const login = async (email: string, password: string) => {
-    setIsLoading(true)
-    try {
-      // In a real app, this would be an API call to your shared database
-      const mockUser = {
-        id: "client_" + Math.random().toString(36).substr(2, 9),
-        firstName: "Demo",
-        lastName: "Client",
-        email: email,
-        isOnboarded: true, // Existing users are already onboarded
+  setIsLoading(true)
+  try {
+    const res = await fetch("/api/auth/signin", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      if (data.error === 'Email not verified. Please verify your email via OTP.') {
+        router.push("/verify-otp?email=" + encodeURIComponent(email) + "&from=signin");
+        return;
       }
-
-      setUser(mockUser)
-      localStorage.setItem("heyrafiki_client_user", JSON.stringify(mockUser))
-      router.push("/dashboard")
-    } catch (error) {
-      console.error("Login failed:", error)
-    } finally {
-      setIsLoading(false)
+      throw new Error(data.error || "Signin failed");
     }
+    const user = data.user;
+    setUser({
+      id: user.id,
+      firstName: user.first_name || '',
+      lastName: user.last_name || '',
+      email: user.email,
+      isOnboarded: user.onboarding?.completed || false
+    });
+    // Redirect logic
+    if (!user.is_verified) {
+      router.push("/verify-otp?email=" + encodeURIComponent(user.email));
+    } else if (!user.onboarding?.completed) {
+      router.push("/onboarding/step-1");
+    } else {
+      router.push("/dashboard");
+    }
+  } catch (error: any) {
+    alert(error.message || "Login failed");
+  } finally {
+    setIsLoading(false);
   }
+}
 
-  // Mock signup function
   const signup = async (firstName: string, lastName: string, email: string, password: string) => {
-    setIsLoading(true)
-    try {
-      // In a real app, this would be an API call to your shared database
-      const newUser = {
-        id: "client_" + Math.random().toString(36).substr(2, 9),
-        firstName,
-        lastName,
-        email,
-        isOnboarded: false, // New users need to complete onboarding
-      }
-
-      setUser(newUser)
-      localStorage.setItem("heyrafiki_client_user", JSON.stringify(newUser))
-      router.push("/onboarding/step-1")
-    } catch (error) {
-      console.error("Signup failed:", error)
-    } finally {
-      setIsLoading(false)
-    }
+  setIsLoading(true);
+  try {
+    const res = await fetch("/api/auth/signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ first_name: firstName, last_name: lastName, email, password })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Signup failed");
+    // User is not verified yet, redirect to OTP page
+    setUser({
+      id: data.user.id,
+      firstName,
+      lastName,
+      email,
+      isOnboarded: false
+    });
+    router.push("/verify-otp?email=" + encodeURIComponent(email));
+  } catch (error: any) {
+    alert(error.message || "Signup failed");
+  } finally {
+    setIsLoading(false);
   }
+}
 
   const logout = () => {
-    setUser(null)
-    localStorage.removeItem("heyrafiki_client_user")
-    router.push("/")
+    setUser(null);
+    router.push("/");
   }
 
   return <AuthContext.Provider value={{ user, isLoading, login, signup, logout }}>{children}</AuthContext.Provider>
