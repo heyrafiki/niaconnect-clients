@@ -50,13 +50,9 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async redirect({ url, baseUrl, account, user }) {
-      // After Google sign-in, redirect to onboarding with autofill if possible
-      if (account?.provider === "google" && user) {
-        const params = new URLSearchParams();
-        if (user.first_name) params.append("first_name", user.first_name);
-        if (user.last_name) params.append("last_name", user.last_name);
-        if (user.email) params.append("email", user.email);
-        return `${baseUrl}/onboarding/step-1?${params.toString()}`;
+      // Always redirect Google sign-in to onboarding step-1
+      if (account?.provider === "google") {
+        return `${baseUrl}/onboarding/step-1`;
       }
       return url.startsWith(baseUrl) ? url : baseUrl;
     },

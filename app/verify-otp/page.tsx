@@ -77,13 +77,13 @@ export default function VerifyOTP() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "OTP verification failed");
       const from = params.get("from");
-      if (from === "signup") {
+      if (from === "signup" || from === "signin") {
         setSuccess("Email verified! Redirecting to onboarding...");
         setTimeout(() => {
           router.push("/onboarding/step-1");
         }, 1200);
       } else {
-        setSuccess("Email verified! Please log in to continue.");
+        setSuccess("Email verified. Redirecting");
         setTimeout(() => {
           router.push("/auth/signin?verified=1&email=" + encodeURIComponent(email));
         }, 1200);

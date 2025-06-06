@@ -59,7 +59,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
     // Redirect logic
     if (!user.is_verified) {
-      router.push("/verify-otp?email=" + encodeURIComponent(user.email));
+      router.push("/verify-otp?email=" + encodeURIComponent(user.email) + "&from=signin");
     } else if (!user.onboarding?.completed) {
       router.push("/onboarding/step-1");
     } else {
@@ -90,7 +90,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       email,
       isOnboarded: false
     });
-    router.push("/verify-otp?email=" + encodeURIComponent(email));
+    router.push("/verify-otp?email=" + encodeURIComponent(email) + "&from=signup");
   } catch (error: any) {
     alert(error.message || "Signup failed");
   } finally {
