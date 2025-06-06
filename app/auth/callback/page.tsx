@@ -1,20 +1,43 @@
 "use client"
 
 import { useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 
 export default function AuthCallback() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const error = searchParams.get('error')
+  const errorDescription = searchParams.get('error_description')
 
   useEffect(() => {
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (!session) {
-        router.push('/auth')
+    const handleCallback = async () => {
+      // Check for OAuth errors first
+      if (error) {
+        console.error('OAuth error details:', {
+          error,
+          errorDescription,
+          searchParams: Object.fromEntries(searchParams.entries())
+        })
+        router.push(`/auth/error?message=${encodeURIComponent(errorDescription || 'Authentication failed')}`)
         return
       }
 
       try {
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+        
+        if (sessionError) {
+          console.error('Session error:', sessionError)
+          router.push('/auth/error?message=Failed to get session')
+          return
+        }
+
+        if (!session) {
+          console.error('No session found')
+          router.push('/auth')
+          return
+        }
+
         // Check if profile exists
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
@@ -22,51 +45,56 @@ export default function AuthCallback() {
           .eq('id', session.user.id)
           .single()
 
-        if (profileError && !profileError.message.includes('not found')) {
-          throw profileError
+        if (profileError && profileError.code !== 'PGRST116') { // Not found error
+          console.error('Profile check error:', profileError)
+          router.push('/auth/error?message=Failed to check profile')
+          return
         }
 
         if (profile) {
           // Profile exists, redirect based on onboarding status
           router.push(profile.is_onboarded ? '/dashboard' : '/onboarding/step-1')
-        } else {
-          // Get user metadata
-          const firstName = session.user.user_metadata.full_name?.split(' ')[0] || 
-                          session.user.user_metadata.given_name || 
-                          session.user.user_metadata.name?.split(' ')[0] || ''
-          
-          const lastName = session.user.user_metadata.full_name?.split(' ').slice(1).join(' ') || 
-                         session.user.user_metadata.family_name || 
-                         session.user.user_metadata.name?.split(' ').slice(1).join(' ') || ''
-
-          // Create profile for new user
-          const { error: insertError } = await supabase
-            .from('profiles')
-            .insert({
-              id: session.user.id,
-              email: session.user.email,
-              first_name: firstName,
-              last_name: lastName,
-              role: 'client',
-              is_onboarded: false,
-              email_verified: true // Google OAuth users are pre-verified
-            })
-
-          if (insertError) {
-            console.error('Error creating profile:', insertError)
-            throw new Error(`Failed to create profile: ${insertError.message}`)
-          }
-
-          // Redirect to onboarding
-          router.push('/onboarding/step-1')
+          return
         }
-      } catch (error) {
-        console.error('Error in auth callback:', error)
-        // Redirect to auth page with error message
-        router.push(`/auth?error=${encodeURIComponent(error.message)}`)
+
+        // Get user's name from Google metadata
+        const firstName = session.user.user_metadata.full_name?.split(' ')[0] || ''
+        const lastName = session.user.user_metadata.full_name?.split(' ').slice(1).join(' ') || ''
+
+        // Create profile using server API
+        const response = await fetch('/api/auth/google-signup', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userId: session.user.id,
+            email: session.user.email,
+            firstName,
+            lastName
+          })
+        })
+
+        const result = await response.json()
+        
+        if (!response.ok) {
+          console.error('Profile creation error:', result)
+          // If profile creation fails, clean up by signing out
+          await supabase.auth.signOut()
+          router.push('/auth/error?message=Failed to create profile')
+          return
+        }
+
+        // Redirect to onboarding
+        router.push('/onboarding/step-1')
+      } catch (error: any) {
+        console.error('Callback error:', error)
+        router.push('/auth/error?message=Unexpected error occurred')
       }
-    })
-  }, [router])
+    }
+
+    handleCallback()
+  }, [router, error, errorDescription])
 
   return (
     <div className="flex min-h-screen items-center justify-center">
