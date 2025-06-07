@@ -1,107 +1,179 @@
 # Authentication & Onboarding Flow — niaconnect-clients
 
 ## Overview
-This document describes the schema design and authentication/onboarding flows for the niaconnect-clients app, covering both Email/Password and Google OAuth methods. It also specifies which fields are required at each stage, and how onboarding data is handled.
+This document describes the implemented authentication and onboarding flows for the niaconnect-clients app, covering both Email/Password and Google OAuth methods. It details the schema design, authentication flows, session handling, and onboarding process.
 
 ---
 
-## 1. User Schema Design (`clients` table)
+## 1. Database Schema (`clients` collection)
 
 | Field         | Type      | Required | Description                                   |
 |-------------- |---------- |----------|-----------------------------------------------|
-| id            | UUID      | Yes      | Primary key                                   |
+| _id           | ObjectId  | Yes      | Primary key (MongoDB)                         |
 | email         | String    | Yes      | Unique, indexed                               |
-| password_hash | String    | No       | Only for email/password users                 |
-| first_name    | String    | No       | Populated from signup or Google OAuth         |
-| last_name     | String    | No       | Populated from signup or Google OAuth         |
-| is_verified   | Boolean   | Yes      | True if email verified (OTP or Google)        |
-| provider      | Enum      | Yes      | 'email' or 'google'                           |
-| created_at    | Timestamp | Yes      |                                               |
-| updated_at    | Timestamp | Yes      |                                               |
-| onboarding    | JSONB     | No       | All onboarding data (see below)               |
+| password_hash | String    | No       | Bcrypt hash, only for email users            |
+| first_name    | String    | No       | From signup form or Google profile           |
+| last_name     | String    | No       | From signup form or Google profile           |
+| is_verified   | Boolean   | Yes      | Default false for email, true for Google     |
+| provider      | Enum      | Yes      | 'email' or 'google'                          |
+| otp           | String    | No       | 6-digit code for email verification          |
+| otp_expiry    | Date      | No       | OTP expiration (10 minutes)                  |
+| created_at    | Date      | Yes      | Auto-set on creation                         |
+| updated_at    | Date      | Yes      | Auto-updated on changes                      |
+| onboarding    | Object    | No       | Onboarding progress and data                 |
 
-- `last_name` is optional to support Google accounts without a last name.
-- `onboarding` holds all onboarding steps as a JSON object. None of its fields are mandatory at the DB level.
-
----
-
-## 2. Authentication Flow
-
-### Email/Password
-1. User signs up with email, password, first name, (optionally last name).
-2. Account is created with `is_verified = false`.
-3. User is redirected to the OTP verification page.
-4. After entering the correct OTP, `is_verified` is set to `true`.
-5. User is redirected to onboarding (step 1).
-
-### Google OAuth
-1. User signs in with Google.
-2. Extract email, first name, last name (if available) from Google profile.
-3. Account is created or found (upsert) with `is_verified = true`, `provider = 'google'`.
-4. User is redirected directly to onboarding (no OTP required).
+### Schema Notes:
+- MongoDB is used as the database with Mongoose for schema management
+- Indexes: email (unique)
+- The onboarding object tracks completion status and step data
+- OTP fields are only used for email authentication
 
 ---
 
-## 3. Onboarding Flow
-- Steps: step-1, step-2, step-3, step-4 (all optional fields)
-- Data is stored in local storage until the final step.
-- On completion, onboarding data is saved to the `onboarding` field in the DB.
-- No onboarding fields are required at the DB level, to avoid blocking account creation.
+## 2. Authentication Flows
 
-### Example `onboarding` JSON structure:
-```json
+### Google OAuth Flow
+1. User clicks "Continue with Google"
+2. NextAuth handles Google OAuth flow
+3. On success:
+   - Check if user exists in database
+   - If new user:
+     - Create user record with Google profile data
+     - Set is_verified = true
+     - Initialize empty onboarding object
+   - Create JWT session with:
+     - User ID, email, name
+     - Google profile picture
+     - Provider = "google"
+4. Redirect to /onboarding/step-1 with:
+   - Autofilled name from Google profile
+   - Autofilled email
+   - Google profile picture as avatar
+
+### Email Signup Flow
+1. User fills signup form (email, password, name)
+2. Backend:
+   - Validates input
+   - Checks for existing email
+   - Hashes password
+   - Generates 6-digit OTP
+   - Creates user with is_verified = false
+3. Redirect to OTP verification with:
+   - Email in query params
+   - Password stored in sessionStorage
+4. After OTP verification:
+   - Update user is_verified = true
+   - Create session using stored credentials
+   - Clear sessionStorage
+5. Redirect to /onboarding/step-1 with:
+   - Autofilled name from signup
+   - Autofilled email
+   - Generated avatar based on name
+
+### Email Sign-in Flow
+1. User enters email/password
+2. If user exists and is verified:
+   - Create session
+   - Redirect to /onboarding/step-1 or dashboard
+3. If user exists but not verified:
+   - Store password in sessionStorage
+   - Redirect to OTP verification
+4. After OTP verification:
+   - Same as signup flow verification
+
+---
+
+## 3. Session Management
+
+### JWT Session Structure
+```typescript
 {
-  "step1": { ... },
-  "step2": { ... },
-  "step3": { ... },
-  "step4": { ... }
+  user: {
+    id: string;
+    email: string;
+    first_name: string;
+    last_name: string;
+    image?: string;        // Google profile picture URL
+    provider: string;      // "google" or "email"
+    onboarding: {
+      completed: boolean;
+      // other onboarding data
+    }
+  }
 }
 ```
 
----
-
-## 4. Handling Incomplete Signup States
-
-### 1. Account Created but Not Verified
-- If a user tries to sign in and their email is not verified (`is_verified = false`):
-  - Redirect them to the OTP verification page.
-  - Do not allow access to onboarding or dashboard until verified.
-
-### 2. Account Verified but Onboarding Not Started/Completed
-- If a user is verified (`is_verified = true`) but has not started or completed onboarding:
-  - Redirect them to the onboarding process (resume from last incomplete step if possible).
-  - Do not allow access to dashboard until onboarding is complete.
-
-### 3. Account Verified and Onboarding Complete
-- If a user is verified and onboarding is complete:
-  - Redirect them to the dashboard upon signin.
+### Session Handling
+- JWT strategy used for session management
+- Session data available on both client and server
+- Includes provider-specific data (Google profile picture)
+- Stores onboarding progress
 
 ---
 
-## 5. Best Practices & Improvements
-- Never require onboarding fields at the DB level.
-- Always set `is_verified = true` for Google users, skip OTP.
-- Allow users to skip onboarding and complete later.
-- Store all onboarding data in a single JSONB field for flexibility.
-- Use upsert logic for Google sign-in to avoid duplicate accounts.
+## 4. Onboarding Flow
+
+### Step 1: Personal Information
+- Pre-filled data based on auth method:
+  - Google: name, email, profile picture
+  - Email: name, email, generated avatar
+- Additional fields:
+  - Phone number
+  - Gender
+  - Date of birth
+  - Country
+
+### Steps 2-4
+[Details of other onboarding steps...]
+
+### Data Storage
+- Form data stored in local storage during steps
+- Final submission saves to database
+- Onboarding object tracks completion status
 
 ---
 
+## 5. Security Considerations
 
-### Email/Password:
-```
-Signup → OTP Verify → Onboarding (step 1-4) → Dashboard
-```
+### Password Handling
+- Passwords hashed using bcrypt (10 rounds)
+- Never stored in plain text
+- Temporary storage in sessionStorage only during OTP flow
 
-### Google OAuth:
-```
-Google Signin → Onboarding (step 1-4) → Dashboard
-```
+### OTP Verification
+- 6-digit numeric code
+- 10-minute expiration
+- Required for all email signups
+- Required for unverified email sign-ins
+
+### Session Security
+- JWT-based sessions
+- Configured secure cookie handling
+- Provider information tracked to prevent method mixing
 
 ---
 
-## 6. Notes
-- All fields except `email`, `id`, `provider`, `is_verified`, and timestamps are optional.
-- Password is only stored for email/password users.
-- Google users never need OTP verification.
-- Onboarding can be resumed at any time.
+## 6. Frontend Components
+
+### Auth Components
+- ClientAuth: Main authentication component
+- OTP verification component
+- Onboarding step components
+
+### Protected Routes
+- Onboarding routes check authentication
+- Dashboard requires completed onboarding
+- Auth pages redirect if already authenticated
+
+---
+
+## 7. API Routes
+
+### Authentication
+- /api/auth/[...nextauth] - NextAuth handler
+- /api/auth/signup - Email signup
+- /api/auth/signin - Email signin
+- /api/auth/verify-otp - OTP verification
+
+### Onboarding
+[Details of onboarding API routes...]
