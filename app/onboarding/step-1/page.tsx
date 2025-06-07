@@ -74,22 +74,23 @@ export default function PersonalInformationStep() {
 
     if (sessionUser) {
       // Try to get full name from various sources
-      let firstName = (sessionUser as any).first_name ?? (sessionUser as any).firstName;
-      let lastName = (sessionUser as any).last_name ?? (sessionUser as any).lastName;
+      let firstName = (sessionUser as any).first_name ?? sessionUser.first_name;
+      let lastName = (sessionUser as any).last_name ?? sessionUser.last_name;
+      
+      // If first/last name not available, try to split full name
       if (!firstName || !lastName) {
-        // Fallback: split name if available
         if (sessionUser.name) {
           const parts = sessionUser.name.split(" ");
           firstName = parts[0] ?? "";
           lastName = parts.slice(1).join(" ") ?? "";
         }
       }
+      
       setFullName(`${firstName ?? ""} ${lastName ?? ""}`.trim());
       setEmail(sessionUser.email ?? "");
-      // Prefer avatar, then image, then generated
-      if ((sessionUser as any).avatar) {
-        setAvatarUrl((sessionUser as any).avatar);
-      } else if (sessionUser.image) {
+      
+      // For avatar: prefer Google profile image, then fall back to generated
+      if (sessionUser.image) {
         setAvatarUrl(sessionUser.image);
       } else {
         setAvatarUrl(generateAvatarUrl(firstName ?? "", lastName ?? ""));
@@ -97,11 +98,10 @@ export default function PersonalInformationStep() {
     } else if (user) {
       setFullName(`${user.firstName} ${user.lastName}`);
       setEmail(user.email);
-      if (!user.avatar) {
-        const generatedAvatar = generateAvatarUrl(user.firstName, user.lastName);
-        setAvatarUrl(generatedAvatar);
-      } else {
+      if (user.avatar) {
         setAvatarUrl(user.avatar);
+      } else {
+        setAvatarUrl(generateAvatarUrl(user.firstName, user.lastName));
       }
     } else if (qpFirst && qpLast && qpEmail) {
       setFullName(`${qpFirst} ${qpLast}`);
@@ -152,7 +152,13 @@ export default function PersonalInformationStep() {
                 {/* Avatar Preview */}
                 <div className="relative w-24 h-24 rounded-full overflow-hidden border-2 border-heyrafiki-green">
                   {avatarUrl && (
-                    <Image src={avatarUrl || "/placeholder.svg"} alt="Profile avatar" fill className="object-cover" />
+                    <Image 
+                      src={avatarUrl} 
+                      alt="Profile avatar" 
+                      fill 
+                      className="object-cover"
+                      unoptimized={avatarUrl.startsWith('http')} // Skip optimization for external URLs
+                    />
                   )}
                 </div>
 

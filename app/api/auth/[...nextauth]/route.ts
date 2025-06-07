@@ -49,17 +49,35 @@ export const authOptions: NextAuthOptions = {
     // NextAuth will handle Google callback automatically
   },
   callbacks: {
-    async redirect({ url, baseUrl, account, user }) {
-      // For Google sign-in, always redirect to onboarding/step-1 with user info
-      if (account?.provider === "google") {
-        const params = new URLSearchParams({
-          first_name: user.first_name || '',
-          last_name: user.last_name || '',
-          email: user.email || ''
-        });
-        return `${baseUrl}/onboarding/step-1?${params.toString()}`;
+    async jwt({ token, user, account, profile }) {
+      if (account?.provider === "google" && profile) {
+        token.provider = "google";
+        token.picture = profile.picture;
+        token.id = user?.id;
+        token.email = profile.email;
+        token.first_name = user?.first_name || profile.given_name;
+        token.last_name = user?.last_name || profile.family_name;
+        token.onboarding = user?.onboarding;
       }
-      return url.startsWith(baseUrl) ? url : baseUrl;
+      return token;
+    },
+    async session({ session, token }) {
+      if (token) {
+        session.user.id = token.id;
+        session.user.email = token.email;
+        session.user.image = token.picture;
+        session.user.first_name = token.first_name;
+        session.user.last_name = token.last_name;
+        session.user.provider = token.provider;
+        session.user.onboarding = token.onboarding;
+      }
+      return session;
+    },
+    async redirect({ url, baseUrl }) {
+      if (url.startsWith(baseUrl)) {
+        return url;
+      }
+      return `${baseUrl}/onboarding/step-1`;
     },
     async signIn({ user, account, profile, email }) {
       // Only handle Google provider
@@ -88,27 +106,8 @@ export const authOptions: NextAuthOptions = {
       }
       return true;
     },
-    async jwt({ token, user, account }) {
-      if (user) {
-        token.id = user.id;
-        token.email = user.email;
-        token.first_name = user.first_name;
-        token.last_name = user.last_name;
-        token.onboarding = user.onboarding;
-        token.provider = account?.provider;
-      }
-      return token;
-    },
-    async session({ session, token }) {
-      if (token) {
-        session.user.id = token.id;
-        session.user.email = token.email;
-        session.user.first_name = token.first_name;
-        session.user.last_name = token.last_name;
-        session.user.onboarding = token.onboarding;
-        session.provider = token.provider;
-      }
-      return session;
+    async signOut({ user }) {
+      // Implement signOut logic
     }
   },
   events: {

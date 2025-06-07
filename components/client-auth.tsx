@@ -33,9 +33,14 @@ export default function ClientAuth() {
 
   // Google sign-in handler
   const handleGoogleSignIn = async () => {
-    await signIn("google", {
-      callbackUrl: "/onboarding/step-1"
-    });
+    try {
+      await signIn("google", {
+        callbackUrl: "/onboarding/step-1",
+        redirect: true,
+      });
+    } catch (error: any) {
+      alert(error.message || "Google sign-in failed");
+    }
   }
 
   const toggleAuthMode = () => {
