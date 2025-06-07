@@ -10,10 +10,11 @@ import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { User, Upload } from "lucide-react"
 import StepNavigation from "@/components/onboarding/step-navigation"
-import { useAuth } from "@/lib/auth-context"
 import { useRouter } from "next/navigation"
 import { generateAvatarUrl } from "@/lib/avatar-utils"
 import Image from "next/image"
+import { useSession } from "next-auth/react"
+import { useAuth } from "@/lib/auth-context"
 
 const genderOptions = ["Male", "Female", "Non-binary", "Prefer not to say", "Other"]
 const countryOptions = [
@@ -29,7 +30,8 @@ const countryOptions = [
 ]
 
 export default function PersonalInformationStep() {
-  const { user, isLoading } = useAuth()
+  const { user, isLoading: isAuthLoading } = useAuth()
+  const { data: session, status } = useSession();
   const router = useRouter()
 
   const [profilePicture, setProfilePicture] = useState<File | null>(null)
@@ -41,24 +43,58 @@ export default function PersonalInformationStep() {
   const [dateOfBirth, setDateOfBirth] = useState("")
   const [country, setCountry] = useState("")
 
-  // Redirect if not authenticated
+  // Wait for session/context to load, then redirect if truly unauthenticated
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const qpFirst = params.get("first_name");
     const qpLast = params.get("last_name");
     const qpEmail = params.get("email");
-    if (!isLoading && !user && !(qpFirst && qpLast && qpEmail)) {
-      router.push("/auth/client");
-    }
-  }, [user, isLoading, router]);
+    const sessionUser = session?.user;
 
-  // Pre-fill data from auth context or query params
+    // Wait for both session and auth context to be ready
+    if (!isAuthLoading && status !== "loading") {
+      if (
+        status === "unauthenticated" &&
+        !sessionUser &&
+        !user &&
+        !(qpFirst && qpLast && qpEmail)
+      ) {
+        router.push("/auth/client");
+      }
+    }
+  }, [user, status, session, isAuthLoading, router]);
+
+  // Pre-fill from session, context, or query params
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const qpFirst = params.get("first_name");
     const qpLast = params.get("last_name");
     const qpEmail = params.get("email");
-    if (user) {
+    const sessionUser = session?.user;
+
+    if (sessionUser) {
+      // Try to get full name from various sources
+      let firstName = (sessionUser as any).first_name ?? (sessionUser as any).firstName;
+      let lastName = (sessionUser as any).last_name ?? (sessionUser as any).lastName;
+      if (!firstName || !lastName) {
+        // Fallback: split name if available
+        if (sessionUser.name) {
+          const parts = sessionUser.name.split(" ");
+          firstName = parts[0] ?? "";
+          lastName = parts.slice(1).join(" ") ?? "";
+        }
+      }
+      setFullName(`${firstName ?? ""} ${lastName ?? ""}`.trim());
+      setEmail(sessionUser.email ?? "");
+      // Prefer avatar, then image, then generated
+      if ((sessionUser as any).avatar) {
+        setAvatarUrl((sessionUser as any).avatar);
+      } else if (sessionUser.image) {
+        setAvatarUrl(sessionUser.image);
+      } else {
+        setAvatarUrl(generateAvatarUrl(firstName ?? "", lastName ?? ""));
+      }
+    } else if (user) {
       setFullName(`${user.firstName} ${user.lastName}`);
       setEmail(user.email);
       if (!user.avatar) {
@@ -72,7 +108,7 @@ export default function PersonalInformationStep() {
       setEmail(qpEmail);
       setAvatarUrl(generateAvatarUrl(qpFirst, qpLast));
     }
-  }, [user]);
+  }, [session, user]);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -84,7 +120,8 @@ export default function PersonalInformationStep() {
     }
   }
 
-  if (isLoading || !user) {
+  // Show loading spinner if session or context is loading
+  if (status === "loading" || isAuthLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -92,7 +129,7 @@ export default function PersonalInformationStep() {
           <p className="mt-4 text-gray-600">Loading...</p>
         </div>
       </div>
-    )
+    );
   }
 
   return (

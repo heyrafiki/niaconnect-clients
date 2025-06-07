@@ -1,8 +1,8 @@
 import type React from "react"
 import type { Metadata } from "next"
 import { figtree, plusJakartaSans } from "@/lib/fonts"
-import { AuthProvider } from "@/lib/auth-context"
 import "./globals.css"
+import Providers from "@/components/Providers"
 
 export const metadata: Metadata = {
   title: "Heyrafiki - Mental Health Support",
@@ -18,7 +18,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${figtree.variable} ${plusJakartaSans.variable}`}>
       <body className={figtree.className}>
-        <AuthProvider>{children}</AuthProvider>
+        <Providers>{children}</Providers>
       </body>
     </html>
   )

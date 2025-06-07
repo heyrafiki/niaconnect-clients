@@ -50,9 +50,14 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async redirect({ url, baseUrl, account, user }) {
-      // Always redirect Google sign-in to onboarding step-1
+      // For Google sign-in, always redirect to onboarding/step-1 with user info
       if (account?.provider === "google") {
-        return `${baseUrl}/onboarding/step-1`;
+        const params = new URLSearchParams({
+          first_name: user.first_name || '',
+          last_name: user.last_name || '',
+          email: user.email || ''
+        });
+        return `${baseUrl}/onboarding/step-1?${params.toString()}`;
       }
       return url.startsWith(baseUrl) ? url : baseUrl;
     },
@@ -74,20 +79,23 @@ export const authOptions: NextAuthOptions = {
             updated_at: new Date(),
           });
         }
+        // Ensure user object has all required fields
         user.id = existing._id.toString();
         user.first_name = existing.first_name;
         user.last_name = existing.last_name;
         user.onboarding = existing.onboarding;
+        user.email = existing.email;
       }
       return true;
     },
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
       if (user) {
         token.id = user.id;
         token.email = user.email;
         token.first_name = user.first_name;
         token.last_name = user.last_name;
         token.onboarding = user.onboarding;
+        token.provider = account?.provider;
       }
       return token;
     },
@@ -98,6 +106,7 @@ export const authOptions: NextAuthOptions = {
         session.user.first_name = token.first_name;
         session.user.last_name = token.last_name;
         session.user.onboarding = token.onboarding;
+        session.provider = token.provider;
       }
       return session;
     }

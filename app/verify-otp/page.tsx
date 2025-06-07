@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import { signIn } from "next-auth/react";
 
 import { useEffect } from "react";
 
@@ -76,18 +77,31 @@ export default function VerifyOTP() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "OTP verification failed");
-      const from = params.get("from");
-      if (from === "signup" || from === "signin") {
-        setSuccess("Email verified! Redirecting to onboarding...");
-        setTimeout(() => {
-          router.push("/onboarding/step-1");
-        }, 1200);
-      } else {
-        setSuccess("Email verified. Redirecting");
-        setTimeout(() => {
-          router.push("/auth/signin?verified=1&email=" + encodeURIComponent(email));
-        }, 1200);
+      
+      setSuccess("Email verified! Signing you in...");
+      
+      // Get password from session storage
+      const password = sessionStorage.getItem('temp_auth_password');
+      if (!password) {
+        throw new Error("Authentication data not found. Please try signing in again.");
       }
+
+      // Sign in directly using NextAuth after verification
+      const signInResult = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (signInResult?.error) {
+        throw new Error(signInResult.error);
+      }
+
+      // Clear temporary auth data
+      sessionStorage.removeItem('temp_auth_password');
+
+      // Redirect to onboarding after successful sign in
+      router.push("/onboarding/step-1");
     } catch (err: any) {
       setError(err.message || "OTP verification failed");
     } finally {
