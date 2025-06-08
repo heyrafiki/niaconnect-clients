@@ -16,10 +16,20 @@ export async function POST(req: NextRequest) {
   console.log('[ONBOARDING] Email:', email);
   console.log('[ONBOARDING] Incoming data:', data);
   try {
-    const update = { onboarding: { ...data, completed: true } };
+    // Ensure arrays are always set, even if missing from data
+    const onboardingUpdate: any = { ...data, completed: true };
+    if (!Array.isArray(onboardingUpdate.therapy_reasons)) onboardingUpdate.therapy_reasons = data.selectedReasons || [];
+    if (!Array.isArray(onboardingUpdate.session_types)) onboardingUpdate.session_types = data.sessionTypes || [];
+    if (!Array.isArray(onboardingUpdate.preferred_times)) onboardingUpdate.preferred_times = data.preferredTimes || [];
+
+    // Remove any legacy fields to avoid duplication
+    delete onboardingUpdate.selectedReasons;
+    delete onboardingUpdate.sessionTypes;
+    delete onboardingUpdate.preferredTimes;
+
     const updated = await Client.findOneAndUpdate(
       { email },
-      { $set: update },
+      { $set: { onboarding: onboardingUpdate } },
       { new: true }
     );
     if (!updated) {
