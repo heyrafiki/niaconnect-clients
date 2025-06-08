@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Client from '@/models/client';
 import bcrypt from 'bcryptjs';
+import { validateClientEmail } from '@/lib/account-validation';
 
 export async function POST(req: NextRequest) {
   try {
@@ -10,6 +11,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Email and password are required.' }, { status: 400 });
     }
     await dbConnect();
+
+    // First check if email exists in experts collection
+    const expertValidation = await validateClientEmail(email);
+    if (expertValidation) {
+      return expertValidation;
+    }
+
     const existing = await Client.findOne({ email });
     if (existing) {
       return NextResponse.json({ error: 'Email already registered.' }, { status: 409 });
@@ -30,7 +38,6 @@ export async function POST(req: NextRequest) {
       created_at: new Date(),
       updated_at: new Date()
     });
-    console.log('Created user:', user);
 
     // Send OTP email using nodemailer
     try {

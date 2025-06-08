@@ -3,6 +3,11 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import dbConnect from "@/lib/mongodb";
 import Client from "@/models/client";
+import mongoose from "mongoose";
+
+// Minimal Expert model for cross-check
+const ExpertSchema = new mongoose.Schema({ email: { type: String, required: true, unique: true } });
+const ExpertValidation = mongoose.models.Expert || mongoose.model('Expert', ExpertSchema);
 import bcrypt from "bcryptjs";
 import { NextAuthOptions } from "next-auth";
 
@@ -58,6 +63,14 @@ export const authOptions: NextAuthOptions = {
         token.first_name = user?.first_name || profile.given_name;
         token.last_name = user?.last_name || profile.family_name;
         token.onboarding = user?.onboarding;
+      } else if (user) {
+        // Always set fullname for email signin/signup
+        token.first_name = user.first_name || "";
+        token.last_name = user.last_name || "";
+        token.id = user.id;
+        token.email = user.email;
+        token.provider = user.provider || "email";
+        token.onboarding = user.onboarding;
       }
       return token;
     },
@@ -83,6 +96,12 @@ export const authOptions: NextAuthOptions = {
       // Only handle Google provider
       if (account?.provider === "google") {
         await dbConnect();
+        // Cross-check Expert collection
+        const expertExists = await ExpertValidation.findOne({ email: user.email });
+        if (expertExists) {
+          // Block sign in if email exists as expert
+          throw new Error("This email is already registered as an expert. Please use a different account.");
+        }
         let existing = await Client.findOne({ email: user.email, provider: "google" });
         if (!existing) {
           // Create user if doesn't exist
