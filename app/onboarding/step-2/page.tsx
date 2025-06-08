@@ -22,6 +22,25 @@ const therapyReasonOptions = [
 export default function TherapyReasonsStep() {
   const [selectedReasons, setSelectedReasons] = useState<string[]>([])
 
+  // Restore from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem("onboarding_step2");
+    if (saved) {
+      try {
+        const data = JSON.parse(saved);
+        setSelectedReasons(data.selectedReasons || []);
+        // Force re-render in case of hydration issues
+        // This is a workaround for some React/Next.js hydration bugs
+        setTimeout(() => setSelectedReasons((prev) => [...prev]), 0);
+      } catch {}
+    }
+  }, []);
+
+  // Save to localStorage on change
+  useEffect(() => {
+    localStorage.setItem("onboarding_step2", JSON.stringify({ selectedReasons }));
+  }, [selectedReasons]);
+
   const handleReasonChange = (reason: string, checked: boolean) => {
     if (checked) {
       setSelectedReasons((prev) => [...prev, reason])
@@ -53,16 +72,15 @@ export default function TherapyReasonsStep() {
                     id={reason}
                     checked={selectedReasons.includes(reason)}
                     onCheckedChange={(checked) => handleReasonChange(reason, checked as boolean)}
-                    className="border-gray-300 data-[state=checked]:bg-heyrafiki-green data-[state=checked]:border-heyrafiki-green"
                   />
-                  <Label htmlFor={reason} className="text-gray-700 font-secondary cursor-pointer flex-1 text-sm">
+                  <Label htmlFor={reason} className="text-gray-700 font-secondary font-medium text-sm">
                     {reason}
                   </Label>
                 </div>
               ))}
             </div>
 
-            <StepNavigation currentStep={2} totalSteps={4} />
+            <StepNavigation currentStep={2} totalSteps={4} disableNext={selectedReasons.length === 0} />
           </div>
         </CardContent>
       </Card>

@@ -11,7 +11,24 @@ const preferredTimeOptions = ["Morning Hours", "Afternoon", "Evening Hours", "Ni
 
 export default function SessionPreferencesStep() {
   const [sessionTypes, setSessionTypes] = useState<string[]>([])
-  const [preferredTime, setPreferredTime] = useState<string>("")
+  const [preferredTimes, setPreferredTimes] = useState<string[]>([])
+
+  // Restore from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem("onboarding_step3");
+    if (saved) {
+      try {
+        const data = JSON.parse(saved);
+        setSessionTypes(data.sessionTypes || []);
+        setPreferredTimes(data.preferredTimes || []);
+      } catch {}
+    }
+  }, []);
+
+  // Save to localStorage on change
+  useEffect(() => {
+    localStorage.setItem("onboarding_step3", JSON.stringify({ sessionTypes, preferredTimes }));
+  }, [sessionTypes, preferredTimes]);
 
   return (
     <>
@@ -60,17 +77,23 @@ export default function SessionPreferencesStep() {
             {/* Preferred Time */}
             <div className="space-y-4">
               <h3 className="text-base font-semibold text-gray-900 font-secondary">
-                What time would you like to have your therapy sessions?
+                What time would you like to have your therapy sessions? (Select all that apply)
               </h3>
               <div className="grid md:grid-cols-4 gap-4">
                 {preferredTimeOptions.map((option) => (
                   <Button
                     key={option}
                     type="button"
-                    variant={preferredTime === option ? "default" : "outline"}
-                    onClick={() => setPreferredTime(option)}
+                    variant={preferredTimes.includes(option) ? "default" : "outline"}
+                    onClick={() => {
+                      setPreferredTimes((prev) =>
+                        prev.includes(option)
+                          ? prev.filter((t) => t !== option)
+                          : [...prev, option]
+                      );
+                    }}
                     className={`h-12 rounded-xl font-secondary ${
-                      preferredTime === option
+                      preferredTimes.includes(option)
                         ? "bg-heyrafiki-green hover:bg-heyrafiki-green-dark text-white"
                         : "border-gray-300 text-gray-700 hover:bg-gray-50 bg-[#f5f5f5]"
                     }`}
@@ -81,7 +104,7 @@ export default function SessionPreferencesStep() {
               </div>
             </div>
 
-            <StepNavigation currentStep={3} totalSteps={4} />
+            <StepNavigation currentStep={3} totalSteps={4} disableNext={sessionTypes.length === 0 || preferredTimes.length === 0} />
           </div>
         </CardContent>
       </Card>

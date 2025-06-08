@@ -39,9 +39,13 @@ export default function PersonalInformationStep() {
   const [fullName, setFullName] = useState("")
   const [email, setEmail] = useState("")
   const [phoneNumber, setPhoneNumber] = useState("")
+  const [phoneError, setPhoneError] = useState<string>("")
   const [gender, setGender] = useState("")
   const [dateOfBirth, setDateOfBirth] = useState("")
-  const [country, setCountry] = useState("")
+  const [location, setLocation] = useState("")
+  const [locationError, setLocationError] = useState<string>("")
+  const [formTouched, setFormTouched] = useState(false)
+  const [loadingLocation, setLoadingLocation] = useState(false)
 
   // Wait for session/context to load, then redirect if truly unauthenticated
   useEffect(() => {
@@ -63,6 +67,25 @@ export default function PersonalInformationStep() {
       }
     }
   }, [user, status, session, isAuthLoading, router]);
+
+  // Restore onboarding state from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem("onboarding_step1");
+    if (saved) {
+      try {
+        const { data, expires } = JSON.parse(saved);
+        if (Date.now() < expires) {
+          setPhoneNumber(data.phoneNumber || "");
+          setGender(data.gender || "");
+          setDateOfBirth(data.dateOfBirth || "");
+          setLocation(data.location || "");
+          setAvatarUrl(data.profile_img_url || "");
+        } else {
+          localStorage.removeItem("onboarding_step1");
+        }
+      } catch {}
+    }
+  }, []);
 
   // Pre-fill from session, context, or query params
   useEffect(() => {
@@ -108,7 +131,21 @@ export default function PersonalInformationStep() {
       setAvatarUrl(generateAvatarUrl(qpFirst, qpLast));
     }
   }, [session, user]);
-  
+
+  // Save onboarding state to localStorage on change
+  useEffect(() => {
+    if (!formTouched) return;
+    localStorage.setItem("onboarding_step1", JSON.stringify({
+      data: {
+        phoneNumber,
+        gender,
+        dateOfBirth,
+        location,
+        profile_img_url: avatarUrl
+      },
+      expires: Date.now() + 24 * 60 * 60 * 1000 // 24 hours
+    }));
+  }, [phoneNumber, gender, dateOfBirth, location, avatarUrl, formTouched]);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -197,11 +234,12 @@ export default function PersonalInformationStep() {
                 </Label>
                 <Input
                   id="fullName"
-                  placeholder="Please enter your full name"
+                  placeholder="Full name"
                   value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  className="border-gray-300 focus:border-heyrafiki-green focus:ring-heyrafiki-green rounded-xl h-12 font-secondary bg-[#f5f5f5]"
+                  readOnly
+                  className="border-gray-300 focus:border-heyrafiki-green focus:ring-heyrafiki-green rounded-xl h-12 font-secondary bg-[#f5f5f5] opacity-60 cursor-not-allowed"
                 />
+                <p className="text-xs text-gray-500 mt-1">Full name is set from your account and cannot be changed.</p>
               </div>
 
               <div className="space-y-2">
@@ -211,11 +249,12 @@ export default function PersonalInformationStep() {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="Please enter your email address"
+                  placeholder="Email address"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="border-gray-300 focus:border-heyrafiki-green focus:ring-heyrafiki-green rounded-xl h-12 font-secondary bg-[#f5f5f5]"
+                  readOnly
+                  className="border-gray-300 focus:border-heyrafiki-green focus:ring-heyrafiki-green rounded-xl h-12 font-secondary bg-[#f5f5f5] opacity-60 cursor-not-allowed"
                 />
+                <p className="text-xs text-gray-500 mt-1">Email is set from your account and cannot be changed.</p>
               </div>
 
               <div className="space-y-2">
@@ -224,11 +263,21 @@ export default function PersonalInformationStep() {
                 </Label>
                 <Input
                   id="phoneNumber"
-                  placeholder="Please enter your phone number"
+                  placeholder="e.g. +254712345678"
                   value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
-                  className="border-gray-300 focus:border-heyrafiki-green focus:ring-heyrafiki-green rounded-xl h-12 font-secondary bg-[#f5f5f5]"
+                  onChange={(e) => {
+                    setPhoneNumber(e.target.value);
+                    setPhoneError("");
+                    setFormTouched(true);
+                  }}
+                  onBlur={() => {
+                    if (phoneNumber && !/^\+?[1-9]\d{1,14}$/.test(phoneNumber)) {
+                      setPhoneError("Invalid phone number format. Use international format e.g. +254712345678");
+                    }
+                  }}
+                  className={`border-gray-300 focus:border-heyrafiki-green focus:ring-heyrafiki-green rounded-xl h-12 font-secondary bg-[#f5f5f5] ${phoneError ? 'border-red-500' : ''}`}
                 />
+                {phoneError && <p className="text-xs text-red-500 mt-1">{phoneError}</p>}
               </div>
 
               <div className="space-y-2">
@@ -263,25 +312,69 @@ export default function PersonalInformationStep() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="country" className="text-gray-700 font-secondary font-medium text-sm">
-                  Country
+                <Label htmlFor="location" className="text-gray-700 font-secondary font-medium text-sm">
+                  Location
                 </Label>
-                <Select value={country} onValueChange={setCountry}>
-                  <SelectTrigger className="border-gray-300 focus:border-heyrafiki-green focus:ring-heyrafiki-green rounded-xl h-12 font-secondary">
-                    <SelectValue placeholder="Please select your country" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {countryOptions.map((option) => (
-                      <SelectItem key={option} value={option} className="font-secondary">
-                        {option}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Input
+                  id="location"
+                  placeholder="City, State/County, Country"
+                  value={location}
+                  onChange={(e) => {
+                    setLocation(e.target.value);
+                    setFormTouched(true);
+                  }}
+                  className="border-gray-300 focus:border-heyrafiki-green focus:ring-heyrafiki-green rounded-xl h-12 font-secondary bg-[#f5f5f5]"
+                />
+                <button type="button" className="text-xs text-blue-600 underline mt-1" onClick={async () => {
+                  setLoadingLocation(true);
+                  setLocationError("");
+                  if (!navigator.geolocation) {
+                    setLocationError("Geolocation is not supported by your browser.");
+                    setLoadingLocation(false);
+                    return;
+                  }
+                  navigator.geolocation.getCurrentPosition(async (pos) => {
+                    try {
+                      const { latitude, longitude } = pos.coords;
+                      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`);
+                      if (!res.ok) throw new Error("Failed to fetch location");
+                      const data = await res.json();
+                      const city = data.address.city || data.address.town || data.address.village || "";
+                      const state = data.address.state || data.address.county || "";
+                      const country = data.address.country || "";
+                      const loc = [city, state, country].filter(Boolean).join(", ");
+                      setLocation(loc);
+                      setFormTouched(true);
+                    } catch {
+                      setLocationError("Could not determine location. Please enter manually.");
+                    } finally {
+                      setLoadingLocation(false);
+                    }
+                  }, (err) => {
+                    setLocationError("Location permission denied or unavailable.");
+                    setLoadingLocation(false);
+                  });
+                }} disabled={loadingLocation}>
+                  {loadingLocation ? 'Autofilling...' : 'Autofill Location'}
+                </button>
+                {locationError && <p className="text-xs text-red-500 mt-1">{locationError}</p>}
               </div>
             </div>
 
-            <StepNavigation currentStep={1} totalSteps={4} />
+            <StepNavigation
+  currentStep={1}
+  totalSteps={4}
+  disableNext={
+    !fullName ||
+    !email ||
+    !phoneNumber ||
+    !!phoneError ||
+    !gender ||
+    !dateOfBirth ||
+    !location ||
+    !!locationError
+  }
+/>
           </div>
         </CardContent>
       </Card>

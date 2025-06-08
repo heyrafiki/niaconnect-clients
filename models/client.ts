@@ -9,7 +9,18 @@ export interface IClient extends Document {
   provider: 'email' | 'google';
   created_at: Date;
   updated_at: Date;
-  onboarding?: Record<string, any>;
+  onboarding?: {
+    completed: boolean;
+    phone_number?: string;
+    gender?: string;
+    date_of_birth?: string;
+    location?: string;
+    profile_img_url?: string;
+    therapy_reasons?: string[];
+    session_types?: string[];
+    preferred_times?: string[];
+    mental_health_scale?: number;
+  };
   otp?: string;
   otp_expiry?: Date;
   profile_img_url?: string;
@@ -30,7 +41,15 @@ const ClientSchema = new Schema<IClient>({
   onboarding: {
     type: {
       completed: { type: Boolean, default: false },
-      // add other onboarding fields here if needed
+      phone_number: { type: String },
+      gender: { type: String },
+      date_of_birth: { type: String },
+      location: { type: String },
+      profile_img_url: { type: String },
+      therapy_reasons: [{ type: String }],
+      session_types: [{ type: String }],
+      preferred_times: [{ type: String }],
+      mental_health_scale: { type: Number }
     },
     default: {}
   },

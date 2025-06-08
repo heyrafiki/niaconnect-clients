@@ -10,14 +10,97 @@ import StepNavigation from "@/components/onboarding/step-navigation"
 
 export default function MentalHealthScaleStep() {
   const [mentalHealthScale, setMentalHealthScale] = useState<number | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string>("")
   const { user, isLoading } = useAuth()
   const router = useRouter()
 
+  // Restore mental health scale from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem("onboarding_step4");
+    if (saved) {
+      try {
+        const data = JSON.parse(saved);
+        if (data.mentalHealthScale !== undefined && data.mentalHealthScale !== null) {
+          setMentalHealthScale(data.mentalHealthScale);
+        }
+      } catch {}
+    }
+  }, []);
 
-  const handleComplete = () => {
-    // In a real app, you would save all the onboarding data here
-    // and mark the user as onboarded in your database
-    router.push("/dashboard")
+  // Save mental health scale to localStorage on change
+  useEffect(() => {
+    if (mentalHealthScale !== null) {
+      localStorage.setItem("onboarding_step4", JSON.stringify({ mentalHealthScale }));
+    }
+  }, [mentalHealthScale]);
+
+  // Gather all onboarding data from localStorage/session
+  const getOnboardingData = () => {
+    // Step 1
+    let step1 = {};
+    const saved1 = localStorage.getItem("onboarding_step1");
+    if (saved1) {
+      try {
+        const { data } = JSON.parse(saved1);
+        step1 = data || {};
+      } catch {}
+    }
+    // Step 2
+    let step2 = {};
+    const saved2 = localStorage.getItem("onboarding_step2");
+    if (saved2) {
+      try {
+        step2 = JSON.parse(saved2) || {};
+      } catch {}
+    }
+    // Step 3
+    let step3 = {};
+    const saved3 = localStorage.getItem("onboarding_step3");
+    if (saved3) {
+      try {
+        step3 = JSON.parse(saved3) || {};
+      } catch {}
+    }
+    // Step 4 (mentalHealthScale)
+    let step4 = { mental_health_scale: mentalHealthScale };
+    return { ...step1, ...step2, ...step3, ...step4 };
+  };
+
+
+  const handleComplete = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      if (!user) {
+        setError("You must be signed in to complete onboarding. Please sign in and try again.");
+        setLoading(false);
+        return;
+      }
+      const data = getOnboardingData();
+      console.debug("Submitting onboarding data:", data);
+      const res = await fetch("/api/update-onboarding", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+        credentials: "include"
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        setError(err.error || "Failed to complete onboarding");
+        setLoading(false);
+        return;
+      }
+      // Clear onboarding state
+      localStorage.removeItem("onboarding_step1");
+      localStorage.removeItem("onboarding_step2");
+      localStorage.removeItem("onboarding_step3");
+      localStorage.removeItem("onboarding_step4");
+      router.push("/dashboard");
+    } catch (e) {
+      setError("An unexpected error occurred. Please try again.");
+      setLoading(false);
+    }
   }
 
   return (
@@ -58,7 +141,15 @@ export default function MentalHealthScaleStep() {
               ))}
             </div>
 
-            <StepNavigation currentStep={4} totalSteps={4} onComplete={handleComplete} />
+            <StepNavigation
+  currentStep={4}
+  totalSteps={4}
+  onComplete={handleComplete}
+  disableNext={
+    !mentalHealthScale || loading
+  }
+/>
+{error && <p className="text-red-500 text-sm mt-2">{error}</p>}
           </div>
         </CardContent>
       </Card>

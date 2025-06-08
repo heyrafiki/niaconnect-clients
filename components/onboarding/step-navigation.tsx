@@ -8,9 +8,10 @@ interface StepNavigationProps {
   currentStep: number
   totalSteps: number
   onComplete?: () => void
+  disableNext?: boolean
 }
 
-export default function StepNavigation({ currentStep, totalSteps, onComplete }: StepNavigationProps) {
+export default function StepNavigation({ currentStep, totalSteps, onComplete, disableNext }: StepNavigationProps) {
   const router = useRouter()
 
   const handleNext = () => {
@@ -44,7 +45,8 @@ export default function StepNavigation({ currentStep, totalSteps, onComplete }: 
       </Button>
       <Button
         onClick={handleNext}
-        className="bg-heyrafiki-green hover:bg-heyrafiki-green/90 text-white rounded-xl font-secondary"
+        disabled={disableNext}
+        className="bg-heyrafiki-green hover:bg-heyrafiki-green/90 text-white rounded-xl font-secondary disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {currentStep === totalSteps ? "Finish" : "Next"}
         <ArrowRight className="w-4 h-4 ml-2" />
