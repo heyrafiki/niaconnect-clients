@@ -12,6 +12,7 @@ export interface IClient extends Document {
   onboarding?: Record<string, any>;
   otp?: string;
   otp_expiry?: Date;
+  profile_img_url?: string;
 }
 
 const ClientSchema = new Schema<IClient>({
@@ -23,6 +24,7 @@ const ClientSchema = new Schema<IClient>({
   provider: { type: String, enum: ['email', 'google'], required: true },
   otp: { type: String },
   otp_expiry: { type: Date },
+  profile_img_url: { type: String },
   created_at: { type: Date, required: true, default: Date.now },
   updated_at: { type: Date, required: true, default: Date.now },
   onboarding: {

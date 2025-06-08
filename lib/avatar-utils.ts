@@ -26,5 +26,7 @@ export function generateRandomPatternAvatar(): string {
 
 // Keep this for backward compatibility
 export function generateAvatarUrl(firstName: string, lastName: string): string {
-  return generateRandomPatternAvatar()
+  const initial = firstName && firstName.length > 0 ? firstName[0].toUpperCase() : "U";
+  // Use ui-avatars.com for deterministic avatars
+  return `https://ui-avatars.com/api/?name=${encodeURIComponent(initial)}&background=random&color=fff&size=128`;
 }
