@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Smile } from "lucide-react"
-import { useAuth } from "@/lib/auth-context"
+import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import StepNavigation from "@/components/onboarding/step-navigation"
 
@@ -12,7 +12,7 @@ export default function MentalHealthScaleStep() {
   const [mentalHealthScale, setMentalHealthScale] = useState<number | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string>("")
-  const { user, isLoading } = useAuth()
+  const { data: session, status } = useSession();
   const router = useRouter()
 
   // Restore mental health scale from localStorage
@@ -72,7 +72,7 @@ export default function MentalHealthScaleStep() {
     setLoading(true);
     setError("");
     try {
-      if (!user) {
+      if (!session?.user) {
         setError("You must be signed in to complete onboarding. Please sign in and try again.");
         setLoading(false);
         return;

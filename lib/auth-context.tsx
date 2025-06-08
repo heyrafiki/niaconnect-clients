@@ -61,7 +61,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
       // Clear any temporary auth data
       sessionStorage.removeItem('temp_auth_password');
-      
+
+      // --- Set NextAuth session cookie for backend authentication ---
+      if (user.is_verified) {
+        const { signIn } = await import("next-auth/react");
+        await signIn("credentials", {
+          email,
+          password,
+          first_name: user.first_name,
+          last_name: user.last_name,
+          redirect: false,
+        });
+      }
+      // ---
+
       if (!user.is_verified) {
         router.push("/verify-otp?email=" + encodeURIComponent(user.email) + "&from=signin");
       } else if (!user.onboarding?.completed) {
@@ -97,6 +110,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         email,
         isOnboarded: false
       });
+      // Do NOT call signIn here, as user must verify OTP first
       router.push("/verify-otp?email=" + encodeURIComponent(email) + "&from=signup");
     } catch (error: any) {
       alert(error.message || "Signup failed");

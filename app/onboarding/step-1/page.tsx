@@ -95,41 +95,52 @@ export default function PersonalInformationStep() {
     const qpEmail = params.get("email");
     const sessionUser = session?.user;
 
+    let fullName = "";
+    let email = "";
+    let avatar = "";
+
     if (sessionUser) {
-      let firstName = "";
-      let lastName = "";
-      
-      // Handle Google OAuth case (where we get a full name)
-      if (sessionUser.name) {
+      // Credentials sign-in (preferred)
+      if (
+        typeof sessionUser === "object" &&
+        ("first_name" in sessionUser || "last_name" in sessionUser)
+      ) {
+        const safeFirst = (sessionUser as any).first_name ?? "";
+        const safeLast = (sessionUser as any).last_name ?? "";
+        fullName = `${safeFirst} ${safeLast}`.trim();
+        email = sessionUser.email ?? "";
+        avatar = generateAvatarUrl(safeFirst, safeLast);
+      } else if (sessionUser.name) {
+        // Google OAuth
         const parts = sessionUser.name.split(" ");
-        firstName = parts[0] ?? "";
-        lastName = parts.slice(1).join(" ") ?? "";
-      }
-      
-      // Set the full name, ensuring we trim any extra spaces
-      setFullName(`${firstName} ${lastName}`.trim());
-      setEmail(sessionUser.email ?? "");
-      
-      // For avatar: prefer Google profile image, then fall back to generated
-      if (sessionUser.image) {
-        setAvatarUrl(sessionUser.image);
-      } else {
-        setAvatarUrl(generateAvatarUrl(firstName, lastName));
+        const safeFirst = parts[0] ?? "";
+        const safeLast = parts.slice(1).join(" ") ?? "";
+        fullName = `${safeFirst} ${safeLast}`.trim();
+        email = sessionUser.email ?? "";
+        avatar = sessionUser.image || generateAvatarUrl(safeFirst, safeLast);
       }
     } else if (user) {
-      // Handle data from auth context (email/password case)
-      setFullName(`${user.firstName} ${user.lastName}`);
-      setEmail(user.email);
-      if (user.avatar) {
-        setAvatarUrl(user.avatar);
-      } else {
-        setAvatarUrl(generateAvatarUrl(user.firstName, user.lastName));
-      }
+      // Auth context (email/password, immediate login)
+      const safeFirst = user.firstName ?? "";
+      const safeLast = user.lastName ?? "";
+      fullName = `${safeFirst} ${safeLast}`.trim();
+      email = user.email ?? "";
+      avatar = user.avatar || generateAvatarUrl(safeFirst, safeLast);
     } else if (qpFirst && qpLast && qpEmail) {
-      setFullName(`${qpFirst} ${qpLast}`);
-      setEmail(qpEmail);
-      setAvatarUrl(generateAvatarUrl(qpFirst, qpLast));
+      // From query params
+      fullName = `${qpFirst} ${qpLast}`;
+      email = qpEmail;
+      avatar = generateAvatarUrl(qpFirst, qpLast);
+    } else {
+      // Fallback: show 'User' and empty email
+      fullName = "User";
+      email = "";
+      avatar = generateAvatarUrl("User", "");
     }
+
+    setFullName(fullName);
+    setEmail(email);
+    setAvatarUrl(avatar);
   }, [session, user]);
 
   // Save onboarding state to localStorage on change
