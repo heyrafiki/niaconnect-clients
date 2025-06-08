@@ -59,7 +59,7 @@ export default function PersonalInformationStep() {
         !user &&
         !(qpFirst && qpLast && qpEmail)
       ) {
-        router.push("/auth/client");
+        router.push("/auth");
       }
     }
   }, [user, status, session, isAuthLoading, router]);
@@ -73,29 +73,28 @@ export default function PersonalInformationStep() {
     const sessionUser = session?.user;
 
     if (sessionUser) {
-      // Try to get full name from various sources
-      let firstName = (sessionUser as any).first_name ?? sessionUser.first_name;
-      let lastName = (sessionUser as any).last_name ?? sessionUser.last_name;
+      let firstName = "";
+      let lastName = "";
       
-      // If first/last name not available, try to split full name
-      if (!firstName || !lastName) {
-        if (sessionUser.name) {
-          const parts = sessionUser.name.split(" ");
-          firstName = parts[0] ?? "";
-          lastName = parts.slice(1).join(" ") ?? "";
-        }
+      // Handle Google OAuth case (where we get a full name)
+      if (sessionUser.name) {
+        const parts = sessionUser.name.split(" ");
+        firstName = parts[0] ?? "";
+        lastName = parts.slice(1).join(" ") ?? "";
       }
       
-      setFullName(`${firstName ?? ""} ${lastName ?? ""}`.trim());
+      // Set the full name, ensuring we trim any extra spaces
+      setFullName(`${firstName} ${lastName}`.trim());
       setEmail(sessionUser.email ?? "");
       
       // For avatar: prefer Google profile image, then fall back to generated
       if (sessionUser.image) {
         setAvatarUrl(sessionUser.image);
       } else {
-        setAvatarUrl(generateAvatarUrl(firstName ?? "", lastName ?? ""));
+        setAvatarUrl(generateAvatarUrl(firstName, lastName));
       }
     } else if (user) {
+      // Handle data from auth context (email/password case)
       setFullName(`${user.firstName} ${user.lastName}`);
       setEmail(user.email);
       if (user.avatar) {
@@ -109,6 +108,7 @@ export default function PersonalInformationStep() {
       setAvatarUrl(generateAvatarUrl(qpFirst, qpLast));
     }
   }, [session, user]);
+  
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]

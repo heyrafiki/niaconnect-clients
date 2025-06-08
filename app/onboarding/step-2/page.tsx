@@ -6,8 +6,6 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { Puzzle } from "lucide-react"
 import StepNavigation from "@/components/onboarding/step-navigation"
-import { useAuth } from "@/lib/auth-context"
-import { useRouter } from "next/navigation"
 
 const therapyReasonOptions = [
   "I've been feeling depressed",
@@ -23,15 +21,6 @@ const therapyReasonOptions = [
 
 export default function TherapyReasonsStep() {
   const [selectedReasons, setSelectedReasons] = useState<string[]>([])
-  const { user, isLoading } = useAuth()
-  const router = useRouter()
-
-  // Redirect if not authenticated
-  useEffect(() => {
-    if (!isLoading && !user) {
-      router.push("/auth/client")
-    }
-  }, [user, isLoading, router])
 
   const handleReasonChange = (reason: string, checked: boolean) => {
     if (checked) {
@@ -39,17 +28,6 @@ export default function TherapyReasonsStep() {
     } else {
       setSelectedReasons((prev) => prev.filter((r) => r !== reason))
     }
-  }
-
-  if (isLoading || !user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-heyrafiki-green mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
-        </div>
-      </div>
-    )
   }
 
   return (

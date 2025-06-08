@@ -88,8 +88,7 @@ export default function ClientAuth() {
               Support That Feels Like It Gets You
             </h2>
             <p className="text-base lg:text-lg opacity-90 font-secondary leading-relaxed">
-              Take charge of your mental well-being through culturally-informed therapy, peer support, and tools that
-              adapt to your journey.
+              Take charge of your mental well-being through culturally-informed therapy, peer support, and tools that adapt to your journey.
             </p>
           </div>
         </div>
@@ -272,7 +271,7 @@ export default function ClientAuth() {
                   disabled={isLoading}
                   className="w-full h-11 bg-heyrafiki-green hover:bg-heyrafiki-green-dark text-white font-medium rounded-xl font-secondary text-sm"
                 >
-                  {isLoading ? "Processing..." : isSignUp ? "Begin Your Journey" : "Continue Journey"}
+                  {isLoading ? "Processing..." : isSignUp ? "Begin Your Journey" : "Login"}
                 </Button>
               </form>
 

@@ -13,35 +13,11 @@ export default function MentalHealthScaleStep() {
   const { user, isLoading } = useAuth()
   const router = useRouter()
 
-  // Redirect if not authenticated
-  useEffect(() => {
-    if (!isLoading && !user) {
-      router.push("/auth/client")
-    }
-  }, [user, isLoading, router])
 
   const handleComplete = () => {
     // In a real app, you would save all the onboarding data here
     // and mark the user as onboarded in your database
-    if (user) {
-      const updatedUser = {
-        ...user,
-        isOnboarded: true
-      }
-      localStorage.setItem("heyrafiki_client_user", JSON.stringify(updatedUser))
-    }
     router.push("/dashboard")
-  }
-
-  if (isLoading || !user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-heyrafiki-green mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
-        </div>
-      </div>
-    )
   }
 
   return (

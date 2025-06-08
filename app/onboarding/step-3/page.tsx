@@ -5,8 +5,6 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Clock } from "lucide-react"
 import StepNavigation from "@/components/onboarding/step-navigation"
-import { useAuth } from "@/lib/auth-context"
-import { useRouter } from "next/navigation"
 
 const sessionTypeOptions = ["Online Sessions", "In-person Sessions", "Hybrid Sessions"]
 const preferredTimeOptions = ["Morning Hours", "Afternoon", "Evening Hours", "Night Hours"]
@@ -14,26 +12,6 @@ const preferredTimeOptions = ["Morning Hours", "Afternoon", "Evening Hours", "Ni
 export default function SessionPreferencesStep() {
   const [sessionTypes, setSessionTypes] = useState<string[]>([])
   const [preferredTime, setPreferredTime] = useState<string>("")
-  const { user, isLoading } = useAuth()
-  const router = useRouter()
-
-  // Redirect if not authenticated
-  useEffect(() => {
-    if (!isLoading && !user) {
-      router.push("/auth/client")
-    }
-  }, [user, isLoading, router])
-
-  if (isLoading || !user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-heyrafiki-green mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
-        </div>
-      </div>
-    )
-  }
 
   return (
     <>
