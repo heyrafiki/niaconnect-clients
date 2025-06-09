@@ -1,30 +1,75 @@
-# Auth Page Design 2
+# niaconnect-clients
 
-*Automatically synced with your [v0.dev](https://v0.dev) deployments*
+This service is the client-facing web application for NiaConnect. It allows clients to sign up, complete onboarding, and access their dashboard to manage sessions and interact with experts.
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/heyrafiki-development-team/v0-auth-page-design-2)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.dev-black?style=for-the-badge)](https://v0.dev/chat/projects/6qkF6Zumue0)
+## Getting Started
 
-## Overview
+### 1. Clone the repository
+```bash
+git clone <repo-url>
+cd niaconnect-clients
+```
 
-This repository will stay in sync with your deployed chats on [v0.dev](https://v0.dev).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.dev](https://v0.dev).
+### 2. Install dependencies
+```bash
+npm install
+```
 
-## Deployment
+### 3. Run the development server
+You can use either of the following commands:
 
-Your project is live at:
+#### Option 1: Next.js built-in dev server
+```bash
+PORT=3000 npm run dev
+```
+- Uses `next dev` (default for most Next.js apps)
+- Fast local development, but does **not** emulate Vercel platform features (e.g., blob storage)
 
-**[https://vercel.com/heyrafiki-development-team/v0-auth-page-design-2](https://vercel.com/heyrafiki-development-team/v0-auth-page-design-2)**
+#### Option 2: Vercel platform dev server (recommended for blob storage)
+```bash
+PORT=3000 vercel dev
+```
+- Uses `vercel dev` to emulate the Vercel cloud platform locally
+- Required if using Vercel Blob Storage, Edge Functions, or other Vercel-specific features
 
-## Build your app
+| Command         | Emulates Vercel Cloud | Supports Blob Storage | Typical Use Case           |
+|----------------|----------------------|----------------------|----------------------------|
+| `next dev`     | No                   | No                   | Fast local development     |
+| `vercel dev`   | Yes                  | Yes                  | Full-stack/local Vercel emulation |
 
-Continue building your app on:
+The app will be available at [http://localhost:3000](http://localhost:3000)
 
-**[https://v0.dev/chat/projects/6qkF6Zumue0](https://v0.dev/chat/projects/6qkF6Zumue0)**
+---
 
-## How It Works
+## Using Vercel CLI
 
-1. Create and modify your project using [v0.dev](https://v0.dev)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
+If you plan to use Vercel Blob Storage or other Vercel features, install and set up the Vercel CLI:
+
+### 1. Install Vercel globally
+```bash
+npm install -g vercel
+```
+
+### 2. Sign in to Vercel
+```bash
+vercel login
+```
+Follow the prompts to authenticate with your Vercel account.
+
+### 3. Link your project directory
+From the root of your project (niaconnect-clients):
+```bash
+vercel link
+```
+This will associate your local project with a Vercel project.
+
+---
+
+> **Note:** In the future, the dev script will be updated to use `vercel dev` by default for full compatibility with Vercel platform features.
+
+## Purpose of niaconnect-clients
+- Client authentication and onboarding
+- Secure session and dashboard management
+- Connects clients with experts through the NiaConnect platform
+
+---
