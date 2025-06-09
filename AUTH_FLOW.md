@@ -1,11 +1,28 @@
 # Authentication & Onboarding Flow — niaconnect-clients
 
-## Overview
-This document describes the implemented authentication and onboarding flows for the niaconnect-clients app, covering both Email/Password and Google OAuth methods. It details the schema design, authentication flows, session handling, and onboarding process.
+---
+
+## Quick Reference Table
+| Flow Type        | Method(s)           | OTP Required | Onboarding Steps | Redirects           | Storage                |
+|------------------|---------------------|--------------|------------------|---------------------|------------------------|
+| Google OAuth     | Google              | No           | Personal, Therapy Reasons, Preferences | /onboarding/step-1 → /dashboard | JWT, localStorage (steps) |
+| Email/Password   | Email, Password     | Yes          | Personal, Therapy Reasons, Preferences | /verify-otp → /onboarding/step-1 → /dashboard | JWT, localStorage (steps) |
 
 ---
 
-## 1. Database Schema (`clients` collection)
+
+## 1. Overview
+This document describes authentication and onboarding for niaconnect-clients. It covers:
+- Database schema
+- Authentication (Google OAuth, Email/Password)
+- Session management (JWT)
+- Onboarding flow
+- Security and best practices
+- API endpoints
+
+---
+
+## 2. Database Schema (`clients` collection)
 
 | Field         | Type      | Required | Description                                   |
 |-------------- |---------- |----------|-----------------------------------------------|
@@ -22,70 +39,40 @@ This document describes the implemented authentication and onboarding flows for 
 | updated_at    | Date      | Yes      | Auto-updated on changes                      |
 | onboarding    | Object    | No       | Onboarding progress and data                 |
 
-### Schema Notes:
-- MongoDB is used as the database with Mongoose for schema management
-- Indexes: email (unique)
-- The onboarding object tracks completion status and step data
-- OTP fields are only used for email authentication
+---
+
+## 3. Authentication Flows
+
+### Google OAuth
+- User clicks "Continue with Google"
+- NextAuth handles OAuth
+- On first login:
+  - User created if not exists (`is_verified = true`, onboarding initialized)
+  - JWT session created
+  - Redirect to `/onboarding/step-1` (autofilled name/email/image)
+- No OTP required
+
+### Email/Password
+- User signs up with email, password, name
+- Backend validates, hashes password, generates OTP, creates user (`is_verified = false`)
+- Redirect to `/verify-otp` (email in query, password in sessionStorage)
+- On OTP verification:
+  - `is_verified = true`, session created, sessionStorage cleared
+  - Redirect to `/onboarding/step-1` (autofilled name/email)
+- On sign-in:
+  - If verified: session created, redirect to onboarding or dashboard
+  - If not verified: redirect to OTP verification
 
 ---
 
-## 2. Authentication Flows
+## 4. Session Management
 
-### Google OAuth Flow
-1. User clicks "Continue with Google"
-2. NextAuth handles Google OAuth flow
-3. On success:
-   - Check if user exists in database
-   - If new user:
-     - Create user record with Google profile data
-     - Set is_verified = true
-     - Initialize empty onboarding object
-   - Create JWT session with:
-     - User ID, email, name
-     - Google profile picture
-     - Provider = "google"
-4. Redirect to /onboarding/step-1 with:
-   - Autofilled name from Google profile
-   - Autofilled email
-   - Google profile picture as avatar
+- JWT strategy for all sessions (NextAuth)
+- Session data available on client and server
+- JWT includes: user ID, email, name, image, provider, onboarding status
+- Onboarding progress stored in JWT and MongoDB
+- Session checked on all protected routes (dashboard, onboarding)
 
-### Email Signup Flow
-1. User fills signup form (email, password, name)
-2. Backend:
-   - Validates input
-   - Checks for existing email
-   - Hashes password
-   - Generates 6-digit OTP
-   - Creates user with is_verified = false
-3. Redirect to OTP verification with:
-   - Email in query params
-   - Password stored in sessionStorage
-4. After OTP verification:
-   - Update user is_verified = true
-   - Create session using stored credentials
-   - Clear sessionStorage
-5. Redirect to /onboarding/step-1 with:
-   - Autofilled name from signup
-   - Autofilled email
-   - Generated avatar based on name
-
-### Email Sign-in Flow
-1. User enters email/password
-2. If user exists and is verified:
-   - Create session
-   - Redirect to /onboarding/step-1 or dashboard
-3. If user exists but not verified:
-   - Store password in sessionStorage
-   - Redirect to OTP verification
-4. After OTP verification:
-   - Same as signup flow verification
-
----
-
-## 3. Session Management
-
-### JWT Session Structure
 ```typescript
 {
   user: {
@@ -93,87 +80,93 @@ This document describes the implemented authentication and onboarding flows for 
     email: string;
     first_name: string;
     last_name: string;
-    image?: string;        // Google profile picture URL
-    provider: string;      // "google" or "email"
+    image?: string;
+    provider: string;
     onboarding: {
       completed: boolean;
-      // other onboarding data
+      // step data
     }
   }
 }
 ```
 
-### Session Handling
-- JWT strategy used for session management
-- Session data available on both client and server
-- Includes provider-specific data (Google profile picture)
-- Stores onboarding progress
+---
+
+## 5. Onboarding Flow
+
+- Multi-step onboarding (Personal Info → Therapy Reasons → Preferences)
+- Steps are the same for Google and Email/Password, except OTP is skipped for Google
+- Step data saved in localStorage; final POST to `/api/update-onboarding` (JWT required)
+- Backend normalizes and saves onboarding data, sets `completed: true`
+- On success, user is redirected to `/dashboard`
+- Dashboard access requires onboarding completion (`session.user.onboarding.completed`)
+- Onboarding can be resumed at any time if incomplete
+
+**API:** `/api/update-onboarding` (POST, JWT-only)
+- Normalizes and updates onboarding data in MongoDB
+- Returns updated onboarding object
+
+**Redirects:**
+- After onboarding: `/dashboard`
+- If onboarding incomplete: dashboard → `/onboarding/step-1`
+
+**Data Storage:**
+- Step data: localStorage (cleared after onboarding)
+- All onboarding data: single object in MongoDB
+
+**Security:**
+- All onboarding APIs require JWT
+- No sensitive data in localStorage after onboarding
+- Passwords always hashed with bcrypt
+
+**Flow Summary:**
+```
+Signup/Login → (OTP if email) → /onboarding/step-1 → ... → /onboarding/step-N → POST /api/update-onboarding → /dashboard
+```
 
 ---
 
-## 4. Onboarding Flow
+## 6. Security Considerations
 
-### Step 1: Personal Information
-- Pre-filled data based on auth method:
-  - Google: name, email, profile picture
-  - Email: name, email, generated avatar
-- Additional fields:
-  - Phone number
-  - Gender
-  - Date of birth
-  - Country
-
-### Steps 2-4
-[Details of other onboarding steps...]
-
-### Data Storage
-- Form data stored in local storage during steps
-- Final submission saves to database
-- Onboarding object tracks completion status
+- Passwords hashed with bcrypt (10 rounds), never stored plain
+- OTP: 6-digit, 10 min expiry, required for all email signups/unverified sign-ins
+- JWT-based sessions, secure cookies, provider tracked
+- Password temporarily in sessionStorage only during OTP flow
+- No sensitive data in localStorage after onboarding
 
 ---
 
-## 5. Security Considerations
+## 7. Frontend Components & Protected Routes
 
-### Password Handling
-- Passwords hashed using bcrypt (10 rounds)
-- Never stored in plain text
-- Temporary storage in sessionStorage only during OTP flow
-
-### OTP Verification
-- 6-digit numeric code
-- 10-minute expiration
-- Required for all email signups
-- Required for unverified email sign-ins
-
-### Session Security
-- JWT-based sessions
-- Configured secure cookie handling
-- Provider information tracked to prevent method mixing
-
----
-
-## 6. Frontend Components
-
-### Auth Components
-- ClientAuth: Main authentication component
-- OTP verification component
-- Onboarding step components
-
-### Protected Routes
-- Onboarding routes check authentication
+- Auth components: ClientAuth, OTP verification, onboarding steps
+- Onboarding routes require authentication
 - Dashboard requires completed onboarding
 - Auth pages redirect if already authenticated
 
 ---
 
-## 7. API Routes
+## 8. API Endpoints
 
-### Authentication
-- /api/auth/[...nextauth] - NextAuth handler
-- /api/auth/signup - Email signup
-- /api/auth/signin - Email signin
-- /api/auth/verify-otp - OTP verification
+- `/api/auth/[...nextauth]` — NextAuth handler
+- `/api/auth/signup` — Email signup
+- `/api/auth/signin` — Email signin
+- `/api/auth/verify-otp` — OTP verification
+- `/api/update-onboarding` — Onboarding update (JWT required)
 
-### Onboarding
-[Details of onboarding API routes...]
+---
+
+## 9. Best Practices
+
+- Never require onboarding fields at DB level
+- Google users: always `is_verified = true`, skip OTP
+- Store all onboarding data in a single object for flexibility
+- Use upsert logic for Google sign-in to avoid duplicates
+- Allow resuming onboarding at any time if incomplete
+
+---
+
+## 10. Notes
+- All fields except `email`, `id`, `provider`, `is_verified`, and timestamps are optional
+- Password is only stored for email/password users
+- Google users never need OTP verification
+- Onboarding can be resumed at any time
