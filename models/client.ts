@@ -24,6 +24,8 @@ export interface IClient extends Document {
   otp?: string;
   otp_expiry?: Date;
   profile_img_url?: string;
+  reset_otp: string;
+  reset_otp_expiry: Date;
 }
 
 const ClientSchema = new Schema<IClient>({
@@ -53,6 +55,8 @@ const ClientSchema = new Schema<IClient>({
     },
     default: {}
   },
+  reset_otp: { type: String },
+  reset_otp_expiry: { type: Date },
 });
 
 export default mongoose.models.Client || mongoose.model<IClient>('Client', ClientSchema);

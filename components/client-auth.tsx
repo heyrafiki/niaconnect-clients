@@ -260,7 +260,11 @@ export default function ClientAuth() {
 
                 {!isSignUp && (
                   <div className="flex justify-end">
-                    <button type="button" className="text-xs text-heyrafiki-green hover:underline font-secondary">
+                    <button
+                      type="button"
+                      className="text-xs text-heyrafiki-green hover:underline font-secondary"
+                      onClick={() => router.push("/reset-password")}
+                    >
                       Forgot password?
                     </button>
                   </div>
