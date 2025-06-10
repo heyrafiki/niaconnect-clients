@@ -80,7 +80,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else if (!user.onboarding?.completed) {
         router.push("/onboarding/step-1");
       } else {
-        router.push("/dashboard");
+        router.push("/client/dashboard");
       }
     } catch (error: any) {
       alert(error.message || "Login failed");

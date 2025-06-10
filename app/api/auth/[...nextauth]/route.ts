@@ -86,7 +86,11 @@ export const authOptions: NextAuthOptions = {
       }
       return session;
     },
-    async redirect({ url, baseUrl }) {
+    async redirect({ url, baseUrl, token }) {
+      // If onboarding is completed, go to dashboard, else onboarding
+      if (token && token.onboarding && token.onboarding.completed) {
+        return `${baseUrl}/client/dashboard`;
+      }
       if (url.startsWith(baseUrl)) {
         return url;
       }

@@ -20,7 +20,7 @@ export default function StepNavigation({ currentStep, totalSteps, onComplete, di
     } else if (onComplete) {
       onComplete()
     } else {
-      router.push("/dashboard")
+      router.push("/client/dashboard")
     }
   }
 

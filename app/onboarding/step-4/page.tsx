@@ -96,7 +96,7 @@ export default function MentalHealthScaleStep() {
       localStorage.removeItem("onboarding_step2");
       localStorage.removeItem("onboarding_step3");
       localStorage.removeItem("onboarding_step4");
-      router.push("/dashboard");
+      router.push("/client/dashboard");
     } catch (e) {
       setError("An unexpected error occurred. Please try again.");
       setLoading(false);
