@@ -124,19 +124,8 @@ export const authOptions: NextAuthOptions = {
         user.email = existing.email;
       }
       return true;
-    },
-    async signOut({ user }) {
-      // Implement signOut logic
     }
   },
-  events: {
-    async signIn({ user, account }) {
-      // Redirect Google users to onboarding after login
-      if (account?.provider === "google") {
-        // This event cannot directly redirect, so handle on the client
-      }
-    }
-  }
 };
 
 const handler = NextAuth(authOptions);
