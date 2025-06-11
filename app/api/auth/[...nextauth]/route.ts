@@ -87,14 +87,8 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
     async redirect({ url, baseUrl, token }) {
-      // If onboarding is completed, go to dashboard, else onboarding
-      if (token && token.onboarding && token.onboarding.completed) {
-        return `${baseUrl}/client/dashboard`;
-      }
-      if (url.startsWith(baseUrl)) {
-        return url;
-      }
-      return `${baseUrl}/onboarding/step-1`;
+      // Always redirect to dashboard after sign-in
+      return `${baseUrl}/client/dashboard`;
     },
     async signIn({ user, account, profile, email }) {
       // Only handle Google provider

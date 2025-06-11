@@ -1,9 +1,23 @@
 "use client"
 
 import { useSession } from "next-auth/react"
+import { useRouter } from "next/navigation"
+import { useEffect } from "react"
 
 export default function Dashboard() {
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (status === "authenticated" && session?.user && !session.user.onboarding?.completed) {
+      router.replace("/onboarding/step-1")
+    }
+  }, [session, status, router])
+
+  if (status === "loading" || (status === "authenticated" && session?.user && !session.user.onboarding?.completed)) {
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>
+  }
+
   type UserSession = { first_name?: string; firstName?: string; name?: string }
   const user = session?.user as UserSession
   let displayName = user && (user.first_name || user.firstName || "")
