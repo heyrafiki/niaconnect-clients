@@ -1,0 +1,212 @@
+[
+  {
+    "email": "amina.test@client.com",
+    "password_hash": "$2a$10$testhash1",
+    "first_name": "Amina",
+    "last_name": "Mwangi",
+    "is_verified": true,
+    "provider": "email",
+    "profile_img_url": "",
+    "onboarding": {
+      "completed": true,
+      "phone_number": "+254700000001",
+      "gender": "female",
+      "date_of_birth": "1995-03-12",
+      "location": "Kenya",
+      "profile_img_url": "",
+      "therapy_reasons": ["anxiety", "stress"],
+      "session_types": ["online"],
+      "preferred_times": ["Morning Hours"],
+      "mental_health_scale": 5
+    }
+  },
+  {
+    "email": "brian.test@client.com",
+    "password_hash": "$2a$10$testhash2",
+    "first_name": "Brian",
+    "last_name": "Kato",
+    "is_verified": true,
+    "provider": "email",
+    "profile_img_url": "",
+    "onboarding": {
+      "completed": true,
+      "phone_number": "+256700000002",
+      "gender": "male",
+      "date_of_birth": "1990-07-22",
+      "location": "Uganda",
+      "profile_img_url": "",
+      "therapy_reasons": ["depression"],
+      "session_types": ["in-person"],
+      "preferred_times": ["Evening Hours"],
+      "mental_health_scale": 7
+    }
+  },
+  {
+    "email": "carol.test@client.com",
+    "password_hash": "$2a$10$testhash3",
+    "first_name": "Carol",
+    "last_name": "Nabwire",
+    "is_verified": true,
+    "provider": "email",
+    "profile_img_url": "",
+    "onboarding": {
+      "completed": true,
+      "phone_number": "+255700000003",
+      "gender": "female",
+      "date_of_birth": "1988-11-05",
+      "location": "Tanzania",
+      "profile_img_url": "",
+      "therapy_reasons": ["relationship", "self-esteem"],
+      "session_types": ["hybrid"],
+      "preferred_times": ["Afternoon"],
+      "mental_health_scale": 4
+    }
+  },
+  {
+    "email": "daniel.test@client.com",
+    "password_hash": "$2a$10$testhash4",
+    "first_name": "Daniel",
+    "last_name": "Omondi",
+    "is_verified": true,
+    "provider": "email",
+    "profile_img_url": "",
+    "onboarding": {
+      "completed": true,
+      "phone_number": "+254700000004",
+      "gender": "male",
+      "date_of_birth": "1992-01-15",
+      "location": "Kenya",
+      "profile_img_url": "",
+      "therapy_reasons": ["grief"],
+      "session_types": ["online", "in-person"],
+      "preferred_times": ["Night Hours"],
+      "mental_health_scale": 6
+    }
+  },
+  {
+    "email": "edith.test@client.com",
+    "password_hash": "$2a$10$testhash5",
+    "first_name": "Edith",
+    "last_name": "Mutua",
+    "is_verified": true,
+    "provider": "email",
+    "profile_img_url": "",
+    "onboarding": {
+      "completed": true,
+      "phone_number": "+257700000005",
+      "gender": "female",
+      "date_of_birth": "1998-09-30",
+      "location": "Burundi",
+      "profile_img_url": "",
+      "therapy_reasons": ["trauma"],
+      "session_types": ["online"],
+      "preferred_times": ["Morning Hours", "Afternoon"],
+      "mental_health_scale": 8
+    }
+  },
+  {
+    "email": "felix.test@client.com",
+    "password_hash": "$2a$10$testhash6",
+    "first_name": "Felix",
+    "last_name": "Mugisha",
+    "is_verified": true,
+    "provider": "email",
+    "profile_img_url": "",
+    "onboarding": {
+      "completed": true,
+      "phone_number": "+250700000006",
+      "gender": "male",
+      "date_of_birth": "1985-06-18",
+      "location": "Rwanda",
+      "profile_img_url": "",
+      "therapy_reasons": ["work stress"],
+      "session_types": ["in-person"],
+      "preferred_times": ["Evening Hours"],
+      "mental_health_scale": 3
+    }
+  },
+  {
+    "email": "grace.test@client.com",
+    "password_hash": "$2a$10$testhash7",
+    "first_name": "Grace",
+    "last_name": "Njeri",
+    "is_verified": true,
+    "provider": "email",
+    "profile_img_url": "",
+    "onboarding": {
+      "completed": true,
+      "phone_number": "+254700000007",
+      "gender": "female",
+      "date_of_birth": "1993-12-25",
+      "location": "Kenya",
+      "profile_img_url": "",
+      "therapy_reasons": ["anxiety", "depression"],
+      "session_types": ["hybrid"],
+      "preferred_times": ["Afternoon", "Evening Hours"],
+      "mental_health_scale": 9
+    }
+  },
+  {
+    "email": "hassan.test@client.com",
+    "password_hash": "$2a$10$testhash8",
+    "first_name": "Hassan",
+    "last_name": "Ali",
+    "is_verified": true,
+    "provider": "email",
+    "profile_img_url": "",
+    "onboarding": {
+      "completed": true,
+      "phone_number": "+254700000008",
+      "gender": "male",
+      "date_of_birth": "1997-04-10",
+      "location": "Kenya",
+      "profile_img_url": "",
+      "therapy_reasons": ["anger"],
+      "session_types": ["online"],
+      "preferred_times": ["Night Hours"],
+      "mental_health_scale": 2
+    }
+  },
+  {
+    "email": "irene.test@client.com",
+    "password_hash": "$2a$10$testhash9",
+    "first_name": "Irene",
+    "last_name": "Kagwiria",
+    "is_verified": true,
+    "provider": "email",
+    "profile_img_url": "",
+    "onboarding": {
+      "completed": true,
+      "phone_number": "+254700000009",
+      "gender": "female",
+      "date_of_birth": "1991-08-08",
+      "location": "Kenya",
+      "profile_img_url": "",
+      "therapy_reasons": ["eating disorder"],
+      "session_types": ["in-person"],
+      "preferred_times": ["Morning Hours"],
+      "mental_health_scale": 7
+    }
+  },
+  {
+    "email": "james.test@client.com",
+    "password_hash": "$2a$10$testhash10",
+    "first_name": "James",
+    "last_name": "Otieno",
+    "is_verified": true,
+    "provider": "email",
+    "profile_img_url": "",
+    "onboarding": {
+      "completed": true,
+      "phone_number": "+254700000010",
+      "gender": "male",
+      "date_of_birth": "1989-02-20",
+      "location": "Kenya",
+      "profile_img_url": "",
+      "therapy_reasons": ["addiction"],
+      "session_types": ["hybrid"],
+      "preferred_times": ["Afternoon"],
+      "mental_health_scale": 5
+    }
+  }
+]

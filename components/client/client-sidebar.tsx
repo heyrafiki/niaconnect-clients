@@ -7,10 +7,10 @@ import { Home, User, MessageCircle, Calendar, BookOpen, Users, FileText, CreditC
 
 const links = [
   { name: "Home", icon: Home, href: "/client/dashboard" },
-  { name: "Therapists", icon: Users, href: "#" },
+  { name: "Therapists", icon: Users, href: "/client/experts" },
   { name: "Messages", icon: MessageCircle, href: "#" },
-  { name: "Calendar", icon: Calendar, href: "#" },
-  { name: "Sessions", icon: BookOpen, href: "#" },
+  { name: "Calendar", icon: Calendar, href: "/client/calendar" },
+  { name: "Sessions", icon: BookOpen, href: "/client/sessions" },
   { name: "Journal", icon: FileText, href: "#" },
   { name: "Resources", icon: BookOpen, href: "#" },
   { name: "Billing", icon: CreditCard, href: "#" },
@@ -34,7 +34,7 @@ export default function ClientSidebar({ open, onClose }: { open: boolean, onClos
       />
       <aside
         className={cn(
-          "fixed z-50 top-0 left-0 h-full w-64 bg-white shadow-lg transform transition-transform duration-300 lg:static lg:translate-x-0 lg:shadow-none lg:block",
+          "fixed z-50 top-0 left-0 min-h-[100vh] h-full w-64 bg-white shadow-lg transform transition-transform duration-300 lg:static lg:translate-x-0 lg:shadow-none lg:block",
           open ? "translate-x-0" : "-translate-x-full",
           "lg:translate-x-0"
         )}
@@ -44,22 +44,22 @@ export default function ClientSidebar({ open, onClose }: { open: boolean, onClos
           <div className="mb-8 flex items-center justify-center">
             <img src="/images/heyrafiki-logo.png" alt="Heyrafiki Logo" className="h-10 w-auto" />
           </div>
-          <nav className="flex-1 space-y-2">
+          <nav className="flex-1 space-y-2 overflow-y-auto lg:overflow-y-visible">
             {links.map(link => (
               <Link
                 key={link.name}
                 href={link.href}
-                className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-700 hover:bg-heyrafiki-green/10 transition-colors"
+                className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-700 hover:bg-heyrafiki-green/10 transition-colors text-sm lg:text-base"
                 onClick={onClose}
               >
-                <link.icon className="w-5 h-5" />
+                <link.icon className="w-4 h-4 lg:w-5 lg:h-5" />
                 <span className="font-medium">{link.name}</span>
               </Link>
             ))}
           </nav>
           <div className="mt-auto pt-6">
-            <button className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-700 hover:bg-heyrafiki-green/10 w-full">
-              <LogOut className="w-5 h-5" />
+            <button className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-700 hover:bg-heyrafiki-green/10 w-full text-sm lg:text-base">
+              <LogOut className="w-4 h-4 lg:w-5 lg:h-5" />
               <span className="font-medium">Log out</span>
             </button>
           </div>
