@@ -18,8 +18,8 @@ module.exports = {
     },
     extend: {
       fontFamily: {
-        sans: ["var(--font-figtree)", "system-ui", "sans-serif"],
-        secondary: ["var(--font-plus-jakarta-sans)", "system-ui", "sans-serif"],
+        sans: ["var(--font-plus-jakarta-sans)", "system-ui", "sans-serif"],
+        secondary: ["var(--font-figtree)", "system-ui", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -82,4 +82,4 @@ module.exports = {
     },
   },
   plugins: [require("tailwindcss-animate")],
-}
+};

@@ -1,52 +1,87 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { createContext, useContext, useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import type React from "react";
+import { createContext, useContext, useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
-interface User {
+export interface User {
   id?: string;
   firstName: string;
   lastName: string;
   email: string;
   avatar?: string;
   isOnboarded?: boolean;
+  onboarding?: {
+    completed?: boolean;
+    phone_number?: string;
+    gender?: string;
+    date_of_birth?: string;
+    location?: string;
+    profile_img_url?: string;
+    therapy_reasons?: string[];
+    session_types?: string[];
+    preferred_times?: string[];
+    mental_health_scale?: number;
+  };
 }
 
 interface AuthContextType {
-  user: User | null
-  isLoading: boolean
-  login: (email: string, password: string) => Promise<void>
-  signup: (firstName: string, lastName: string, email: string, password: string) => Promise<void>
-  logout: () => void
+  user: User | null;
+  isLoading: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  signup: (
+    firstName: string,
+    lastName: string,
+    email: string,
+    password: string
+  ) => Promise<void>;
+  logout: () => void;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined)
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const router = useRouter()
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
+  const { data: session, status } = useSession();
 
-  // No persistent login for now; session handled server-side
   useEffect(() => {
+    if (status === "authenticated" && session?.user) {
+      setUser({
+        id: session.user.id as string,
+        firstName: session.user.first_name || "",
+        lastName: session.user.last_name || "",
+        email: session.user.email || "",
+        avatar: session.user.avatar || "",
+        isOnboarded: session.user.onboarding?.completed || false,
+        onboarding: session.user.onboarding || undefined,
+      });
+    } else if (status === "unauthenticated") {
+      setUser(null);
+    }
     setIsLoading(false);
-  }, [])
+  }, [session, status]);
 
   const login = async (email: string, password: string) => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
       const res = await fetch("/api/auth/signin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ email, password }),
       });
       const data = await res.json();
       if (!res.ok) {
-        if (data.error === 'Email not verified. Please verify your email via OTP.') {
+        if (
+          data.error === "Email not verified. Please verify your email via OTP."
+        ) {
           // Store password temporarily in session storage
-          sessionStorage.setItem('temp_auth_password', password);
-          router.push("/verify-otp?email=" + encodeURIComponent(email) + "&from=signin");
+          sessionStorage.setItem("temp_auth_password", password);
+          router.push(
+            "/verify-otp?email=" + encodeURIComponent(email) + "&from=signin"
+          );
           return;
         }
         throw new Error(data.error || "Signin failed");
@@ -54,13 +89,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const user = data.user;
       setUser({
         id: user.id,
-        firstName: user.first_name || '',
-        lastName: user.last_name || '',
+        firstName: user.first_name || "",
+        lastName: user.last_name || "",
         email: user.email,
-        isOnboarded: user.onboarding?.completed || false
+        isOnboarded: user.onboarding?.completed || false,
+        onboarding: user.onboarding || undefined,
       });
       // Clear any temporary auth data
-      sessionStorage.removeItem('temp_auth_password');
+      sessionStorage.removeItem("temp_auth_password");
 
       // --- Set NextAuth session cookie for backend authentication ---
       if (user.is_verified) {
@@ -76,7 +112,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // ---
 
       if (!user.is_verified) {
-        router.push("/verify-otp?email=" + encodeURIComponent(user.email) + "&from=signin");
+        router.push(
+          "/verify-otp?email=" + encodeURIComponent(user.email) + "&from=signin"
+        );
       } else if (!user.onboarding?.completed) {
         router.push("/onboarding/step-1");
       } else {
@@ -87,50 +125,66 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
-  const signup = async (firstName: string, lastName: string, email: string, password: string) => {
+  const signup = async (
+    firstName: string,
+    lastName: string,
+    email: string,
+    password: string
+  ) => {
     setIsLoading(true);
     try {
       const res = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ first_name: firstName, last_name: lastName, email, password })
+        body: JSON.stringify({
+          first_name: firstName,
+          last_name: lastName,
+          email,
+          password,
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Signup failed");
-      
+
       // Store password temporarily in session storage
-      sessionStorage.setItem('temp_auth_password', password);
-      
+      sessionStorage.setItem("temp_auth_password", password);
+
       setUser({
         id: data.user.id,
         firstName,
         lastName,
         email,
-        isOnboarded: false
+        isOnboarded: false,
       });
       // Do NOT call signIn here, as user must verify OTP first
-      router.push("/verify-otp?email=" + encodeURIComponent(email) + "&from=signup");
+      router.push(
+        "/verify-otp?email=" + encodeURIComponent(email) + "&from=signup"
+      );
     } catch (error: any) {
       alert(error.message || "Signup failed");
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
   const logout = () => {
     setUser(null);
     router.push("/");
-  }
+  };
 
-  return <AuthContext.Provider value={{ user, isLoading, login, signup, logout }}>{children}</AuthContext.Provider>
+  return (
+    <AuthContext.Provider value={{ user, isLoading, login, signup, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
 }
 
 export function useAuth() {
-  const context = useContext(AuthContext)
+  const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider")
+    throw new Error("useAuth must be used within an AuthProvider");
   }
-  return context
+  return context;
 }
