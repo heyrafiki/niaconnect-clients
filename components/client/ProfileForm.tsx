@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -8,27 +8,62 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/components/ui/use-toast";
 import { Textarea } from "@/components/ui/textarea";
+import { Pencil } from "lucide-react";
+import { MultiSelect } from "@/components/ui/multi-select";
 
 export default function ProfileForm() {
   const { user } = useAuth();
+
   const [firstName, setFirstName] = useState(user?.firstName || "");
   const [lastName, setLastName] = useState(user?.lastName || "");
   const [phone, setPhone] = useState(user?.onboarding?.phone_number || "");
   const [avatar, setAvatar] = useState<string | null>(user?.avatar || null);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [therapyReasons, setTherapyReasons] = useState(
+  const [therapyReasonsDisplay, setTherapyReasonsDisplay] = useState(
     user?.onboarding?.therapy_reasons?.join(", ") || ""
   );
-  const [sessionTypes, setSessionTypes] = useState(
-    user?.onboarding?.session_types?.join(", ") || ""
+  const [sessionTypes, setSessionTypes] = useState<string[]>(
+    user?.onboarding?.session_types || []
   );
-  const [preferredTimes, setPreferredTimes] = useState(
-    user?.onboarding?.preferred_times?.join(", ") || ""
+  const [preferredTimes, setPreferredTimes] = useState<string[]>(
+    user?.onboarding?.preferred_times || []
   );
+
+  const [isEditingFirstName, setIsEditingFirstName] = useState(false);
+  const [isEditingLastName, setIsEditingLastName] = useState(false);
+  const [isEditingPhone, setIsEditingPhone] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+
+  const sessionTypeOptions = [
+    { label: "Individual", value: "individual" },
+    { label: "Couples", value: "couples" },
+    { label: "Group", value: "group" },
+  ];
+
+  const preferredTimeOptions = [
+    { label: "Mornings", value: "mornings" },
+    { label: "Afternoons", value: "afternoons" },
+    { label: "Evenings", value: "evenings" },
+    { label: "Weekdays", value: "weekdays" },
+    { label: "Weekends", value: "weekends" },
+  ];
+
+  useEffect(() => {
+    if (user) {
+      setFirstName(user.firstName || "");
+      setLastName(user.lastName || "");
+      setPhone(user.onboarding?.phone_number || "");
+      setAvatar(user.avatar || null);
+      setTherapyReasonsDisplay(
+        user.onboarding?.therapy_reasons?.join(", ") || ""
+      );
+      setSessionTypes(user.onboarding?.session_types || []);
+      setPreferredTimes(user.onboarding?.preferred_times || []);
+    }
+  }, [user]);
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -57,18 +92,8 @@ export default function ProfileForm() {
       phone,
       avatar,
       password: password || undefined,
-      therapyReasons: therapyReasons
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean),
-      sessionTypes: sessionTypes
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean),
-      preferredTimes: preferredTimes
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean),
+      sessionTypes: sessionTypes,
+      preferredTimes: preferredTimes,
     };
 
     console.log("Saving client profile:", profileData);
@@ -76,6 +101,100 @@ export default function ProfileForm() {
       title: "Profile saved successfully!",
       description: "Your profile has been updated.",
     });
+    setIsEditingFirstName(false);
+    setIsEditingLastName(false);
+    setIsEditingPhone(false);
+  };
+
+  const handleCancel = () => {
+    if (user) {
+      setFirstName(user.firstName || "");
+      setLastName(user.lastName || "");
+      setPhone(user.onboarding?.phone_number || "");
+      setAvatar(user.avatar || null);
+      setPassword("");
+      setConfirmPassword("");
+      setSessionTypes(user.onboarding?.session_types || []);
+      setPreferredTimes(user.onboarding?.preferred_times || []);
+    }
+    setIsEditingFirstName(false);
+    setIsEditingLastName(false);
+    setIsEditingPhone(false);
+    toast({
+      title: "Changes cancelled.",
+    });
+  };
+
+  const EditableField = ({
+    id,
+    label,
+    value,
+    isEditing,
+    setIsEditing,
+    type = "text",
+    placeholder = "",
+    onChange,
+    onBlur,
+    onKeyDown,
+  }: {
+    id: string;
+    label: string;
+    value: string;
+    isEditing: boolean;
+    setIsEditing: (editing: boolean) => void;
+    type?: string;
+    placeholder?: string;
+    onChange: (
+      e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    ) => void;
+    onBlur: () => void;
+    onKeyDown?: (
+      e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>
+    ) => void;
+  }) => {
+    const [showEditIcon, setShowEditIcon] = useState(false);
+    const InputComponent = type === "textarea" ? Textarea : Input;
+
+    return (
+      <div
+        className="relative group py-2 px-3 border border-transparent rounded-md flex items-center justify-between hover:bg-gray-50 transition-colors duration-200"
+        onMouseEnter={() => setShowEditIcon(true)}
+        onMouseLeave={() => setShowEditIcon(false)}
+        onClick={() => !isEditing && setIsEditing(true)}
+      >
+        <Label htmlFor={id} className="sr-only">
+          {label}
+        </Label>
+        {isEditing ? (
+          <InputComponent
+            id={id}
+            value={value}
+            onChange={onChange}
+            type={type}
+            placeholder={placeholder}
+            autoFocus
+            onBlur={onBlur}
+            onKeyDown={onKeyDown}
+            className="w-full"
+          />
+        ) : (
+          <p className="text-sm w-full">{value || <em>Not set</em>}</p>
+        )}
+        {!isEditing && showEditIcon && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="p-1.5 h-auto w-auto opacity-0 group-hover:opacity-100 transition-opacity absolute right-2 top-1/2 -translate-y-1/2"
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsEditing(true);
+            }}
+          >
+            <Pencil className="h-4 w-4" />
+          </Button>
+        )}
+      </div>
+    );
   };
 
   return (
@@ -84,6 +203,8 @@ export default function ProfileForm() {
         <Avatar className="w-20 h-20">
           {avatar ? (
             <AvatarImage src={avatar} alt="Avatar preview" />
+          ) : user?.avatar ? (
+            <AvatarImage src={user.avatar} alt="User avatar" />
           ) : (
             <AvatarFallback>
               {firstName?.[0] || "C"}
@@ -106,24 +227,70 @@ export default function ProfileForm() {
           onChange={handleAvatarChange}
         />
       </div>
+
+      {/* First Name Field */}
       <div>
         <Label htmlFor="firstName">First Name</Label>
-        <Input
+        <EditableField
           id="firstName"
+          label="First Name"
           value={firstName}
+          isEditing={isEditingFirstName}
+          setIsEditing={setIsEditingFirstName}
           onChange={(e) => setFirstName(e.target.value)}
-          required
+          onBlur={() => setIsEditingFirstName(false)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              setIsEditingFirstName(false);
+            }
+          }}
         />
       </div>
+
+      {/* Last Name Field */}
       <div>
         <Label htmlFor="lastName">Last Name</Label>
-        <Input
+        <EditableField
           id="lastName"
+          label="Last Name"
           value={lastName}
+          isEditing={isEditingLastName}
+          setIsEditing={setIsEditingLastName}
           onChange={(e) => setLastName(e.target.value)}
-          required
+          onBlur={() => setIsEditingLastName(false)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              setIsEditingLastName(false);
+            }
+          }}
         />
       </div>
+
+      {/* Phone Number Field */}
+      <div>
+        <Label htmlFor="phone">Phone Number</Label>
+        <EditableField
+          id="phone"
+          label="Phone Number"
+          value={phone}
+          isEditing={isEditingPhone}
+          setIsEditing={setIsEditingPhone}
+          type="tel"
+          placeholder="e.g. 0712345678"
+          onChange={(e) => setPhone(e.target.value)}
+          onBlur={() => setIsEditingPhone(false)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              setIsEditingPhone(false);
+            }
+          }}
+        />
+      </div>
+
+      {/* Email Field (Always Read-Only) */}
       <div>
         <Label htmlFor="email">Email</Label>
         <Input
@@ -131,17 +298,6 @@ export default function ProfileForm() {
           value={user?.email || ""}
           readOnly
           className="bg-gray-100"
-        />
-      </div>
-      <div>
-        <Label htmlFor="phone">Phone Number</Label>
-        <Input
-          id="phone"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          type="tel"
-          pattern="[0-9]{10,15}"
-          placeholder="e.g. 0712345678"
         />
       </div>
 
@@ -169,43 +325,42 @@ export default function ProfileForm() {
         </div>
       </div>
 
+      {/* Therapy Reasons (Non-Editable for Clients) */}
       <div>
-        <Label htmlFor="therapyReasons">
-          Therapy Reasons (comma-separated)
-        </Label>
-        <Textarea
-          id="therapyReasons"
-          value={therapyReasons}
-          onChange={(e) => setTherapyReasons(e.target.value)}
-          placeholder="e.g., anxiety, stress, relationship issues"
-        />
+        <Label htmlFor="therapyReasons">Therapy Reasons</Label>
+        <p className="py-2 px-3 border border-transparent rounded-md text-sm bg-gray-100">
+          {therapyReasonsDisplay || <em>Not set</em>}
+        </p>
       </div>
+
       <div>
-        <Label htmlFor="sessionTypes">
-          Preferred Session Types (comma-separated)
-        </Label>
-        <Textarea
-          id="sessionTypes"
-          value={sessionTypes}
-          onChange={(e) => setSessionTypes(e.target.value)}
-          placeholder="e.g., individual, couples, group"
-        />
-      </div>
-      <div>
-        <Label htmlFor="preferredTimes">
-          Preferred Times (comma-separated)
-        </Label>
-        <Textarea
-          id="preferredTimes"
-          value={preferredTimes}
-          onChange={(e) => setPreferredTimes(e.target.value)}
-          placeholder="e.g., mornings, weekdays, weekends"
+        <Label htmlFor="sessionTypes">Preferred Session Types</Label>
+        <MultiSelect
+          options={sessionTypeOptions}
+          selected={sessionTypes}
+          onChange={setSessionTypes}
+          placeholder="Select session types"
+          label="Preferred Session Types"
         />
       </div>
 
-      <Button type="submit" className="w-full">
-        Save Changes
-      </Button>
+      <div>
+        <Label htmlFor="preferredTimes">Preferred Times</Label>
+        <MultiSelect
+          options={preferredTimeOptions}
+          selected={preferredTimes}
+          onChange={setPreferredTimes}
+          placeholder="Select preferred times"
+          label="Preferred Times"
+        />
+      </div>
+
+      <div className="flex justify-end gap-3">
+        <Button type="button" variant="outline" onClick={handleCancel}>
+          Cancel
+        </Button>
+        <Button type="submit">Save Changes</Button>
+      </div>
     </form>
   );
 }
