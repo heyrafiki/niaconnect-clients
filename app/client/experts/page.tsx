@@ -78,28 +78,28 @@ export default function ExpertsPage() {
       <p className="mb-6 text-gray-600">Our experts will help you identify and navigate through your problems</p>
       {/* Filters */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-3 mb-6 items-center">
-        <Select value={filters.specialization} onValueChange={v => setFilters(f => ({ ...f, specialization: v }))}>
-          <SelectTrigger>
-            <SelectValue placeholder="Specialization" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Specializations</SelectItem>
-            {specializations.map(s => (
-              <SelectItem key={s} value={s}>{capitalize(s)}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={filters.location} onValueChange={v => setFilters(f => ({ ...f, location: v }))}>
-          <SelectTrigger>
-            <SelectValue placeholder="Location" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Locations</SelectItem>
-            {locations.map(l => (
-              <SelectItem key={l} value={l}>{l}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          <Select value={filters.specialization} onValueChange={v => setFilters(f => ({ ...f, specialization: v }))}>
+            <SelectTrigger>
+              <SelectValue placeholder="Specialization" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Specializations</SelectItem>
+              {specializations.map(s => (
+                <SelectItem key={s} value={s}>{capitalize(s)}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={filters.location} onValueChange={v => setFilters(f => ({ ...f, location: v }))}>
+            <SelectTrigger>
+              <SelectValue placeholder="Location" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Locations</SelectItem>
+              {locations.map(l => (
+                <SelectItem key={l} value={l}>{l}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         <Select value={filters.sessionType} onValueChange={v => setFilters(f => ({ ...f, sessionType: v }))}>
           <SelectTrigger>
             <SelectValue placeholder="Session Type" />
@@ -122,11 +122,11 @@ export default function ExpertsPage() {
             ))}
           </SelectContent>
         </Select>
-        <Input
-          placeholder="Search by name or bio..."
-          value={filters.search}
-          onChange={e => setFilters(f => ({ ...f, search: e.target.value }))}
-        />
+          <Input
+            placeholder="Search by name or bio..."
+            value={filters.search}
+            onChange={e => setFilters(f => ({ ...f, search: e.target.value }))}
+          />
         <Button
           className="w-full"
           onClick={() => setFilters({
@@ -155,42 +155,42 @@ export default function ExpertsPage() {
               <div className="col-span-full text-center text-gray-500">No experts found.</div>
             ) : (
               experts.map(expert => (
-                <div
+                    <div
                   key={expert._id}
-                  className="bg-white border rounded-2xl shadow hover:shadow-lg transition cursor-pointer flex flex-col gap-3 p-5 h-full"
+                      className="bg-white border rounded-2xl shadow hover:shadow-lg transition cursor-pointer flex flex-col gap-3 p-5 h-full"
                   onClick={() => window.location.href = `/client/experts/${expert._id}`}
-                >
-                  <div className="flex items-center gap-4">
-                    <Avatar className="h-14 w-14">
+                    >
+                      <div className="flex items-center gap-4">
+                        <Avatar className="h-14 w-14">
                       {expert.profile_img_url ? (
                         <AvatarImage src={expert.profile_img_url} alt={expert.first_name} />
-                      ) : (
-                        <AvatarFallback className="text-2xl font-bold bg-heyrafiki-green/10 text-heyrafiki-green">
+                          ) : (
+                            <AvatarFallback className="text-2xl font-bold bg-heyrafiki-green/10 text-heyrafiki-green">
                           {capitalize(expert.first_name?.[0] || "?")}
-                        </AvatarFallback>
-                      )}
-                    </Avatar>
-                    <div className="flex-1">
+                            </AvatarFallback>
+                          )}
+                        </Avatar>
+                        <div className="flex-1">
                       <div className="font-bold text-lg text-gray-900">{capitalize(expert.first_name)} {capitalize(expert.last_name)}</div>
-                      <div className="text-xs text-gray-500">{getExpertField(expert, "location")}</div>
+                          <div className="text-xs text-gray-500">{getExpertField(expert, "location")}</div>
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap gap-1 mt-2">
+                        {(getExpertField(expert, "specialties") || []).map((s: string) => (
+                          <span key={s} className="text-[10px] px-2 py-0.5 bg-heyrafiki-green/10 text-heyrafiki-green rounded-full font-medium">
+                            {capitalize(s)}
+                          </span>
+                        ))}
+                      </div>
+                      <div className="text-xs text-gray-700 mt-2 min-h-[36px]">{truncate(getExpertField(expert, "bio"), 90)}</div>
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {(getExpertField(expert, "session_types") || []).map((type: string) => (
+                          <span key={type} className="text-[10px] px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full font-medium">
+                            {type}
+                          </span>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex flex-wrap gap-1 mt-2">
-                    {(getExpertField(expert, "specialties") || []).map((s: string) => (
-                      <span key={s} className="text-[10px] px-2 py-0.5 bg-heyrafiki-green/10 text-heyrafiki-green rounded-full font-medium">
-                        {capitalize(s)}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="text-xs text-gray-700 mt-2 min-h-[36px]">{truncate(getExpertField(expert, "bio"), 90)}</div>
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {(getExpertField(expert, "session_types") || []).map((type: string) => (
-                      <span key={type} className="text-[10px] px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full font-medium">
-                        {type}
-                      </span>
-                    ))}
-                  </div>
-                </div>
               ))
             )}
           </div>

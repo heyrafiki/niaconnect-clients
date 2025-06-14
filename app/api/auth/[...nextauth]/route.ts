@@ -124,6 +124,18 @@ export const authOptions: NextAuthOptions = {
       return true;
     }
   },
+  cookies: {
+    sessionToken: {
+      name: `__Secure-next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+        domain: process.env.NODE_ENV === 'production' ? process.env.NEXTAUTH_URL?.split('://')[1] : 'localhost',
+      },
+    },
+  },
 };
 
 const handler = NextAuth(authOptions);

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogClose, DialogTrigger } from "@/components/ui/dialog";
@@ -14,6 +14,7 @@ function capitalize(str: string) {
 
 export default function ExpertDetailsPage() {
   const { id } = useParams();
+  const router = useRouter();
   const [expert, setExpert] = useState<any>(null);
   const [availability, setAvailability] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -211,7 +212,7 @@ export default function ExpertDetailsPage() {
                         });
                         if (!res.ok) throw new Error((await res.json()).error || "Failed to submit request");
                         setSubmitSuccess(true);
-                        setTimeout(() => setModalOpen(false), 1200);
+                        router.push('/client/sessions');
                       } catch (e: any) {
                         setSubmitError(e.message || "Failed to submit request");
                       } finally {
