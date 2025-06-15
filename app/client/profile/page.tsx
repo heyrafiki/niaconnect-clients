@@ -1,19 +1,21 @@
-"use client"
+"use client";
 
-import { useSession } from "next-auth/react"
+import { useAuth } from "@/lib/auth-context";
+import ProfileForm from "@/components/client/ProfileForm";
+import ProfileCompletionTracker from "@/components/client/ProfileCompletionTracker";
 
-export default function ProfilePage() {
-  const { data: session } = useSession()
-    type UserSession = { first_name?: string; firstName?: string; name?: string; email?: string }
-    const user = session?.user as UserSession
-    let displayName = user && (user.first_name || user.firstName || user.name || "")
-    const email = user && (user.email || "")
+export default function ClientProfilePage() {
+  const { user } = useAuth();
+
+  if (!user) {
+    return <div className="p-8 text-center">Loading profile...</div>;
+  }
 
   return (
-    <div className="bg-white shadow rounded-lg p-6 max-w-md mx-auto">
-      <h1 className="text-xl font-bold text-gray-900 mb-4">Profile</h1>
-      <div className="mb-2"><span className="font-medium">Name:</span> {displayName}</div>
-      <div className="mb-2"><span className="font-medium">Email:</span> {email}</div>
+    <div className="max-w-xl mx-auto p-6">
+      <h1 className="text-2xl font-bold mb-4">Client Profile</h1>
+      <ProfileCompletionTracker user={user} />
+      <ProfileForm />
     </div>
-  )
+  );
 }
