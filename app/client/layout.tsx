@@ -34,7 +34,7 @@ export default function ClientLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="h-screen bg-gray-50 flex overflow-y-hidden">
       <ClientSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="flex-1 flex flex-col min-h-screen">
         <ClientHeader onMenuClick={() => setSidebarOpen(true)} />
