@@ -14,41 +14,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth-context";
 import { Progress } from "@/components/ui/progress";
 
-function isProfileIncomplete(user: any) {
-  if (!user) return false;
-  // Current simplified check. This will be more accurate with the tracker logic.
-  return !user.firstName || !user.lastName || !user.onboarding?.completed;
-}
-
-// Helper function (duplicate from ProfileCompletionTracker for modal's internal calculation)
-function calculateClientProfileCompletionForModal(user: any) {
-  if (!user) return { completedFields: 0, totalFields: 0, percentage: 0 };
-
-  const requiredFields = [
-    user.firstName,
-    user.lastName,
-    user.email,
-    user.onboarding?.phone_number,
-    user.onboarding?.gender,
-    user.onboarding?.date_of_birth,
-    user.onboarding?.location,
-    user.onboarding?.profile_img_url,
-  ];
-
-  const completedFields = requiredFields.filter((field) => {
-    if (Array.isArray(field)) {
-      return field.length > 0;
-    }
-    return !!field;
-  }).length;
-
-  const totalFields = requiredFields.length;
-  const percentage =
-    totalFields > 0 ? Math.round((completedFields / totalFields) * 100) : 0;
-
-  return { completedFields, totalFields, percentage };
-}
-
+import { calculateClientProfileCompletion } from "@/components/client/profile-completion";
 export default function ProfileCompletionModal() {
   const { user } = useAuth();
   const router = useRouter();
@@ -62,15 +28,12 @@ export default function ProfileCompletionModal() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     const seen = sessionStorage.getItem("profile_modal_seen");
-    // Only show if user exists, profile is incomplete, and not seen this session
-    if (user && isProfileIncomplete(user) && !seen) {
+    const completion = calculateClientProfileCompletion(user);
+    setCompletion(completion);
+    if (user && completion.percentage < 100 && !seen) {
       setOpen(true);
       sessionStorage.setItem("profile_modal_seen", "true");
     }
-  }, [user]);
-
-  useEffect(() => {
-    setCompletion(calculateClientProfileCompletionForModal(user));
   }, [user]);
 
   const handleCompleteNow = () => {

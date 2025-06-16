@@ -12,6 +12,7 @@ export interface User {
   email: string;
   avatar?: string;
   isOnboarded?: boolean;
+  provider?: 'email' | 'google';
   onboarding?: {
     completed?: boolean;
     phone_number?: string;
@@ -41,6 +42,22 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+type SessionUser = {
+  id?: string;
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  avatar?: string;
+  onboarding?: any;
+  provider?: string;
+  sub?: string;
+};
+
+function getProvider(sUser: SessionUser): 'email' | 'google' {
+  if (sUser.provider === 'google' || sUser.sub) return 'google';
+  return 'email';
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -49,14 +66,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (status === "authenticated" && session?.user) {
+      const sUser = session.user as SessionUser;
       setUser({
-        id: session.user.id as string,
-        firstName: session.user.first_name || "",
-        lastName: session.user.last_name || "",
-        email: session.user.email || "",
-        avatar: session.user.avatar || "",
-        isOnboarded: session.user.onboarding?.completed || false,
-        onboarding: session.user.onboarding || undefined,
+        id: sUser.id as string,
+        firstName: sUser.first_name || "",
+        lastName: sUser.last_name || "",
+        email: sUser.email || "",
+        avatar: sUser.avatar || "",
+        isOnboarded: sUser.onboarding?.completed || false,
+        onboarding: sUser.onboarding || undefined,
+        provider: getProvider(sUser),
       });
     } else if (status === "unauthenticated") {
       setUser(null);
@@ -94,6 +113,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         email: user.email,
         isOnboarded: user.onboarding?.completed || false,
         onboarding: user.onboarding || undefined,
+        provider: 'email',
       });
       // Clear any temporary auth data
       sessionStorage.removeItem("temp_auth_password");
@@ -157,6 +177,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         lastName,
         email,
         isOnboarded: false,
+        provider: 'email',
       });
       // Do NOT call signIn here, as user must verify OTP first
       router.push(

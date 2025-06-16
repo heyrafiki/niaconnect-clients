@@ -18,6 +18,8 @@ export async function POST(req: NextRequest) {
   try {
     // Ensure arrays are always set, even if missing from data
     const onboardingUpdate: any = { ...data, completed: true };
+    // Ensure phone_number is always set
+    onboardingUpdate.phone_number = data.phone_number || data.phoneNumber || '';
     if (!Array.isArray(onboardingUpdate.therapy_reasons)) onboardingUpdate.therapy_reasons = data.selectedReasons || [];
     if (!Array.isArray(onboardingUpdate.session_types)) onboardingUpdate.session_types = data.sessionTypes || [];
     if (!Array.isArray(onboardingUpdate.preferred_times)) onboardingUpdate.preferred_times = data.preferredTimes || [];

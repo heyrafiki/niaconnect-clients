@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { Menu, ChevronDown, LogOut, User } from "lucide-react"
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import ProfileAvatar from "@/components/client/ProfileAvatar"
 import { signOut, useSession } from "next-auth/react"
 import Link from "next/link"
 import {
@@ -16,8 +16,11 @@ import {
 
 export default function ClientHeader({ onMenuClick }: { onMenuClick: () => void }) {
   const { data: session } = useSession()
-  const user = session?.user || {}
-  const displayName = user.first_name || user.firstName || user.name || ""
+  const user = session?.user || {};
+  const displayName = user.first_name || user.name?.split(" ")[0] || "";
+  const profileImgUrl = user.onboarding?.profile_img_url || undefined;
+  const firstName = user.first_name || user.name?.split(" ")[0] || "";
+  const lastName = user.last_name || user.name?.split(" ")[1] || "";
 
   return (
     <header className="w-full bg-white shadow-sm px-4 py-3 flex items-center justify-between relative">
@@ -42,13 +45,10 @@ export default function ClientHeader({ onMenuClick }: { onMenuClick: () => void 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="flex items-center gap-2 px-2 py-1 rounded-md hover:bg-gray-100 focus:outline-none">
-                <Avatar>
-                  <AvatarImage src={user.image} alt={displayName} />
-                  <AvatarFallback>{displayName?.[0]}</AvatarFallback>
-                </Avatar>
-                <span className="font-medium text-gray-800 text-base">{displayName}</span>
-                <ChevronDown className="w-4 h-4 text-gray-500" />
-              </button>
+  <ProfileAvatar profileImgUrl={profileImgUrl} firstName={firstName} lastName={lastName} size={40} />
+  <span className="font-medium text-gray-800 text-base">{displayName}</span>
+  <ChevronDown className="w-4 h-4 text-gray-500" />
+</button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
               <DropdownMenuLabel className="font-semibold">{displayName}</DropdownMenuLabel>
@@ -69,11 +69,8 @@ export default function ClientHeader({ onMenuClick }: { onMenuClick: () => void 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="focus:outline-none">
-                <Avatar>
-                  <AvatarImage src={user.image} alt={displayName} />
-                  <AvatarFallback>{displayName?.[0]}</AvatarFallback>
-                </Avatar>
-              </button>
+  <ProfileAvatar profileImgUrl={profileImgUrl} firstName={firstName} lastName={lastName} size={36} />
+</button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
               <DropdownMenuLabel className="font-semibold">{displayName}</DropdownMenuLabel>
