@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { IExpert, ExpertFilters } from "@/types/expert";
+import { useSession } from 'next-auth/react';
 
 function capitalize(str: string) {
   return str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
@@ -16,6 +17,30 @@ function truncate(str: string, n: number) {
 }
 
 export default function ExpertsPage() {
+  const { data: session } = useSession();
+  const [myTherapists, setMyTherapists] = useState<any[]>([]);
+  const [myTherapistsLoading, setMyTherapistsLoading] = useState(true);
+
+  // Fetch therapists who have received session requests or sessions from this client
+  useEffect(() => {
+    if (!session?.user?.id) return;
+    setMyTherapistsLoading(true);
+    fetch(`/api/sessions?client_id=${session.user.id}`)
+      .then(res => res.json())
+      .then(data => {
+        // Group by expert and show latest status
+        const byExpert: Record<string, any> = {};
+        (data.events || []).forEach((event: any) => {
+          const expertId = event.expert_id?._id || event.expert_id;
+          if (!byExpert[expertId] || new Date(event.updated_at || event.created_at) > new Date(byExpert[expertId].updated_at || byExpert[expertId].created_at)) {
+            byExpert[expertId] = event;
+          }
+        });
+        setMyTherapists(Object.values(byExpert));
+        setMyTherapistsLoading(false);
+      })
+      .catch(() => setMyTherapistsLoading(false));
+  }, [session?.user?.id]);
   const [experts, setExperts] = useState<IExpert[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -74,6 +99,82 @@ export default function ExpertsPage() {
 
   return (
     <div className="">
+      {/* My Therapists Section */}
+      <div className="mb-8">
+        <h2 className="text-2xl font-bold mb-3">My Therapists</h2>
+        {myTherapistsLoading ? (
+          <div className="text-gray-500">Loading...</div>
+        ) : myTherapists.length === 0 ? (
+          <div className="text-gray-400 text-sm">You haven't interacted with any therapists yet.</div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+            {myTherapists.map(event => {
+              const expert = event.expert_id;
+              const status = event.status;
+              let statusColor = 'bg-gray-200 text-gray-700';
+              switch (status) {
+                case 'pending': statusColor = 'bg-blue-100 text-blue-700'; break;
+                case 'accepted': statusColor = 'bg-green-100 text-green-700'; break;
+                case 'declined':
+                case 'cancelled': statusColor = 'bg-red-100 text-red-700'; break;
+                case 'rescheduled': statusColor = 'bg-orange-100 text-orange-700'; break;
+                case 'scheduled': statusColor = 'bg-green-100 text-green-700'; break;
+                case 'completed': statusColor = 'bg-purple-100 text-purple-700'; break;
+              }
+              return (
+                <div
+                  key={expert._id || expert}
+                  className="bg-white border rounded-2xl shadow hover:shadow-lg transition cursor-pointer flex flex-col gap-3 p-5 h-full"
+                  onClick={() => window.location.href = `/client/experts/${expert._id || expert}`}
+                >
+                  <div className="flex items-center gap-4">
+                    <Avatar className="h-12 w-12">
+                      {expert.profile_img_url ? (
+                        <AvatarImage src={expert.profile_img_url} alt={expert.first_name} />
+                      ) : (
+                        <AvatarFallback className="text-2xl font-bold bg-heyrafiki-green/10 text-heyrafiki-green">
+                          {capitalize(expert.first_name?.[0] || '?')}
+                        </AvatarFallback>
+                      )}
+                    </Avatar>
+                    <div className="flex-1">
+                      <div className="font-bold text-lg text-gray-900">{capitalize(expert.first_name)} {capitalize(expert.last_name)}</div>
+                      <div className="text-xs text-gray-500">{getExpertField(expert, "location")}</div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {(getExpertField(expert, "specialties") || []).map((s: string) => (
+                      <span key={s} className="text-[10px] px-2 py-0.5 bg-heyrafiki-green/10 text-heyrafiki-green rounded-full font-medium">
+                        {capitalize(s)}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="text-xs text-gray-700 mt-2 min-h-[36px]">{truncate(getExpertField(expert, "bio"), 120)}</div> 
+
+                  <div className="flex flex-col gap-1 mt-2 w-full border-[1.6px] border-gray-200 py-2 px-[8px] rounded-[10px]">
+                    <div className="flex justify-between py-2 w-full">
+                      <span className={`px-2 rounded-full text-xs font-semibold w-fit ${statusColor}`}>{capitalize(status)}</span>
+                      <span className="text-xs text-gray-500">
+                        {event.start_time ? new Date(event.start_time).toLocaleString() : event.requested_time ? new Date(event.requested_time).toLocaleString() : '-'}
+                      </span>
+                    </div>
+
+                    <span className="text-xs text-gray-500">
+                      <b>Session Type:</b> {event.session_type || '-'}
+                    </span>
+                    {event.reason && (
+                      <span className="text-xs text-gray-500">
+                        <b>Reason:</b> {event.reason}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
       <h1 className="text-2xl font-bold mb-2">Find the best mental health expert</h1>
       <p className="mb-6 text-gray-600">Our experts will help you identify and navigate through your problems</p>
       {/* Filters */}
@@ -127,19 +228,27 @@ export default function ExpertsPage() {
             value={filters.search}
             onChange={e => setFilters(f => ({ ...f, search: e.target.value }))}
           />
-        <Button
-          className="w-full"
-          onClick={() => setFilters({
-            specialization: "all",
-            location: "all",
-            search: "",
-            sessionType: "all",
-            clientDemographic: "all",
-          })}
-          variant="outline"
-        >
-          Clear
-        </Button>
+        {(
+          filters.specialization !== "all" ||
+          filters.location !== "all" ||
+          filters.sessionType !== "all" ||
+          filters.clientDemographic !== "all" ||
+          filters.search.trim() !== ""
+        ) && (
+          <Button
+            className="w-full font-bold border-2 border-red-400 text-red-600 bg-red-50 hover:bg-red-100 hover:border-red-600 transition"
+            onClick={() => setFilters({
+              specialization: "all",
+              location: "all",
+              search: "",
+              sessionType: "all",
+              clientDemographic: "all",
+            })}
+            variant="outline"
+          >
+            Clear
+          </Button>
+        )}
       </div>
 
       {/* Expert Cards */}
@@ -161,7 +270,7 @@ export default function ExpertsPage() {
                   onClick={() => window.location.href = `/client/experts/${expert._id}`}
                     >
                       <div className="flex items-center gap-4">
-                        <Avatar className="h-14 w-14">
+                        <Avatar className="h-12 w-12">
                       {expert.profile_img_url ? (
                         <AvatarImage src={expert.profile_img_url} alt={expert.first_name} />
                           ) : (
@@ -182,7 +291,7 @@ export default function ExpertsPage() {
                           </span>
                         ))}
                       </div>
-                      <div className="text-xs text-gray-700 mt-2 min-h-[36px]">{truncate(getExpertField(expert, "bio"), 90)}</div>
+                      <div className="text-xs text-gray-700 mt-2 min-h-[36px]">{truncate(getExpertField(expert, "bio"), 160)}</div>
                       <div className="flex flex-wrap gap-2 mt-2">
                         {(getExpertField(expert, "session_types") || []).map((type: string) => (
                           <span key={type} className="text-[10px] px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full font-medium">

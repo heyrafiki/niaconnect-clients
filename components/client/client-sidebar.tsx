@@ -8,9 +8,9 @@ import { Home, User, MessageCircle, Calendar, BookOpen, Users, FileText, CreditC
 const links = [
   { name: "Home", icon: Home, href: "/client/dashboard" },
   { name: "Therapists", icon: Users, href: "/client/experts" },
-  { name: "Messages", icon: MessageCircle, href: "#" },
-  { name: "Calendar", icon: Calendar, href: "/client/calendar" },
   { name: "Sessions", icon: BookOpen, href: "/client/sessions" },
+  { name: "Calendar", icon: Calendar, href: "/client/calendar" },
+  { name: "Messages", icon: MessageCircle, href: "#" },
   { name: "Journal", icon: FileText, href: "#" },
   { name: "Resources", icon: BookOpen, href: "#" },
   { name: "Billing", icon: CreditCard, href: "#" },

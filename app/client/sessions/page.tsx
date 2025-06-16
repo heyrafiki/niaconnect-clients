@@ -117,6 +117,25 @@ export default function SessionsPage() {
     }
   };
 
+  // Deduplicate events: if both a Session and SessionRequest exist for the same expert and time, prefer Session
+  const dedupedEvents = React.useMemo(() => {
+    const sessionKeys = new Set<string>();
+    const deduped: (Session | SessionRequest)[] = [];
+    for (const event of events) {
+      const isSession = (event as Session).start_time !== undefined;
+      const expertId = isSession ? (event as Session).expert_id?._id || (event as Session).expert_id : (event as SessionRequest).expert_id?._id || (event as SessionRequest).expert_id;
+      const time = isSession ? (event as Session).start_time : (event as SessionRequest).requested_time;
+      const key = String(expertId) + '|' + String(new Date(time).toISOString());
+      if (isSession) {
+        sessionKeys.add(key);
+        deduped.push(event);
+      } else if (!sessionKeys.has(key)) {
+        deduped.push(event);
+      }
+    }
+    return deduped;
+  }, [events]);
+
   return (
     <div className="">
       <h1 className="text-3xl font-bold text-heyrafiki-green mb-4">My Sessions & Requests</h1>
@@ -149,11 +168,11 @@ export default function SessionsPage() {
         </div>
       ) : error ? (
         <div className="text-center text-red-500 py-12">{error}</div>
-      ) : events.length === 0 ? (
+      ) : dedupedEvents.length === 0 ? (
         <div className="text-center text-gray-500 py-12">No sessions or requests found.</div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {events.map((event) => {
+          {dedupedEvents.map((event) => {
             const isSession = (event as Session).start_time !== undefined;
             const expert = isSession ? (event as Session).expert_id : (event as SessionRequest).expert_id;
             const dateTime = isSession ? new Date((event as Session).start_time) : new Date((event as SessionRequest).requested_time);

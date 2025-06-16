@@ -30,12 +30,12 @@ export async function GET(req: NextRequest) {
 
     // Fetch confirmed sessions
     const sessions = await Session.find(sessionQuery)
-      .populate('expert_id', 'first_name last_name profile_img_url')
+      .populate('expert_id')
       .lean();
 
     // Fetch session requests
     const sessionRequests = await SessionRequest.find(sessionRequestQuery)
-      .populate('expert_id', 'first_name last_name profile_img_url')
+      .populate('expert_id')
       .lean();
 
     // Combine and sort by date (e.g., start_time for sessions, requested_time for requests)
