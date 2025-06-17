@@ -30,7 +30,18 @@ export default function ProfileCompletionModal() {
     const seen = sessionStorage.getItem("profile_modal_seen");
     const completion = calculateClientProfileCompletion(user);
     setCompletion(completion);
-    if (user && completion.percentage < 100 && !seen) {
+
+    // Only show modal if:
+    // 1. User is logged in
+    // 2. Onboarding is not completed
+    // 3. Modal hasn't been seen in this session
+    // 4. Profile is not 100% complete
+    if (
+      user &&
+      user.onboarding?.completed === false &&
+      !seen &&
+      completion.percentage < 100
+    ) {
       setOpen(true);
       sessionStorage.setItem("profile_modal_seen", "true");
     }
