@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Schema } from "mongoose";
 
 export interface IClient extends Document {
   email: string;
@@ -6,7 +6,7 @@ export interface IClient extends Document {
   first_name?: string;
   last_name?: string;
   is_verified: boolean;
-  provider: 'email' | 'google';
+  provider: "email" | "google";
   created_at: Date;
   updated_at: Date;
   onboarding?: {
@@ -20,6 +20,7 @@ export interface IClient extends Document {
     session_types?: string[];
     preferred_times?: string[];
     mental_health_scale?: number;
+    postal_address?: string;
   };
   otp?: string;
   otp_expiry?: Date;
@@ -34,7 +35,7 @@ const ClientSchema = new Schema<IClient>({
   first_name: { type: String },
   last_name: { type: String },
   is_verified: { type: Boolean, required: true, default: false },
-  provider: { type: String, enum: ['email', 'google'], required: true },
+  provider: { type: String, enum: ["email", "google"], required: true },
   otp: { type: String },
   otp_expiry: { type: Date },
   profile_img_url: { type: String },
@@ -51,12 +52,14 @@ const ClientSchema = new Schema<IClient>({
       therapy_reasons: [{ type: String }],
       session_types: [{ type: String }],
       preferred_times: [{ type: String }],
-      mental_health_scale: { type: Number }
+      mental_health_scale: { type: Number },
+      postal_address: { type: String },
     },
-    default: {}
+    default: {},
   },
   reset_otp: { type: String },
   reset_otp_expiry: { type: Date },
 });
 
-export default mongoose.models.Client || mongoose.model<IClient>('Client', ClientSchema);
+export default mongoose.models.Client ||
+  mongoose.model<IClient>("Client", ClientSchema);

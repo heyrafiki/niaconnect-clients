@@ -24,6 +24,7 @@ declare module "next-auth" {
         session_types?: string[];
         preferred_times?: string[];
         mental_health_scale?: number;
+        postal_address?: string;
       };
     } & DefaultSession["user"];
   }
@@ -46,6 +47,7 @@ declare module "next-auth" {
       session_types?: string[];
       preferred_times?: string[];
       mental_health_scale?: number;
+      postal_address?: string;
     };
   }
 }

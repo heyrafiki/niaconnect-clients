@@ -5,7 +5,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import ProfileAvatar from "@/components/client/ProfileAvatar";
-import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogFooter, AlertDialogTitle, AlertDialogDescription, AlertDialogAction, AlertDialogCancel } from "@/components/ui/alert-dialog";
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogAction,
+  AlertDialogCancel,
+} from "@/components/ui/alert-dialog";
 import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/components/ui/use-toast";
 import { Textarea } from "@/components/ui/textarea";
@@ -18,7 +28,9 @@ export default function ProfileForm() {
   const [firstName, setFirstName] = useState(user?.firstName || "");
   const [lastName, setLastName] = useState(user?.lastName || "");
   const [phone, setPhone] = useState(user?.onboarding?.phone_number || "");
-  const [avatar, setAvatar] = useState<string | null>(user?.onboarding?.profile_img_url || null);
+  const [avatar, setAvatar] = useState<string | null>(
+    user?.onboarding?.profile_img_url || null
+  );
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [therapyReasonsDisplay, setTherapyReasonsDisplay] = useState(
@@ -30,10 +42,16 @@ export default function ProfileForm() {
   const [preferredTimes, setPreferredTimes] = useState<string[]>(
     user?.onboarding?.preferred_times || []
   );
+  const [location, setLocation] = useState(user?.onboarding?.location || "");
+  const [postalAddress, setPostalAddress] = useState(
+    user?.onboarding?.postal_address || ""
+  );
 
   const [isEditingFirstName, setIsEditingFirstName] = useState(false);
   const [isEditingLastName, setIsEditingLastName] = useState(false);
   const [isEditingPhone, setIsEditingPhone] = useState(false);
+  const [isEditingLocation, setIsEditingLocation] = useState(false);
+  const [isEditingPostalAddress, setIsEditingPostalAddress] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
@@ -63,6 +81,8 @@ export default function ProfileForm() {
       );
       setSessionTypes(user.onboarding?.session_types || []);
       setPreferredTimes(user.onboarding?.preferred_times || []);
+      setLocation(user.onboarding?.location || "");
+      setPostalAddress(user.onboarding?.postal_address || "");
     }
   }, [user]);
 
@@ -95,6 +115,8 @@ export default function ProfileForm() {
       password: password || undefined,
       sessionTypes: sessionTypes,
       preferredTimes: preferredTimes,
+      location,
+      postalAddress,
     };
 
     try {
@@ -111,6 +133,8 @@ export default function ProfileForm() {
         setIsEditingFirstName(false);
         setIsEditingLastName(false);
         setIsEditingPhone(false);
+        setIsEditingLocation(false);
+        setIsEditingPostalAddress(false);
       } else {
         const error = await res.json();
         toast({
@@ -138,10 +162,14 @@ export default function ProfileForm() {
       setConfirmPassword("");
       setSessionTypes(user.onboarding?.session_types || []);
       setPreferredTimes(user.onboarding?.preferred_times || []);
+      setLocation(user.onboarding?.location || "");
+      setPostalAddress(user.onboarding?.postal_address || "");
     }
     setIsEditingFirstName(false);
     setIsEditingLastName(false);
     setIsEditingPhone(false);
+    setIsEditingLocation(false);
+    setIsEditingPostalAddress(false);
     toast({
       title: "Changes cancelled.",
     });
@@ -314,6 +342,44 @@ export default function ProfileForm() {
               className="bg-gray-100"
             />
           </div>
+          <div>
+            <Label htmlFor="location">Location</Label>
+            <EditableField
+              id="location"
+              label="Location"
+              value={location}
+              isEditing={isEditingLocation}
+              setIsEditing={setIsEditingLocation}
+              placeholder="e.g. Nairobi, Kenya"
+              onChange={(e) => setLocation(e.target.value)}
+              onBlur={() => setIsEditingLocation(false)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  setIsEditingLocation(false);
+                }
+              }}
+            />
+          </div>
+          <div>
+            <Label htmlFor="postalAddress">Postal Address</Label>
+            <EditableField
+              id="postalAddress"
+              label="Postal Address"
+              value={postalAddress}
+              isEditing={isEditingPostalAddress}
+              setIsEditing={setIsEditingPostalAddress}
+              placeholder="e.g. P.O. Box 12345"
+              onChange={(e) => setPostalAddress(e.target.value)}
+              onBlur={() => setIsEditingPostalAddress(false)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  setIsEditingPostalAddress(false);
+                }
+              }}
+            />
+          </div>
         </div>
       </div>
 
@@ -356,32 +422,32 @@ export default function ProfileForm() {
       </div>
 
       {/* --- Security Section --- */}
-      {user?.provider !== 'google' && (
+      {user?.provider !== "google" && (
         <div className="rounded-lg border p-6 bg-white space-y-4">
-        <h2 className="text-lg font-semibold mb-2">Security</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <Label htmlFor="password">New Password</Label>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter new password (optional)"
-            />
-          </div>
-          <div>
-            <Label htmlFor="confirmPassword">Confirm New Password</Label>
-            <Input
-              id="confirmPassword"
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="Confirm new password"
-            />
+          <h2 className="text-lg font-semibold mb-2">Security</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="password">New Password</Label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter new password (optional)"
+              />
+            </div>
+            <div>
+              <Label htmlFor="confirmPassword">Confirm New Password</Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Confirm new password"
+              />
+            </div>
           </div>
         </div>
-      </div>
       )}
 
       <div className="flex flex-col md:flex-row justify-between items-center gap-4 mt-6">
@@ -402,27 +468,47 @@ export default function ProfileForm() {
             <AlertDialogHeader>
               <AlertDialogTitle>Delete Account</AlertDialogTitle>
               <AlertDialogDescription>
-                Are you sure you want to delete your account? This action cannot be undone and will permanently remove your data.
+                Are you sure you want to delete your account? This action cannot
+                be undone and will permanently remove your data.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
               <AlertDialogAction asChild>
-                <Button type="button" variant="destructive" onClick={async () => {
-                  try {
-                    const res = await fetch("/api/update-profile", { method: "DELETE" });
-                    if (res.ok) {
-                      toast({ title: "Account deleted", description: "Your account has been permanently deleted." });
-                      // Optionally sign out or redirect
-                      window.location.href = "/goodbye";
-                    } else {
-                      const error = await res.json();
-                      toast({ title: "Error", description: error.error || "Failed to delete account.", variant: "destructive" });
+                <Button
+                  type="button"
+                  variant="destructive"
+                  onClick={async () => {
+                    try {
+                      const res = await fetch("/api/update-profile", {
+                        method: "DELETE",
+                      });
+                      if (res.ok) {
+                        toast({
+                          title: "Account deleted",
+                          description:
+                            "Your account has been permanently deleted.",
+                        });
+                        // Optionally sign out or redirect
+                        window.location.href = "/goodbye";
+                      } else {
+                        const error = await res.json();
+                        toast({
+                          title: "Error",
+                          description:
+                            error.error || "Failed to delete account.",
+                          variant: "destructive",
+                        });
+                      }
+                    } catch (err) {
+                      toast({
+                        title: "Error",
+                        description: "Failed to delete account.",
+                        variant: "destructive",
+                      });
                     }
-                  } catch (err) {
-                    toast({ title: "Error", description: "Failed to delete account.", variant: "destructive" });
-                  }
-                }}>
+                  }}
+                >
                   Confirm Delete
                 </Button>
               </AlertDialogAction>
