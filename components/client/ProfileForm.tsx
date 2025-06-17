@@ -21,6 +21,8 @@ import { useToast } from "@/components/ui/use-toast";
 import { Textarea } from "@/components/ui/textarea";
 import { Pencil } from "lucide-react";
 import { MultiSelect } from "@/components/ui/multi-select";
+import { ExperienceModal, WorkExperience } from "./ExperienceModal";
+import { format } from "date-fns";
 
 export default function ProfileForm() {
   const { user } = useAuth();
@@ -64,6 +66,9 @@ export default function ProfileForm() {
     twitter: false,
     facebook: false,
   });
+
+  const [isExperienceModalOpen, setIsExperienceModalOpen] = useState(false);
+  const [experiences, setExperiences] = useState<WorkExperience[]>([]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
@@ -256,6 +261,10 @@ export default function ProfileForm() {
     toast({
       title: "Changes cancelled.",
     });
+  };
+
+  const handleExperienceSubmit = (experience: WorkExperience) => {
+    setExperiences((prev) => [...prev, experience]);
   };
 
   const EditableField = ({
@@ -682,6 +691,58 @@ export default function ProfileForm() {
         </div>
       )}
 
+      {/* Experience Section */}
+      <div className="rounded-lg border p-6 bg-white space-y-6">
+        <div className="flex justify-between items-center">
+          <h2 className="text-lg font-semibold mb-2">Work Experience</h2>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setIsExperienceModalOpen(true)}
+          >
+            + Add
+          </Button>
+        </div>
+        <div className="space-y-4">
+          {experiences.map((exp, index) => (
+            <div key={index} className="p-4 border rounded-lg">
+              <div className="flex justify-between items-start">
+                <div>
+                  <h3 className="font-semibold">{exp.position}</h3>
+                  <p className="text-sm text-gray-600">{exp.organisation}</p>
+                  <p className="text-sm text-gray-600">
+                    {exp.city}, {exp.country}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    {format(exp.startDate, "MMM yyyy")} -{" "}
+                    {exp.isCurrent
+                      ? "Present"
+                      : exp.endDate
+                      ? format(exp.endDate, "MMM yyyy")
+                      : ""}
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() =>
+                    setExperiences((prev) => prev.filter((_, i) => i !== index))
+                  }
+                >
+                  Remove
+                </Button>
+              </div>
+            </div>
+          ))}
+          {experiences.length === 0 && (
+            <p className="text-sm text-gray-500">
+              No work experience added yet.
+            </p>
+          )}
+        </div>
+      </div>
+
       <div className="flex flex-col md:flex-row justify-between items-center gap-4 mt-6">
         <div className="flex gap-3">
           <Button type="button" variant="outline" onClick={handleCancel}>
@@ -748,6 +809,12 @@ export default function ProfileForm() {
           </AlertDialogContent>
         </AlertDialog>
       </div>
+
+      <ExperienceModal
+        isOpen={isExperienceModalOpen}
+        onClose={() => setIsExperienceModalOpen(false)}
+        onSubmit={handleExperienceSubmit}
+      />
     </form>
   );
 }
