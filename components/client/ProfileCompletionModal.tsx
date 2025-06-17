@@ -49,7 +49,7 @@ export default function ProfileCompletionModal() {
 
   const handleCompleteNow = () => {
     setOpen(false);
-    router.push("/profile");
+    router.push("/client/profile");
   };
 
   const handleLater = () => {
