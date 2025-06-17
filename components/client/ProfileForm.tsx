@@ -46,12 +46,24 @@ export default function ProfileForm() {
   const [postalAddress, setPostalAddress] = useState(
     user?.onboarding?.postal_address || ""
   );
+  const [socialMedia, setSocialMedia] = useState({
+    instagram: user?.onboarding?.social_media?.instagram || "",
+    linkedin: user?.onboarding?.social_media?.linkedin || "",
+    twitter: user?.onboarding?.social_media?.twitter || "",
+    facebook: user?.onboarding?.social_media?.facebook || "",
+  });
 
   const [isEditingFirstName, setIsEditingFirstName] = useState(false);
   const [isEditingLastName, setIsEditingLastName] = useState(false);
   const [isEditingPhone, setIsEditingPhone] = useState(false);
   const [isEditingLocation, setIsEditingLocation] = useState(false);
   const [isEditingPostalAddress, setIsEditingPostalAddress] = useState(false);
+  const [isEditingSocialMedia, setIsEditingSocialMedia] = useState({
+    instagram: false,
+    linkedin: false,
+    twitter: false,
+    facebook: false,
+  });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
@@ -83,6 +95,12 @@ export default function ProfileForm() {
       setPreferredTimes(user.onboarding?.preferred_times || []);
       setLocation(user.onboarding?.location || "");
       setPostalAddress(user.onboarding?.postal_address || "");
+      setSocialMedia({
+        instagram: user.onboarding?.social_media?.instagram || "",
+        linkedin: user.onboarding?.social_media?.linkedin || "",
+        twitter: user.onboarding?.social_media?.twitter || "",
+        facebook: user.onboarding?.social_media?.facebook || "",
+      });
     }
   }, [user]);
 
@@ -95,8 +113,52 @@ export default function ProfileForm() {
     }
   };
 
+  // URL validation function
+  const isValidUrl = (url: string) => {
+    if (!url) return true; // Empty URLs are valid
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  // Social media URL validation
+  const validateSocialMediaUrl = (platform: string, url: string) => {
+    if (!url) return true;
+    const patterns = {
+      instagram: /^https?:\/\/(www\.)?instagram\.com\/[\w.-]+\/?$/,
+      linkedin: /^https?:\/\/(www\.)?linkedin\.com\/(in|company)\/[\w.-]+\/?$/,
+      twitter: /^https?:\/\/(www\.)?(twitter\.com|x\.com)\/[\w.-]+\/?$/,
+      facebook: /^https?:\/\/(www\.)?facebook\.com\/[\w.-]+\/?$/,
+    };
+    return patterns[platform as keyof typeof patterns].test(url);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
+
+    // Validate social media URLs
+    const socialMediaErrors = Object.entries(socialMedia)
+      .map(([platform, url]) => {
+        if (url && !validateSocialMediaUrl(platform, url)) {
+          return `${platform} URL is invalid`;
+        }
+        return null;
+      })
+      .filter(Boolean);
+
+    if (socialMediaErrors.length > 0) {
+      toast({
+        title: "Invalid URLs",
+        description: socialMediaErrors.join(", "),
+        variant: "destructive",
+      });
+      setIsSubmitting(false);
+      return;
+    }
 
     if (password !== confirmPassword) {
       toast({
@@ -104,6 +166,7 @@ export default function ProfileForm() {
         description: "Passwords do not match.",
         variant: "destructive",
       });
+      setIsSubmitting(false);
       return;
     }
 
@@ -117,6 +180,7 @@ export default function ProfileForm() {
       preferredTimes: preferredTimes,
       location,
       postalAddress,
+      social_media: socialMedia,
     };
 
     try {
@@ -135,6 +199,12 @@ export default function ProfileForm() {
         setIsEditingPhone(false);
         setIsEditingLocation(false);
         setIsEditingPostalAddress(false);
+        setIsEditingSocialMedia({
+          instagram: false,
+          linkedin: false,
+          twitter: false,
+          facebook: false,
+        });
       } else {
         const error = await res.json();
         toast({
@@ -150,6 +220,7 @@ export default function ProfileForm() {
         variant: "destructive",
       });
     }
+    setIsSubmitting(false);
   };
 
   const handleCancel = () => {
@@ -164,12 +235,24 @@ export default function ProfileForm() {
       setPreferredTimes(user.onboarding?.preferred_times || []);
       setLocation(user.onboarding?.location || "");
       setPostalAddress(user.onboarding?.postal_address || "");
+      setSocialMedia({
+        instagram: user.onboarding?.social_media?.instagram || "",
+        linkedin: user.onboarding?.social_media?.linkedin || "",
+        twitter: user.onboarding?.social_media?.twitter || "",
+        facebook: user.onboarding?.social_media?.facebook || "",
+      });
     }
     setIsEditingFirstName(false);
     setIsEditingLastName(false);
     setIsEditingPhone(false);
     setIsEditingLocation(false);
     setIsEditingPostalAddress(false);
+    setIsEditingSocialMedia({
+      instagram: false,
+      linkedin: false,
+      twitter: false,
+      facebook: false,
+    });
     toast({
       title: "Changes cancelled.",
     });
@@ -416,6 +499,155 @@ export default function ProfileForm() {
               onChange={setPreferredTimes}
               placeholder="Select preferred times"
               label="Preferred Times"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* --- Social Media Links Section --- */}
+      <div className="rounded-lg border p-6 bg-white space-y-6">
+        <h2 className="text-lg font-semibold mb-2">Social Media Links</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="instagram">Instagram</Label>
+            <EditableField
+              id="instagram"
+              label="Instagram"
+              value={socialMedia.instagram}
+              isEditing={isEditingSocialMedia.instagram}
+              setIsEditing={(editing) =>
+                setIsEditingSocialMedia((prev) => ({
+                  ...prev,
+                  instagram: editing,
+                }))
+              }
+              placeholder="https://instagram.com/username"
+              onChange={(e) =>
+                setSocialMedia((prev) => ({
+                  ...prev,
+                  instagram: e.target.value,
+                }))
+              }
+              onBlur={() =>
+                setIsEditingSocialMedia((prev) => ({
+                  ...prev,
+                  instagram: false,
+                }))
+              }
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  setIsEditingSocialMedia((prev) => ({
+                    ...prev,
+                    instagram: false,
+                  }));
+                }
+              }}
+            />
+          </div>
+          <div>
+            <Label htmlFor="linkedin">LinkedIn</Label>
+            <EditableField
+              id="linkedin"
+              label="LinkedIn"
+              value={socialMedia.linkedin}
+              isEditing={isEditingSocialMedia.linkedin}
+              setIsEditing={(editing) =>
+                setIsEditingSocialMedia((prev) => ({
+                  ...prev,
+                  linkedin: editing,
+                }))
+              }
+              placeholder="https://linkedin.com/in/username"
+              onChange={(e) =>
+                setSocialMedia((prev) => ({
+                  ...prev,
+                  linkedin: e.target.value,
+                }))
+              }
+              onBlur={() =>
+                setIsEditingSocialMedia((prev) => ({
+                  ...prev,
+                  linkedin: false,
+                }))
+              }
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  setIsEditingSocialMedia((prev) => ({
+                    ...prev,
+                    linkedin: false,
+                  }));
+                }
+              }}
+            />
+          </div>
+          <div>
+            <Label htmlFor="twitter">Twitter (X)</Label>
+            <EditableField
+              id="twitter"
+              label="Twitter"
+              value={socialMedia.twitter}
+              isEditing={isEditingSocialMedia.twitter}
+              setIsEditing={(editing) =>
+                setIsEditingSocialMedia((prev) => ({
+                  ...prev,
+                  twitter: editing,
+                }))
+              }
+              placeholder="https://twitter.com/username"
+              onChange={(e) =>
+                setSocialMedia((prev) => ({ ...prev, twitter: e.target.value }))
+              }
+              onBlur={() =>
+                setIsEditingSocialMedia((prev) => ({ ...prev, twitter: false }))
+              }
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  setIsEditingSocialMedia((prev) => ({
+                    ...prev,
+                    twitter: false,
+                  }));
+                }
+              }}
+            />
+          </div>
+          <div>
+            <Label htmlFor="facebook">Facebook</Label>
+            <EditableField
+              id="facebook"
+              label="Facebook"
+              value={socialMedia.facebook}
+              isEditing={isEditingSocialMedia.facebook}
+              setIsEditing={(editing) =>
+                setIsEditingSocialMedia((prev) => ({
+                  ...prev,
+                  facebook: editing,
+                }))
+              }
+              placeholder="https://facebook.com/username"
+              onChange={(e) =>
+                setSocialMedia((prev) => ({
+                  ...prev,
+                  facebook: e.target.value,
+                }))
+              }
+              onBlur={() =>
+                setIsEditingSocialMedia((prev) => ({
+                  ...prev,
+                  facebook: false,
+                }))
+              }
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  setIsEditingSocialMedia((prev) => ({
+                    ...prev,
+                    facebook: false,
+                  }));
+                }
+              }}
             />
           </div>
         </div>

@@ -25,6 +25,12 @@ declare module "next-auth" {
         preferred_times?: string[];
         mental_health_scale?: number;
         postal_address?: string;
+        social_media?: {
+          instagram?: string;
+          linkedin?: string;
+          twitter?: string;
+          facebook?: string;
+        };
       };
     } & DefaultSession["user"];
   }
@@ -48,6 +54,12 @@ declare module "next-auth" {
       preferred_times?: string[];
       mental_health_scale?: number;
       postal_address?: string;
+      social_media?: {
+        instagram?: string;
+        linkedin?: string;
+        twitter?: string;
+        facebook?: string;
+      };
     };
   }
 }

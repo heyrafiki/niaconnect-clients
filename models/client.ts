@@ -21,6 +21,12 @@ export interface IClient extends Document {
     preferred_times?: string[];
     mental_health_scale?: number;
     postal_address?: string;
+    social_media?: {
+      instagram?: string;
+      linkedin?: string;
+      twitter?: string;
+      facebook?: string;
+    };
   };
   otp?: string;
   otp_expiry?: Date;
@@ -54,6 +60,12 @@ const ClientSchema = new Schema<IClient>({
       preferred_times: [{ type: String }],
       mental_health_scale: { type: Number },
       postal_address: { type: String },
+      social_media: {
+        instagram: { type: String },
+        linkedin: { type: String },
+        twitter: { type: String },
+        facebook: { type: String },
+      },
     },
     default: {},
   },
