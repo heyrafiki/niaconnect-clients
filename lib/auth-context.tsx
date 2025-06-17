@@ -12,7 +12,7 @@ export interface User {
   email: string;
   avatar?: string;
   isOnboarded?: boolean;
-  provider?: 'email' | 'google';
+  provider?: "email" | "google";
   onboarding?: {
     completed?: boolean;
     phone_number?: string;
@@ -24,6 +24,13 @@ export interface User {
     session_types?: string[];
     preferred_times?: string[];
     mental_health_scale?: number;
+    postal_address?: string;
+    social_media?: {
+      instagram?: string;
+      linkedin?: string;
+      twitter?: string;
+      facebook?: string;
+    };
   };
 }
 
@@ -53,9 +60,9 @@ type SessionUser = {
   sub?: string;
 };
 
-function getProvider(sUser: SessionUser): 'email' | 'google' {
-  if (sUser.provider === 'google' || sUser.sub) return 'google';
-  return 'email';
+function getProvider(sUser: SessionUser): "email" | "google" {
+  if (sUser.provider === "google" || sUser.sub) return "google";
+  return "email";
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -113,7 +120,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         email: user.email,
         isOnboarded: user.onboarding?.completed || false,
         onboarding: user.onboarding || undefined,
-        provider: 'email',
+        provider: "email",
       });
       // Clear any temporary auth data
       sessionStorage.removeItem("temp_auth_password");
@@ -177,7 +184,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         lastName,
         email,
         isOnboarded: false,
-        provider: 'email',
+        provider: "email",
       });
       // Do NOT call signIn here, as user must verify OTP first
       router.push(

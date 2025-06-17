@@ -15,6 +15,7 @@ import { useAuth } from "@/lib/auth-context";
 import { Progress } from "@/components/ui/progress";
 
 import { calculateClientProfileCompletion } from "@/components/client/profile-completion";
+
 export default function ProfileCompletionModal() {
   const { user } = useAuth();
   const router = useRouter();
@@ -23,6 +24,12 @@ export default function ProfileCompletionModal() {
     completedFields: 0,
     totalFields: 0,
     percentage: 0,
+    sections: {
+      personalInfo: { completed: 0, total: 0, percentage: 0 },
+      therapyDetails: { completed: 0, total: 0, percentage: 0 },
+      sessionPreferences: { completed: 0, total: 0, percentage: 0 },
+      socialMedia: { completed: 0, total: 0, percentage: 0 },
+    },
   });
 
   useEffect(() => {
@@ -75,16 +82,14 @@ export default function ProfileCompletionModal() {
           <DialogDescription className="text-base text-gray-700 mx-auto max-w-sm">
             To make the most of our platform, please complete your profile by
             adding all necessary details. A fully completed profile helps you
-            stand out and improves your experience.
+            find the right therapist and improves your experience.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="text-sm text-gray-600 mt-4 flex items-center justify-center">
-          <span className="mr-2 text-red-500">&#9733;</span>
-          <span className="font-semibold mr-1">Note:</span> Your education
-          background and work experience contribute to the profile completion
-          percentage.
-        </div>
+        <p className="text-sm text-muted-foreground">
+          <span className="font-semibold mr-1">Note:</span> Your profile
+          information will be visible to potential therapists.
+        </p>
 
         <DialogFooter className="flex-col sm:flex-row sm:justify-center gap-3 mt-6">
           <Button
