@@ -173,7 +173,7 @@ export default function PersonalInformationStep() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-heyrafiki-green mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading...</p>
         </div>
       </div>
@@ -188,17 +188,17 @@ export default function PersonalInformationStep() {
           <div className="space-y-6">
             <div className="flex items-center space-x-4 mb-8">
               <div className="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center">
-                <User className="w-6 h-6 text-heyrafiki-green" />
+                <User className="w-6 h-6 text-primary" />
               </div>
               <h1 className="text-xl lg:text-2xl font-bold text-gray-900">Personal Information</h1>
             </div>
 
             {/* Profile Picture Upload with Preview */}
             <div className="space-y-3">
-              <Label className="text-gray-700 font-secondary font-medium text-sm">Profile Picture</Label>
+              <Label className="text-foreground font-secondary font-medium text-sm">Profile Picture</Label>
               <div className="flex flex-col sm:flex-row items-center gap-6">
                 {/* Avatar Preview */}
-                <div className="relative w-24 h-24 rounded-full overflow-hidden border-2 border-heyrafiki-green">
+                <div className="relative w-24 h-24 rounded-full overflow-hidden border-2 border-primary">
                   {avatarUrl && (
                     <Image 
                       src={avatarUrl} 
@@ -223,7 +223,7 @@ export default function PersonalInformationStep() {
                       type="button"
                       variant="outline"
                       onClick={() => document.getElementById("profilePicture")?.click()}
-                      className="border-heyrafiki-green text-heyrafiki-green hover:bg-heyrafiki-green hover:text-white rounded-xl font-secondary bg-whitesmoke"
+                      className="border-primary text-primary hover:bg-primary hover:text-white rounded-xl font-secondary bg-whitesmoke"
                     >
                       <Upload className="w-4 h-4 mr-2" />
                       Change Image
@@ -240,7 +240,7 @@ export default function PersonalInformationStep() {
             {/* Form Fields */}
             <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label htmlFor="fullName" className="text-gray-700 font-secondary font-medium text-sm">
+                <Label htmlFor="fullName" className="text-foreground font-secondary font-medium text-sm">
                   Full Name
                 </Label>
                 <Input
@@ -248,13 +248,13 @@ export default function PersonalInformationStep() {
                   placeholder="Full name"
                   value={fullName}
                   readOnly
-                  className="border-gray-300 focus:border-heyrafiki-green focus:ring-heyrafiki-green rounded-xl h-12 font-secondary bg-[#f5f5f5] opacity-60 cursor-not-allowed"
+                  className="border-border focus:border-primary focus:ring-primary rounded-xl h-12 font-secondary bg-muted opacity-60 cursor-not-allowed"
                 />
                 <p className="text-xs text-gray-500 mt-1">Full name is set from your account and cannot be changed.</p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-gray-700 font-secondary font-medium text-sm">
+                <Label htmlFor="email" className="text-foreground font-secondary font-medium text-sm">
                   Email Address
                 </Label>
                 <Input
@@ -263,13 +263,13 @@ export default function PersonalInformationStep() {
                   placeholder="Email address"
                   value={email}
                   readOnly
-                  className="border-gray-300 focus:border-heyrafiki-green focus:ring-heyrafiki-green rounded-xl h-12 font-secondary bg-[#f5f5f5] opacity-60 cursor-not-allowed"
+                  className="border-border focus:border-primary focus:ring-primary rounded-xl h-12 font-secondary bg-muted opacity-60 cursor-not-allowed"
                 />
                 <p className="text-xs text-gray-500 mt-1">Email is set from your account and cannot be changed.</p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="phoneNumber" className="text-gray-700 font-secondary font-medium text-sm">
+                <Label htmlFor="phoneNumber" className="text-foreground font-secondary font-medium text-sm">
                   Phone Number
                 </Label>
                 <Input
@@ -286,17 +286,17 @@ export default function PersonalInformationStep() {
                       setPhoneError("Invalid phone number format. Use international format e.g. +254712345678");
                     }
                   }}
-                  className={`border-gray-300 focus:border-heyrafiki-green focus:ring-heyrafiki-green rounded-xl h-12 font-secondary bg-[#f5f5f5] ${phoneError ? 'border-red-500' : ''}`}
+                  className={`border-border focus:border-primary focus:ring-primary rounded-xl h-12 font-secondary bg-muted ${phoneError ? 'border-red-500' : ''}`}
                 />
                 {phoneError && <p className="text-xs text-red-500 mt-1">{phoneError}</p>}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="gender" className="text-gray-700 font-secondary font-medium text-sm">
+                <Label htmlFor="gender" className="text-foreground font-secondary font-medium text-sm">
                   Gender
                 </Label>
                 <Select value={gender} onValueChange={setGender}>
-                  <SelectTrigger className="border-gray-300 focus:border-heyrafiki-green focus:ring-heyrafiki-green rounded-xl h-12 font-secondary">
+                  <SelectTrigger className="border-border focus:border-primary focus:ring-primary rounded-xl h-12 font-secondary">
                     <SelectValue placeholder="Please select your gender" />
                   </SelectTrigger>
                   <SelectContent>
@@ -310,7 +310,7 @@ export default function PersonalInformationStep() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="dateOfBirth" className="text-gray-700 font-secondary font-medium text-sm">
+                <Label htmlFor="dateOfBirth" className="text-foreground font-secondary font-medium text-sm">
                   Date of Birth
                 </Label>
                 <Input
@@ -318,12 +318,12 @@ export default function PersonalInformationStep() {
                   type="date"
                   value={dateOfBirth}
                   onChange={(e) => setDateOfBirth(e.target.value)}
-                  className="border-gray-300 focus:border-heyrafiki-green focus:ring-heyrafiki-green rounded-xl h-12 font-secondary bg-[#f5f5f5]"
+                  className="border-border focus:border-primary focus:ring-primary rounded-xl h-12 font-secondary bg-muted"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="location" className="text-gray-700 font-secondary font-medium text-sm">
+                <Label htmlFor="location" className="text-foreground font-secondary font-medium text-sm">
                   Location
                 </Label>
                 <Input
@@ -334,7 +334,7 @@ export default function PersonalInformationStep() {
                     setLocation(e.target.value);
                     setFormTouched(true);
                   }}
-                  className="border-gray-300 focus:border-heyrafiki-green focus:ring-heyrafiki-green rounded-xl h-12 font-secondary bg-[#f5f5f5]"
+                  className="border-border focus:border-primary focus:ring-primary rounded-xl h-12 font-secondary bg-muted"
                 />
                 <button type="button" className="text-xs text-blue-600 underline mt-1" onClick={async () => {
                   setLoadingLocation(true);

@@ -132,7 +132,7 @@ export default function ExpertsPage() {
                       {expert.profile_img_url ? (
                         <AvatarImage src={expert.profile_img_url} alt={expert.first_name} />
                       ) : (
-                        <AvatarFallback className="text-2xl font-bold bg-heyrafiki-green/10 text-heyrafiki-green">
+                        <AvatarFallback className="text-2xl font-bold bg-primary/10 text-primary">
                           {capitalize(expert.first_name?.[0] || '?')}
                         </AvatarFallback>
                       )}
@@ -145,7 +145,7 @@ export default function ExpertsPage() {
 
                   <div className="flex flex-wrap gap-1 mt-2">
                     {(getExpertField(expert, "specialties") || []).map((s: string) => (
-                      <span key={s} className="text-[10px] px-2 py-0.5 bg-heyrafiki-green/10 text-heyrafiki-green rounded-full font-medium">
+                      <span key={s} className="text-[10px] px-2 py-0.5 bg-primary/10 text-primary rounded-full font-medium">
                         {capitalize(s)}
                       </span>
                     ))}
@@ -274,7 +274,7 @@ export default function ExpertsPage() {
                       {expert.profile_img_url ? (
                         <AvatarImage src={expert.profile_img_url} alt={expert.first_name} />
                           ) : (
-                            <AvatarFallback className="text-2xl font-bold bg-heyrafiki-green/10 text-heyrafiki-green">
+                            <AvatarFallback className="text-2xl font-bold bg-primary/10 text-primary">
                           {capitalize(expert.first_name?.[0] || "?")}
                             </AvatarFallback>
                           )}
@@ -286,7 +286,7 @@ export default function ExpertsPage() {
                       </div>
                       <div className="flex flex-wrap gap-1 mt-2">
                         {(getExpertField(expert, "specialties") || []).map((s: string) => (
-                          <span key={s} className="text-[10px] px-2 py-0.5 bg-heyrafiki-green/10 text-heyrafiki-green rounded-full font-medium">
+                          <span key={s} className="text-[10px] px-2 py-0.5 bg-primary/10 text-primary rounded-full font-medium">
                             {capitalize(s)}
                           </span>
                         ))}

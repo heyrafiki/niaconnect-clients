@@ -28,8 +28,19 @@ module.exports = {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "hsl(var(--primary))",
+          DEFAULT: "hsl(var(--green-primary))",
+          accent: "hsl(var(--green-accent))",
+          bright: "hsl(var(--green-bright))",
           foreground: "hsl(var(--primary-foreground))",
+        },
+        'green-primary': {
+          DEFAULT: "hsl(var(--green-primary))",
+        },
+        'green-accent': {
+          DEFAULT: "hsl(var(--green-accent))",
+        },
+        'green-bright': {
+          DEFAULT: "hsl(var(--green-bright))",
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
@@ -54,10 +65,6 @@ module.exports = {
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
-        },
-        heyrafiki: {
-          green: "#066338",
-          "green-dark": "#055530",
         },
       },
       borderRadius: {

@@ -51,17 +51,17 @@ export default function TherapyReasonsStep() {
 
   return (
     <>
-      <div className="text-gray-400 font-secondary font-medium text-right mb-4">STEP 2 OF 4</div>
-      <Card className="bg-white shadow-xl rounded-3xl border-0 overflow-hidden">
+      <div className="text-muted-foreground font-secondary font-medium text-right mb-4">STEP 2 OF 4</div>
+      <Card className="bg-card shadow-xl rounded-3xl border-0 overflow-hidden">
         <CardContent className="p-8 lg:p-12">
           <div className="space-y-6">
             <div className="flex items-center space-x-4 mb-8">
               <div className="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center">
-                <Puzzle className="w-6 h-6 text-heyrafiki-green" />
+                <Puzzle className="w-6 h-6 text-primary" />
               </div>
               <div>
-                <h1 className="text-xl lg:text-2xl font-bold text-gray-900">What led you to consider therapy today?</h1>
-                <p className="text-gray-600 font-secondary mt-2 text-sm">Select all that apply</p>
+                <h1 className="text-xl lg:text-2xl font-bold text-foreground">What led you to consider therapy today?</h1>
+                <p className="text-muted-foreground font-secondary mt-2 text-sm">Select all that apply</p>
               </div>
             </div>
 
@@ -73,7 +73,7 @@ export default function TherapyReasonsStep() {
                     checked={selectedReasons.includes(reason)}
                     onCheckedChange={(checked) => handleReasonChange(reason, checked as boolean)}
                   />
-                  <Label htmlFor={reason} className="text-gray-700 font-secondary font-medium text-sm">
+                  <Label htmlFor={reason} className="text-foreground font-secondary font-medium text-sm">
                     {reason}
                   </Label>
                 </div>

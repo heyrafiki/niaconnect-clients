@@ -105,17 +105,17 @@ export default function MentalHealthScaleStep() {
 
   return (
     <>
-      <div className="text-gray-400 font-secondary font-medium text-right mb-4">STEP 4 OF 4</div>
-      <Card className="bg-white shadow-xl rounded-3xl border-0 overflow-hidden">
+      <div className="text-muted-foreground font-secondary font-medium text-right mb-4">STEP 4 OF 4</div>
+      <Card className="bg-card shadow-xl rounded-3xl border-0 overflow-hidden">
         <CardContent className="p-8 lg:p-12">
           <div className="space-y-6">
             <div className="flex items-center space-x-4 mb-8">
-              <div className="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center">
-                <Smile className="w-6 h-6 text-heyrafiki-green" />
+              <div className="w-12 h-12 rounded-full bg-green-accent/10 flex items-center justify-center">
+                <Smile className="w-6 h-6 text-primary" />
               </div>
               <div>
-                <h1 className="text-xl lg:text-2xl font-bold text-gray-900">How are you doing?</h1>
-                <p className="text-gray-600 font-secondary mt-2 text-sm">
+                <h1 className="text-xl lg:text-2xl font-bold text-foreground">How are you doing?</h1>
+                <p className="text-muted-foreground font-secondary mt-2 text-sm">
                   On a scale of 1-10, where 1 = I am really struggling and 10 = I am totally okay, over the past month,
                   has your mental health interfered with your work life, social life or how you navigate your personal
                   life?
@@ -132,8 +132,8 @@ export default function MentalHealthScaleStep() {
                   onClick={() => setMentalHealthScale(number)}
                   className={`w-16 h-16 rounded-xl font-secondary text-lg font-semibold ${
                     mentalHealthScale === number
-                      ? "bg-heyrafiki-green hover:bg-heyrafiki-green-dark text-white"
-                      : "border-gray-300 text-gray-700 hover:bg-gray-50 bg-[#f5f5f5]"
+                      ? "bg-primary hover:bg-primary-accent text-white"
+                      : "border-border text-muted-foreground hover:bg-muted bg-muted"
                   }`}
                 >
                   {number}

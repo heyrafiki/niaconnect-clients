@@ -49,7 +49,7 @@ export default function ClientSidebar({ open, onClose }: { open: boolean, onClos
               <Link
                 key={link.name}
                 href={link.href}
-                className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-700 hover:bg-heyrafiki-green/10 transition-colors text-sm lg:text-base"
+                className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-700 hover:bg-primary/10 transition-colors text-sm lg:text-base"
                 onClick={onClose}
               >
                 <link.icon className="w-4 h-4 lg:w-5 lg:h-5" />
@@ -58,7 +58,7 @@ export default function ClientSidebar({ open, onClose }: { open: boolean, onClos
             ))}
           </nav>
           <div className="mt-auto pt-6">
-            <button className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-700 hover:bg-heyrafiki-green/10 w-full text-sm lg:text-base">
+            <button className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-700 hover:bg-primary/10 w-full text-sm lg:text-base">
               <LogOut className="w-4 h-4 lg:w-5 lg:h-5" />
               <span className="font-medium">Log out</span>
             </button>

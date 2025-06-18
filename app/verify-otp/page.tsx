@@ -5,8 +5,10 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { signIn } from "next-auth/react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
 import { useEffect } from "react";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 
 export default function VerifyOTP() {
   const router = useRouter();
@@ -111,6 +113,9 @@ export default function VerifyOTP() {
 
   return (
     <div className="h-screen flex overflow-hidden">
+      <div className="absolute top-4 right-4 z-30">
+        <ThemeToggle />
+      </div>
       {/* Left Side - Hero Image with Welcome Message (Desktop) */}
       <div className="hidden lg:flex lg:w-1/2 relative">
         <Image src="/images/girl-hero.webp" alt="Happy woman using phone" fill className="object-cover" priority />
@@ -138,68 +143,74 @@ export default function VerifyOTP() {
           <div className="absolute inset-0 bg-black/60" />
         </div>
         {/* OTP Card */}
-        <div className="relative z-10 w-full max-w-md rounded-3xl shadow-2xl p-8 bg-[#f3fcf8] border-2 border-[#36B37E]/20 flex flex-col items-center bg-opacity-95">
-          {/* Heyrafiki Logo */}
-          <div className="flex justify-center mb-6">
-            <Image src="/images/heyrafiki-logo.png" alt="Heyrafiki Logo" width={180} height={72} className="h-10 w-auto" priority />
-          </div>
-          <form
-            onSubmit={e => {
-              e.preventDefault();
-              handleVerify();
-            }}
-            className="flex flex-col gap-6 w-full items-center"
-            autoComplete="off"
-          >
-            <div className="text-center w-full">
-              <h2 className="text-2xl font-bold text-[#36B37E] mb-1">Verify Your Email</h2>
-              <p className="text-gray-700 text-base mb-4">Enter the 6-digit code sent to your email to continue.</p>
-            </div>
-            {/* Show error if email is missing from query param */}
-            {!email && (
-              <div className="w-full text-center text-red-600 font-medium mb-2">
-                Error: Email is missing from the link. Please use the verification link sent to your email.
+        <div className="relative z-10 w-full max-w-md"> 
+          <Card className="shadow-2xl shadow-[var(--card-shadow)] rounded-3xl">
+            {/* Heyrafiki Logo */}
+            <CardHeader className="text-center space-y-2 pb-4">
+              <div className="flex justify-center mb-4">
+                <Image src="/images/heyrafiki-logo.png" alt="Heyrafiki Logo" width={180} height={72} className="h-10 w-auto" />
               </div>
-            )}
-            {/* OTP Input Centered */}
-            <InputOTP
-              maxLength={6}
-              value={otp}
-              onChange={setOtp}
-              className="justify-center gap-2"
-              inputMode="numeric"
-              autoFocus={!!email}
-              style={{ letterSpacing: '0.3em' }}
-            >
-              <InputOTPGroup>
-                {[...Array(6)].map((_, i) => (
-                  <InputOTPSlot key={i} index={i} className="border-2 border-[#36B37E] focus:border-[#2e9e6f] bg-white text-2xl rounded-xl w-12 h-12 text-center transition-all duration-150" />
-                ))}
-              </InputOTPGroup>
-            </InputOTP>
-            {error && <div className="w-full text-center text-red-600 font-medium mb-2">{error}</div>}
-            {success && <div className="w-full text-center text-green-600 font-medium mb-2">{success}</div>}
-            <Button
-              type="submit"
-              className="mt-2 w-full bg-[#36B37E] hover:bg-[#2e9e6f] text-white font-semibold rounded-xl text-base h-12 disabled:opacity-60 disabled:cursor-not-allowed"
-              disabled={otp.length !== 6 || !email || loading}
-            >
-              {loading ? (
-                <span className="flex items-center justify-center gap-2"><svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path></svg>Verifying...</span>
-              ) : (
-                "Verify"
-              )}
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              className="w-full mt-2"
-              onClick={handleResend}
-              disabled={!resendActive}
-            >
-              {resendActive ? "Resend OTP" : `Resend in ${resendCountdown}s`}
-            </Button>
-          </form>
+              <CardTitle className="text-lg font-bold text-foreground/90">Verify Your Email</CardTitle>
+              <CardDescription className="text-gray-600 font-secondary text-sm">
+                Enter the 6-digit code sent to your email to continue.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4 px-6 pb-6">
+              <form
+                onSubmit={e => {
+                  e.preventDefault();
+                  handleVerify();
+                }}
+                className="flex flex-col gap-6 w-full items-center"
+                autoComplete="off"
+              >
+                {/* Show error if email is missing from query param */}
+                {!email && (
+                  <div className="w-full text-xs text-center text-red-600 font-medium mb-2">
+                    Error: Email is missing from the link. Please use the verification link sent to your email.
+                  </div>
+                )}
+                {/* OTP Input Centered */}
+                <InputOTP
+                  maxLength={6}
+                  value={otp}
+                  onChange={setOtp}
+                  className="justify-center gap-2"
+                  inputMode="numeric"
+                  autoFocus={!!email}
+                  style={{ letterSpacing: '0.3em' }}
+                >
+                  <InputOTPGroup>
+                    {[...Array(6)].map((_, i) => (
+                      <InputOTPSlot key={i} index={i} className="border-2 border-[#36B37E] focus:border-[#2e9e6f] bg-[var(--card-bg)] text-2xl rounded-xl w-12 h-12 text-center transition-all duration-150" />
+                    ))}
+                  </InputOTPGroup>
+                </InputOTP>
+                {error && <div className="w-full text-center text-red-600 font-medium mb-2">{error}</div>}
+                {success && <div className="w-full text-center text-green-600 font-medium mb-2">{success}</div>}
+                <Button
+                  type="submit"
+                  className="mt-2 w-full bg-primary hover:bg-primary-dark text-white font-semibold rounded-xl text-base h-12 disabled:opacity-60 disabled:cursor-not-allowed"
+                  disabled={otp.length !== 6 || !email || loading}
+                >
+                  {loading ? (
+                    <span className="flex items-center justify-center gap-2"><svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path></svg>Verifying...</span>
+                  ) : (
+                    "Verify"
+                  )}
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="w-full mt-2"
+                  onClick={handleResend}
+                  disabled={!resendActive}
+                >
+                  {resendActive ? "Resend OTP" : `Resend in ${resendCountdown}s`}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

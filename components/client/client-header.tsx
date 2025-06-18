@@ -27,7 +27,7 @@ export default function ClientHeader({ onMenuClick }: { onMenuClick: () => void 
       {/* Hamburger (left) */}
       <div className="flex items-center gap-3 min-w-[2.5rem]">
         <button className="lg:hidden" onClick={onMenuClick} aria-label="Open sidebar">
-          <Menu className="w-7 h-7 text-heyrafiki-green" />
+          <Menu className="w-7 h-7 text-primary" />
         </button>
       </div>
       {/* Centered logo for mobile only */}

@@ -55,11 +55,11 @@ export default function CalendarPage() {
         </div>
         <div className="flex gap-2">
           <Button variant="outline" className="flex items-center gap-2"><Filter size={16}/> Filter</Button>
-          <Button className="flex items-center gap-2 bg-heyrafiki-green hover:bg-heyrafiki-green/90"><Plus size={16}/> Add New Session</Button>
+          <Button className="flex items-center gap-2 bg-primary hover:bg-primary/90"><Plus size={16}/> Add New Session</Button>
         </div>
       </div>
       {/* {firstTime && !loading && !error && (
-        <div className="bg-heyrafiki-green/10 border border-heyrafiki-green text-heyrafiki-green rounded-lg p-4 mb-6 text-center">
+        <div className="bg-primary/10 border border-primary text-primary rounded-lg p-4 mb-6 text-center">
           <b>Welcome!</b> You haven't booked any sessions yet. Once you book a session with an expert, it will appear here. Use the <b>Experts</b> page to find and book your first session.
         </div>
       )} */}

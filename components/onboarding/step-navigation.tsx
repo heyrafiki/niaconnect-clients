@@ -38,7 +38,7 @@ export default function StepNavigation({ currentStep, totalSteps, onComplete, di
         onClick={handleBack}
         variant="outline"
         disabled={currentStep === 1}
-        className="border-heyrafiki-green text-heyrafiki-green hover:bg-whitesmoke hover:text-gray-900 rounded-xl font-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+        className="border-primary text-primary hover:bg-whitesmoke hover:text-gray-900 rounded-xl font-secondary disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <ArrowLeft className="w-4 h-4 mr-2" />
         Back
@@ -46,7 +46,7 @@ export default function StepNavigation({ currentStep, totalSteps, onComplete, di
       <Button
         onClick={handleNext}
         disabled={disableNext}
-        className="bg-heyrafiki-green hover:bg-heyrafiki-green/90 text-white rounded-xl font-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+        className="bg-primary hover:bg-primary/90 text-white rounded-xl font-secondary disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {currentStep === totalSteps ? "Finish" : "Next"}
         <ArrowRight className="w-4 h-4 ml-2" />

@@ -30,16 +30,16 @@ export default function ProfileCompletionTracker({
   }, [user]);
 
   return (
-    <div className="mb-6 p-4 border rounded-lg bg-gray-50">
+    <div className="mb-6 p-4 border-border rounded-lg bg-muted">
       <div className="flex justify-between items-center mb-2">
         <Label className="font-semibold">Profile Completion</Label>
-        <span className="text-sm text-gray-600">
+        <span className="text-sm text-muted-foreground">
           {completion.completedFields} of {completion.totalFields} fields
           completed
         </span>
       </div>
       <Progress value={completion.percentage} className="w-full mb-4" />
-      <div className="text-right text-sm text-gray-600 mb-4">
+      <div className="text-right text-sm text-muted-foreground mb-4">
         {completion.percentage}%
       </div>
 
@@ -48,7 +48,7 @@ export default function ProfileCompletionTracker({
         <div>
           <div className="flex justify-between items-center mb-1">
             <Label className="text-sm">Personal Information</Label>
-            <span className="text-xs text-gray-600">
+            <span className="text-xs text-muted-foreground">
               {completion.sections.personalInfo.completed}/
               {completion.sections.personalInfo.total}
             </span>
@@ -62,7 +62,7 @@ export default function ProfileCompletionTracker({
         <div>
           <div className="flex justify-between items-center mb-1">
             <Label className="text-sm">Therapy Details</Label>
-            <span className="text-xs text-gray-600">
+            <span className="text-xs text-muted-foreground">
               {completion.sections.therapyDetails.completed}/
               {completion.sections.therapyDetails.total}
             </span>
@@ -76,7 +76,7 @@ export default function ProfileCompletionTracker({
         <div>
           <div className="flex justify-between items-center mb-1">
             <Label className="text-sm">Session Preferences</Label>
-            <span className="text-xs text-gray-600">
+            <span className="text-xs text-muted-foreground">
               {completion.sections.sessionPreferences.completed}/
               {completion.sections.sessionPreferences.total}
             </span>
@@ -90,7 +90,7 @@ export default function ProfileCompletionTracker({
         <div>
           <div className="flex justify-between items-center mb-1">
             <Label className="text-sm">Social Media</Label>
-            <span className="text-xs text-gray-600">
+            <span className="text-xs text-muted-foreground">
               {completion.sections.socialMedia.completed}/
               {completion.sections.socialMedia.total}
             </span>

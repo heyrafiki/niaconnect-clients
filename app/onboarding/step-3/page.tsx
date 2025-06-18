@@ -32,23 +32,23 @@ export default function SessionPreferencesStep() {
 
   return (
     <>
-      <div className="text-gray-400 font-secondary font-medium text-right mb-4">STEP 3 OF 4</div>
-      <Card className="bg-white shadow-xl rounded-3xl border-0 overflow-hidden">
+      <div className="text-muted-foreground font-secondary font-medium text-right mb-4">STEP 3 OF 4</div>
+      <Card className="bg-card shadow-xl rounded-3xl border-0 overflow-hidden">
         <CardContent className="p-8 lg:p-12">
           <div className="space-y-8">
             <div className="flex items-center space-x-4 mb-8">
               <div className="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center">
-                <Clock className="w-6 h-6 text-heyrafiki-green" />
+                <Clock className="w-6 h-6 text-primary" />
               </div>
               <div>
-                <h1 className="text-xl lg:text-2xl font-bold text-gray-900">Session Preferences</h1>
-                <p className="text-gray-600 font-secondary mt-2 text-sm">Select the timings that work well for you</p>
+                <h1 className="text-xl lg:text-2xl font-bold text-foreground">Session Preferences</h1>
+                <p className="text-muted-foreground font-secondary mt-2 text-sm">Select the timings that work well for you</p>
               </div>
             </div>
 
             {/* Session Type */}
             <div className="space-y-4">
-              <h3 className="text-base font-semibold text-gray-900 font-secondary">
+              <h3 className="text-base font-semibold text-foreground font-secondary">
                 How would you like to have your therapy sessions? (Select all that apply)
               </h3>
               <div className="grid md:grid-cols-3 gap-4">
@@ -64,8 +64,8 @@ export default function SessionPreferencesStep() {
                     }}
                     className={`h-12 rounded-xl font-secondary ${
                       sessionTypes.includes(option)
-                        ? "bg-heyrafiki-green hover:bg-heyrafiki-green-dark text-white"
-                        : "border-gray-300 text-gray-700 hover:bg-gray-50 bg-[#f5f5f5]"
+                        ? "bg-primary hover:bg-primary-dark text-white"
+                        : "border-border text-foreground hover:bg-muted bg-muted"
                     }`}
                   >
                     {option}
@@ -76,7 +76,7 @@ export default function SessionPreferencesStep() {
 
             {/* Preferred Time */}
             <div className="space-y-4">
-              <h3 className="text-base font-semibold text-gray-900 font-secondary">
+              <h3 className="text-base font-semibold text-foreground font-secondary">
                 What time would you like to have your therapy sessions? (Select all that apply)
               </h3>
               <div className="grid md:grid-cols-4 gap-4">
@@ -94,8 +94,8 @@ export default function SessionPreferencesStep() {
                     }}
                     className={`h-12 rounded-xl font-secondary ${
                       preferredTimes.includes(option)
-                        ? "bg-heyrafiki-green hover:bg-heyrafiki-green-dark text-white"
-                        : "border-gray-300 text-gray-700 hover:bg-gray-50 bg-[#f5f5f5]"
+                        ? "bg-primary hover:bg-primary-dark text-white"
+                        : "border-border text-foreground hover:bg-muted bg-muted"
                     }`}
                   >
                     {option}

@@ -69,7 +69,7 @@ export default function ProfileCompletionModal() {
         <DialogHeader className="space-y-4 mb-4">
           {/* Circular Progress Placeholder - Visual representation of percentage */}
           <div className="flex items-center justify-center mb-4">
-            <div className="relative w-28 h-28 flex items-center justify-center rounded-full bg-gray-200 text-heyrafiki-green border-2 border-heyrafiki-green">
+            <div className="relative w-28 h-28 flex items-center justify-center rounded-full bg-gray-200 text-primary border-2 border-primary">
               <span className="text-3xl font-bold font-sans">
                 {completion.percentage}%
               </span>
@@ -101,7 +101,7 @@ export default function ProfileCompletionModal() {
           </Button>
           <Button
             onClick={handleCompleteNow}
-            className="w-full sm:w-auto bg-heyrafiki-green text-white hover:bg-heyrafiki-green-dark"
+            className="w-full sm:w-auto bg-primary text-white hover:bg-primary-dark"
           >
             Complete <span className="ml-2">&rarr;</span>
           </Button>

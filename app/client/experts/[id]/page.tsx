@@ -60,7 +60,7 @@ export default function ExpertDetailsPage() {
             {getExpertField("profile_img_url") ? (
               <AvatarImage src={getExpertField("profile_img_url")} alt={getExpertField("first_name")} />
             ) : (
-              <AvatarFallback className="text-4xl font-bold bg-heyrafiki-green/10 text-heyrafiki-green">
+              <AvatarFallback className="text-4xl font-bold bg-primary/10 text-primary">
                 {capitalize(getExpertField("first_name")?.[0] || "?")}
               </AvatarFallback>
             )}
@@ -74,21 +74,21 @@ export default function ExpertDetailsPage() {
         </div>
         <div className="flex-1 flex flex-col gap-4">
           <section>
-            <h2 className="font-semibold text-heyrafiki-green mb-1">About</h2>
+            <h2 className="font-semibold text-primary mb-1">About</h2>
             <p className="text-gray-700 text-sm">{getExpertField("bio")}</p>
           </section>
           <section>
-            <h2 className="font-semibold text-heyrafiki-green mb-1">Specialties</h2>
+            <h2 className="font-semibold text-primary mb-1">Specialties</h2>
             <div className="flex flex-wrap gap-2">
               {(getExpertField("specialties") || []).map((s: string) => (
-                <span key={s} className="text-xs px-2 py-0.5 bg-heyrafiki-green/10 text-heyrafiki-green rounded-full font-medium">
+                <span key={s} className="text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full font-medium">
                   {capitalize(s)}
                 </span>
               ))}
             </div>
           </section>
           <section>
-            <h2 className="font-semibold text-heyrafiki-green mb-1">Session Types</h2>
+            <h2 className="font-semibold text-primary mb-1">Session Types</h2>
             <div className="flex flex-wrap gap-2">
               {(getExpertField("session_types") || []).map((type: string) => (
                 <span key={type} className="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full font-medium">
@@ -98,7 +98,7 @@ export default function ExpertDetailsPage() {
             </div>
           </section>
           <section>
-            <h2 className="font-semibold text-heyrafiki-green mb-1">Client Demographics</h2>
+            <h2 className="font-semibold text-primary mb-1">Client Demographics</h2>
             <div className="flex flex-wrap gap-2">
               {(getExpertField("client_demographics") || []).map((d: string) => (
                 <span key={d} className="text-xs px-2 py-0.5 bg-gray-100 text-gray-700 rounded-full font-medium">
@@ -108,7 +108,7 @@ export default function ExpertDetailsPage() {
             </div>
           </section>
           <section>
-            <h2 className="font-semibold text-heyrafiki-green mb-1">Treatment Modalities</h2>
+            <h2 className="font-semibold text-primary mb-1">Treatment Modalities</h2>
             <div className="flex flex-wrap gap-2">
               {(getExpertField("treatment_modalities") || []).map((m: string) => (
                 <span key={m} className="text-xs px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full font-medium">
@@ -118,11 +118,11 @@ export default function ExpertDetailsPage() {
             </div>
           </section>
           <section>
-            <h2 className="font-semibold text-heyrafiki-green mb-1">Session Rate</h2>
+            <h2 className="font-semibold text-primary mb-1">Session Rate</h2>
             <div className="text-sm text-gray-700">{getExpertField("session_rate") ? `KES ${getExpertField("session_rate")} per session` : "-"}</div>
           </section>
           <section>
-            <h2 className="font-semibold text-heyrafiki-green mb-1">Availability</h2>
+            <h2 className="font-semibold text-primary mb-1">Availability</h2>
             <div className="flex flex-col gap-1">
               {availability.length === 0 ? (
                 <span className="text-xs text-gray-400">No availability info.</span>
@@ -146,7 +146,7 @@ export default function ExpertDetailsPage() {
                 <DialogTitle>Book a Session with {capitalize(getExpertField("first_name"))}</DialogTitle>
                 <DialogDescription className="mb-4 text-xs text-gray-500">Select an available slot and provide a reason for your session request.</DialogDescription>
                 <div className="mb-4">
-                  <div className="font-semibold text-heyrafiki-green mb-1">Availability</div>
+                  <div className="font-semibold text-primary mb-1">Availability</div>
                   {availability.length === 0 ? (
                     <div className="text-xs text-gray-400">No availability info.</div>
                   ) : (
@@ -163,7 +163,7 @@ export default function ExpertDetailsPage() {
                                 <button
                                   key={tIdx}
                                   type="button"
-                                  className={`px-3 py-1 rounded-full border text-xs font-medium transition-all ${isSelected ? "bg-heyrafiki-green text-white border-heyrafiki-green" : "bg-white text-heyrafiki-green border-heyrafiki-green hover:bg-heyrafiki-green/10"}`}
+                                  className={`px-3 py-1 rounded-full border text-xs font-medium transition-all ${isSelected ? "bg-primary text-white border-primary" : "bg-white text-primary border-primary hover:bg-primary/10"}`}
                                   onClick={() => setSelectedSlot({ day: slot.day_of_week, start: t.start_time, end: t.end_time })}
                                 >
                                   {t.start_time} - {t.end_time}
@@ -193,7 +193,7 @@ export default function ExpertDetailsPage() {
                   </DialogClose>
                   <Button
                     size="sm"
-                    className="bg-heyrafiki-green text-white"
+                    className="bg-primary text-white"
                     disabled={submitting || !selectedSlot || !reason.trim()}
                     onClick={async () => {
                       setSubmitting(true);

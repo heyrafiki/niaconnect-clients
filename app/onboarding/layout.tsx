@@ -10,7 +10,7 @@ export default function OnboardingLayout({ children }: { children: React.ReactNo
       {/* Decorative Background Elements */}
       <div className="absolute inset-0">
         {/* Modern Gradient Background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-heyrafiki-green/20 via-transparent to-heyrafiki-green/10" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-primary/10" />
         
         {/* Futuristic Pattern */}
         <div className="absolute inset-0 opacity-10">
@@ -18,9 +18,9 @@ export default function OnboardingLayout({ children }: { children: React.ReactNo
         </div>
 
         {/* Dynamic Shapes */}
-        <div className="absolute top-0 left-0 w-full h-64 bg-heyrafiki-green/80 transform -skew-y-3 origin-top-left backdrop-blur-3xl"></div>
-        <div className="absolute top-0 right-0 w-96 h-96 bg-heyrafiki-green/60 rounded-full transform translate-x-48 -translate-y-48 backdrop-blur-3xl"></div>
-        <div className="absolute bottom-0 right-0 w-80 h-80 bg-heyrafiki-green/70 rounded-full transform translate-x-40 translate-y-40 backdrop-blur-3xl"></div>
+        <div className="absolute top-0 left-0 w-full h-64 bg-primary/80 transform -skew-y-3 origin-top-left backdrop-blur-3xl"></div>
+        <div className="absolute top-0 right-0 w-96 h-96 bg-primary/60 rounded-full transform translate-x-48 -translate-y-48 backdrop-blur-3xl"></div>
+        <div className="absolute bottom-0 right-0 w-80 h-80 bg-primary/70 rounded-full transform translate-x-40 translate-y-40 backdrop-blur-3xl"></div>
       </div>
 
       <div className="relative z-10 container mx-auto px-4 py-8 lg:py-12">

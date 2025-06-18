@@ -11,7 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Separator } from "@/components/ui/separator"
 import { Eye, EyeOff } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
-
+import ThemeToggle from "@/components/ui/ThemeToggle"
 import { useRouter } from "next/navigation"
 import { signIn } from "next-auth/react"
 
@@ -72,6 +72,9 @@ export default function ClientAuth() {
 
   return (
     <div className="h-screen flex overflow-hidden">
+      <div className="absolute top-4 right-4 z-30">
+        <ThemeToggle />
+      </div>
       {/* Left Side - Hero Image with Welcome Message (Desktop) */}
       <div className="hidden lg:flex lg:w-1/2 relative">
         <Image src="/images/girl-hero.webp" alt="Happy woman using phone" fill className="object-cover" priority />
@@ -101,7 +104,7 @@ export default function ClientAuth() {
 
         {/* Auth Card */}
         <div className="relative z-10 w-full max-w-md">
-          <Card className="backdrop-blur-xl bg-[#f3fcf8] border-2 border-[#36B37E]/20 shadow-2xl rounded-3xl">
+          <Card className="shadow-2xl shadow-[var(--card-shadow)] rounded-3xl">
             <CardHeader className="text-center space-y-2 pb-4">
               <div className="flex justify-center mb-4">
                 <Image
@@ -112,10 +115,10 @@ export default function ClientAuth() {
                   className="h-10 w-auto"
                 />
               </div>
-              <CardTitle className="text-lg font-bold text-gray-900">
+              <CardTitle className="text-lg font-bold text-foreground/90">
                 {isSignUp ? "Start Your Journey" : "Welcome Back"}
               </CardTitle>
-              <CardDescription className="text-gray-600 font-secondary text-sm">
+              <CardDescription className="text-muted-foreground font-secondary text-sm">
                 {isSignUp ? "Create your account to begin" : "Continue your wellness journey"}
               </CardDescription>
             </CardHeader>
@@ -124,7 +127,7 @@ export default function ClientAuth() {
               {/* Google OAuth Button */}
               <button
                 type="button"
-                className="flex items-center justify-center gap-2 w-full border border-gray-200 rounded-xl py-3 font-semibold text-gray-700 bg-white hover:bg-gray-50 transition"
+                className="flex items-center justify-center gap-2 w-full border-[1.6px] border-[var(--card-border-color)] rounded-xl py-3 bg-[var(--card-bg)] font-semibold text-foreground hover:bg-[var(--google-hover)] transition"
                 onClick={handleGoogleSignIn}
               >
                 <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none">
@@ -145,7 +148,7 @@ export default function ClientAuth() {
                     d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                   />
                 </svg>
-                Continue with Google
+                <span className="text-foreground/70">Continue with Google</span>
               </button>
 
               <div className="relative">
@@ -153,7 +156,7 @@ export default function ClientAuth() {
                   <Separator className="w-full" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-white px-2 text-gray-500 font-secondary">Or continue with email</span>
+                  <span className="bg-[var(--card-bg)] px-2 text-muted-foreground font-secondary">Or continue with email</span>
                 </div>
               </div>
 
@@ -162,7 +165,7 @@ export default function ClientAuth() {
                 {isSignUp && (
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1">
-                      <Label htmlFor="firstName" className="text-gray-700 font-secondary font-medium text-sm">
+                      <Label htmlFor="firstName" className="text-foreground font-secondary font-medium text-sm">
                         First Name
                       </Label>
                       <Input
@@ -171,11 +174,11 @@ export default function ClientAuth() {
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
                         required={isSignUp}
-                        className="border-gray-300 focus:border-heyrafiki-green focus:ring-heyrafiki-green rounded-xl h-10 font-secondary text-sm bg-[#f5f5f5]"
+                        className="border-border focus:border-primary focus:ring-primary rounded-xl h-10 font-secondary text-sm bg-muted"
                       />
                     </div>
                     <div className="space-y-1">
-                      <Label htmlFor="lastName" className="text-gray-700 font-secondary font-medium text-sm">
+                      <Label htmlFor="lastName" className="text-foreground font-secondary font-medium text-sm">
                         Last Name
                       </Label>
                       <Input
@@ -184,14 +187,14 @@ export default function ClientAuth() {
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
                         required={isSignUp}
-                        className="border-gray-300 focus:border-heyrafiki-green focus:ring-heyrafiki-green rounded-xl h-10 font-secondary text-sm bg-[#f5f5f5]"
+                        className="border-border focus:border-primary focus:ring-primary rounded-xl h-10 font-secondary text-sm bg-muted"
                       />
                     </div>
                   </div>
                 )}
 
                 <div className="space-y-1">
-                  <Label htmlFor="email" className="text-gray-700 font-secondary font-medium text-sm">
+                  <Label htmlFor="email" className="text-foreground font-secondary font-medium text-sm">
                     Email Address
                   </Label>
                   <Input
@@ -201,12 +204,12 @@ export default function ClientAuth() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    className="border-gray-300 focus:border-heyrafiki-green focus:ring-heyrafiki-green rounded-xl h-10 font-secondary text-sm bg-[#f5f5f5]"
+                    className="border-border focus:border-primary focus:ring-primary rounded-xl h-10 font-secondary text-sm bg-muted"
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <Label htmlFor="password" className="text-gray-700 font-secondary font-medium text-sm">
+                  <Label htmlFor="password" className="text-foreground font-secondary font-medium text-sm">
                     Password
                   </Label>
                   <div className="relative">
@@ -217,12 +220,12 @@ export default function ClientAuth() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
-                      className="border-gray-300 focus:border-heyrafiki-green focus:ring-heyrafiki-green rounded-xl h-10 pr-10 font-secondary text-sm bg-[#f5f5f5]"
+                      className="border-border focus:border-primary focus:ring-primary rounded-xl h-10 pr-10 font-secondary text-sm bg-muted"
                     />
                     <button
                       type="button"
                       onClick={togglePasswordVisibility}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
                     >
                       {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>
@@ -231,7 +234,7 @@ export default function ClientAuth() {
 
                 {isSignUp && (
                   <div className="space-y-1">
-                    <Label htmlFor="confirmPassword" className="text-gray-700 font-secondary font-medium text-sm">
+                    <Label htmlFor="confirmPassword" className="text-foreground font-secondary font-medium text-sm">
                       Confirm Password
                     </Label>
                     <div className="relative">
@@ -242,12 +245,12 @@ export default function ClientAuth() {
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         required={isSignUp}
-                        className="border-gray-300 focus:border-heyrafiki-green focus:ring-heyrafiki-green rounded-xl h-10 pr-10 font-secondary text-sm bg-[#f5f5f5]"
+                        className="border-border focus:border-primary focus:ring-primary rounded-xl h-10 pr-10 font-secondary text-sm bg-muted"
                       />
                       <button
                         type="button"
                         onClick={toggleConfirmPasswordVisibility}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
                       >
                         {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                       </button>
@@ -259,7 +262,7 @@ export default function ClientAuth() {
                   <div className="flex justify-end">
                     <button
                       type="button"
-                      className="text-xs text-heyrafiki-green hover:underline font-secondary"
+                      className="text-xs text-primary hover:underline font-secondary"
                       onClick={() => router.push("/reset-password")}
                     >
                       Forgot password?
@@ -270,7 +273,7 @@ export default function ClientAuth() {
                 <Button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full h-11 bg-heyrafiki-green hover:bg-heyrafiki-green-dark text-white font-medium rounded-xl font-secondary text-sm"
+                  className="w-full h-11 bg-primary hover:bg-primary-dark text-white font-medium rounded-xl font-secondary text-sm"
                 >
                   {isLoading ? "Processing..." : isSignUp ? "Begin Your Journey" : "Login"}
                 </Button>
@@ -278,12 +281,12 @@ export default function ClientAuth() {
 
               {/* Toggle Auth Mode */}
               <div className="text-center">
-                <span className="text-gray-600 font-secondary text-sm">
+                <span className="text-muted-foreground font-secondary text-sm">
                   {isSignUp ? "Already have an account?" : "New to Heyrafiki?"}
                 </span>
                 <button
                   onClick={toggleAuthMode}
-                  className="ml-1 text-heyrafiki-green hover:underline font-medium font-secondary text-sm"
+                  className="ml-1 text-primary hover:underline font-medium font-secondary text-sm"
                 >
                   {isSignUp ? "Sign In" : "Get Started"}
                 </button>

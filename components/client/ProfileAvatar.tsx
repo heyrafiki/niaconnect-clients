@@ -24,7 +24,7 @@ export const ProfileAvatar: React.FC<ProfileAvatarProps> = ({
   const initials = getInitials(firstName, lastName);
   return (
     <div
-      className={`rounded-full bg-gray-200 flex items-center justify-center overflow-hidden border border-gray-300 ${className}`}
+      className={`rounded-full bg-muted flex items-center justify-center overflow-hidden border border-border ${className}`}
       style={{ width: size, height: size }}
     >
       {profileImgUrl ? (
@@ -35,7 +35,7 @@ export const ProfileAvatar: React.FC<ProfileAvatarProps> = ({
           style={{ width: size, height: size, objectFit: "cover" }}
         />
       ) : (
-        <span className="text-lg font-bold text-gray-600">{initials}</span>
+        <span className="text-lg font-bold text-foreground">{initials}</span>
       )}
     </div>
   );

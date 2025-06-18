@@ -138,7 +138,7 @@ export default function SessionsPage() {
 
   return (
     <div className="">
-      <h1 className="text-3xl font-bold text-heyrafiki-green mb-4">My Sessions & Requests</h1>
+      <h1 className="text-2xl font-bold text-primary mb-4">My Sessions & Requests</h1>
       <p className="mb-6 text-gray-600">View and manage all your scheduled sessions and pending requests with experts.</p>
 
       {/* Filter Section */}
@@ -148,7 +148,7 @@ export default function SessionsPage() {
             key={status}
             variant={filterStatus === status ? "default" : "outline"}
             size="sm"
-            className={`${filterStatus === status ? "bg-heyrafiki-green text-white hover:bg-heyrafiki-green-dark" : "border-gray-300 text-gray-700 hover:bg-gray-50"}`}
+            className={`${filterStatus === status ? "bg-primary text-white hover:bg-primary-dark" : "border-gray-300 text-gray-700 hover:bg-gray-50"}`}
             onClick={() => setFilterStatus(status)}
           >
             {capitalize(status)}
@@ -157,14 +157,14 @@ export default function SessionsPage() {
       </div>
 
       {firstTime && !loading && !error && (
-        <div className="bg-heyrafiki-green/10 border border-heyrafiki-green text-heyrafiki-green rounded-lg p-4 mb-6 text-center shadow-sm">
+        <div className="bg-primary/10 border border-primary text-primary rounded-lg p-4 mb-6 text-center shadow-sm">
           <b>Welcome!</b> You haven't booked any sessions yet. Once you book a session with an expert, it will appear here. Use the <b>Experts</b> page to find and book your first session.
         </div>
       )}
 
       {loading ? (
         <div className="flex justify-center items-center py-12">
-          <Loader2 className="w-8 h-8 animate-spin text-heyrafiki-green" />
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
         </div>
       ) : error ? (
         <div className="text-center text-red-500 py-12">{error}</div>
@@ -235,7 +235,7 @@ export default function SessionsPage() {
                     {expert?.profile_img_url ? (
                       <AvatarImage src={expert.profile_img_url} alt={`${expert.first_name} ${expert.last_name}`} />
                     ) : (
-                      <AvatarFallback className="bg-heyrafiki-green/10 text-heyrafiki-green font-semibold text-lg">
+                      <AvatarFallback className="bg-primary/10 text-primary font-semibold text-lg">
                         {capitalize(expert?.first_name?.[0] || '')}
                       </AvatarFallback>
                     )}
@@ -267,7 +267,7 @@ export default function SessionsPage() {
                   )}
 
                   {isSession && (isScheduled || isCompleted) && (event as Session).meeting_url && (
-                    <a href={(event as Session).meeting_url} target="_blank" rel="noopener noreferrer" className="mt-2 text-heyrafiki-green hover:underline flex items-center text-sm md:mt-0 md:ml-4">
+                    <a href={(event as Session).meeting_url} target="_blank" rel="noopener noreferrer" className="mt-2 text-primary hover:underline flex items-center text-sm md:mt-0 md:ml-4">
                       Join Session <ArrowRight className="w-4 h-4 ml-1" />
                     </a>
                   )}
@@ -279,7 +279,7 @@ export default function SessionsPage() {
                           <Button 
                             variant="outline" 
                             size="sm" 
-                            className="flex-1 border-heyrafiki-green text-heyrafiki-green hover:bg-heyrafiki-green/10"
+                            className="flex-1 border-primary text-primary hover:bg-primary/10"
                             onClick={() => {
                               setCurrentRequest(event as SessionRequest);
                               setNewRequestedTime(format(dateTime, "yyyy-MM-dd'T'HH:mm"));
@@ -300,7 +300,7 @@ export default function SessionsPage() {
                               type="datetime-local"
                               value={newRequestedTime}
                               onChange={(e) => setNewRequestedTime(e.target.value)}
-                              className="w-full border rounded px-3 py-2 text-sm focus:border-heyrafiki-green focus:ring-heyrafiki-green"
+                              className="w-full border rounded px-3 py-2 text-sm focus:border-primary focus:ring-primary"
                             />
                           </div>
                           <div className="mb-4">
@@ -320,7 +320,7 @@ export default function SessionsPage() {
                             </DialogClose>
                             <Button
                               size="sm"
-                              className="bg-heyrafiki-green text-white"
+                              className="bg-primary text-white"
                               onClick={handleEditRequest}
                               disabled={actionLoading || !newRequestedTime || !newReason.trim()}
                             >
