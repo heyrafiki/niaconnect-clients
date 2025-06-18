@@ -3,8 +3,6 @@ import type { Metadata } from "next";
 import { figtree, plusJakartaSans } from "@/lib/fonts";
 import "./globals.css";
 import Providers from "@/components/Providers";
-import ProfileCompletionModal from "@/components/client/ProfileCompletionModal";
-import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
   title: "Heyrafiki - Mental Health Support",
@@ -24,9 +22,7 @@ export default function RootLayout({
     >
       <body className={figtree.className}>
         <Providers>
-          <ProfileCompletionModal />
           {children}
-          <Toaster />
         </Providers>
       </body>
     </html>
