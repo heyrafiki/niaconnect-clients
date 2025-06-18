@@ -52,7 +52,7 @@ export default function TherapyReasonsStep() {
   return (
     <>
       <div className="text-muted-foreground font-secondary font-medium text-right mb-4">STEP 2 OF 4</div>
-      <Card className="bg-card shadow-xl rounded-3xl border-0 overflow-hidden">
+      <Card className="bg-[var(--card-bg)] shadow-xl shadow-[var(--card-shadow)] rounded-3xl border-0 overflow-hidden">
         <CardContent className="p-8 lg:p-12">
           <div className="space-y-6">
             <div className="flex items-center space-x-4 mb-8">
@@ -60,7 +60,7 @@ export default function TherapyReasonsStep() {
                 <Puzzle className="w-6 h-6 text-primary" />
               </div>
               <div>
-                <h1 className="text-xl lg:text-2xl font-bold text-foreground">What led you to consider therapy today?</h1>
+                <h1 className="text-xl lg:text-2xl font-bold text-foreground/90">What led you to consider therapy today?</h1>
                 <p className="text-muted-foreground font-secondary mt-2 text-sm">Select all that apply</p>
               </div>
             </div>

@@ -3,10 +3,12 @@
 import type React from "react"
 import Image from "next/image"
 import Link from "next/link"
+import ThemeToggle from "@/components/ui/ThemeToggle"
 
 export default function OnboardingLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-gray-50 relative overflow-hidden">
+    <div className="min-h-screen bg-[var(--onboarding-bg)] relative overflow-hidden">
+      
       {/* Decorative Background Elements */}
       <div className="absolute inset-0">
         {/* Modern Gradient Background */}
@@ -36,6 +38,10 @@ export default function OnboardingLayout({ children }: { children: React.ReactNo
                 className="h-10 w-auto"
               />
             </Link>
+
+            <div className="flex items-center">
+              <ThemeToggle />
+            </div>           
           </div>
 
           {children}

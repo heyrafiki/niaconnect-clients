@@ -183,14 +183,14 @@ export default function PersonalInformationStep() {
   return (
     <>
       <div className="text-gray-400 font-secondary font-medium text-right mb-4">STEP 1 OF 4</div>
-      <Card className="bg-white shadow-xl rounded-3xl border-0 overflow-hidden">
+      <Card className="bg-[var(--card-bg)] shadow-xl shadow-[var(--card-shadow)] rounded-3xl border-0 overflow-hidden">
         <CardContent className="p-8 lg:p-12">
           <div className="space-y-6">
             <div className="flex items-center space-x-4 mb-8">
               <div className="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center">
                 <User className="w-6 h-6 text-primary" />
               </div>
-              <h1 className="text-xl lg:text-2xl font-bold text-gray-900">Personal Information</h1>
+              <h1 className="text-xl lg:text-2xl font-bold text-foreground/90">Personal Information</h1>
             </div>
 
             {/* Profile Picture Upload with Preview */}
@@ -240,7 +240,7 @@ export default function PersonalInformationStep() {
             {/* Form Fields */}
             <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label htmlFor="fullName" className="text-foreground font-secondary font-medium text-sm">
+                <Label htmlFor="fullName" className="text-foreground/80 font-secondary font-medium text-sm">
                   Full Name
                 </Label>
                 <Input
@@ -254,7 +254,7 @@ export default function PersonalInformationStep() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-foreground font-secondary font-medium text-sm">
+                <Label htmlFor="email" className="text-foreground/80 font-secondary font-medium text-sm">
                   Email Address
                 </Label>
                 <Input
@@ -269,7 +269,7 @@ export default function PersonalInformationStep() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="phoneNumber" className="text-foreground font-secondary font-medium text-sm">
+                <Label htmlFor="phoneNumber" className="text-foreground/80 font-secondary font-medium text-sm">
                   Phone Number
                 </Label>
                 <Input
@@ -292,7 +292,7 @@ export default function PersonalInformationStep() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="gender" className="text-foreground font-secondary font-medium text-sm">
+                <Label htmlFor="gender" className="text-foreground/80 font-secondary font-medium text-sm">
                   Gender
                 </Label>
                 <Select value={gender} onValueChange={setGender}>
@@ -310,7 +310,7 @@ export default function PersonalInformationStep() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="dateOfBirth" className="text-foreground font-secondary font-medium text-sm">
+                <Label htmlFor="dateOfBirth" className="text-foreground/80 font-secondary font-medium text-sm">
                   Date of Birth
                 </Label>
                 <Input
@@ -323,7 +323,7 @@ export default function PersonalInformationStep() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="location" className="text-foreground font-secondary font-medium text-sm">
+                <Label htmlFor="location" className="text-foreground/80 font-secondary font-medium text-sm">
                   Location
                 </Label>
                 <Input

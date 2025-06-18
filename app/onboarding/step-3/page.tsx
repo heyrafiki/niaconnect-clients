@@ -33,7 +33,7 @@ export default function SessionPreferencesStep() {
   return (
     <>
       <div className="text-muted-foreground font-secondary font-medium text-right mb-4">STEP 3 OF 4</div>
-      <Card className="bg-card shadow-xl rounded-3xl border-0 overflow-hidden">
+      <Card className="bg-[var(--card-bg)] shadow-xl shadow-[var(--card-shadow)] rounded-3xl border-0 overflow-hidden">
         <CardContent className="p-8 lg:p-12">
           <div className="space-y-8">
             <div className="flex items-center space-x-4 mb-8">
@@ -41,14 +41,14 @@ export default function SessionPreferencesStep() {
                 <Clock className="w-6 h-6 text-primary" />
               </div>
               <div>
-                <h1 className="text-xl lg:text-2xl font-bold text-foreground">Session Preferences</h1>
+                <h1 className="text-xl lg:text-2xl font-bold text-foreground/90">Session Preferences</h1>
                 <p className="text-muted-foreground font-secondary mt-2 text-sm">Select the timings that work well for you</p>
               </div>
             </div>
 
             {/* Session Type */}
             <div className="space-y-4">
-              <h3 className="text-base font-semibold text-foreground font-secondary">
+              <h3 className="text-base font-semibold text-foreground/80 font-secondary">
                 How would you like to have your therapy sessions? (Select all that apply)
               </h3>
               <div className="grid md:grid-cols-3 gap-4">
@@ -76,7 +76,7 @@ export default function SessionPreferencesStep() {
 
             {/* Preferred Time */}
             <div className="space-y-4">
-              <h3 className="text-base font-semibold text-foreground font-secondary">
+              <h3 className="text-base font-semibold text-foreground/80 font-secondary">
                 What time would you like to have your therapy sessions? (Select all that apply)
               </h3>
               <div className="grid md:grid-cols-4 gap-4">

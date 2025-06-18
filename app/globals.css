@@ -8,7 +8,7 @@
     --card-shadow: rgb(202, 202, 202);
     --card-border-color: #e5e7eb; 
     --google-hover: #f1f1f1;
-
+    --onboarding-bg: rgb(235, 235, 235);
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
     --card: 0 0% 100%;
@@ -40,6 +40,7 @@
     --card-shadow: rgb(29, 29, 29);
     --card-border-color: #1e232c;
     --google-hover: #161b25;
+    --onboarding-bg: hsl(222.2 84% 4.9%);
 
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;

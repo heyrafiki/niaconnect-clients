@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Smile } from "lucide-react"
-import { useSession } from "next-auth/react"
+import { useSession, getSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import StepNavigation from "@/components/onboarding/step-navigation"
 
@@ -96,6 +96,7 @@ export default function MentalHealthScaleStep() {
       localStorage.removeItem("onboarding_step2");
       localStorage.removeItem("onboarding_step3");
       localStorage.removeItem("onboarding_step4");
+      await getSession();
       router.push("/client/dashboard");
     } catch (e) {
       setError("An unexpected error occurred. Please try again.");
@@ -106,7 +107,7 @@ export default function MentalHealthScaleStep() {
   return (
     <>
       <div className="text-muted-foreground font-secondary font-medium text-right mb-4">STEP 4 OF 4</div>
-      <Card className="bg-card shadow-xl rounded-3xl border-0 overflow-hidden">
+      <Card className="bg-[var(--card-bg)] shadow-xl shadow-[var(--card-shadow)] rounded-3xl border-0 overflow-hidden">
         <CardContent className="p-8 lg:p-12">
           <div className="space-y-6">
             <div className="flex items-center space-x-4 mb-8">
@@ -142,14 +143,16 @@ export default function MentalHealthScaleStep() {
             </div>
 
             <StepNavigation
-  currentStep={4}
-  totalSteps={4}
-  onComplete={handleComplete}
-  disableNext={
-    !mentalHealthScale || loading
-  }
-/>
-{error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+              currentStep={4}
+              totalSteps={4}
+              onComplete={handleComplete}
+              disableNext={
+                !mentalHealthScale || loading
+              }
+            />
+            {error && 
+            <p className="text-red-500 text-sm mt-2">{error}</p>
+            }
           </div>
         </CardContent>
       </Card>

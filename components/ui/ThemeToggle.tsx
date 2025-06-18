@@ -32,7 +32,7 @@ export default function ThemeToggle() {
     <button
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
       onClick={toggleTheme}
-      className="p-2 rounded-full border border-border bg-card shadow hover:bg-muted transition-colors fixed top-4 right-4 z-50"
+      className="p-2 rounded-full border border-border bg-card shadow hover:bg-muted transition-colors z-50"
       type="button"
     >
       {isDark ? (
