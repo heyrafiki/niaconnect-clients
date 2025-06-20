@@ -32,6 +32,7 @@ export default function ProfileForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isEditingPhone, setIsEditingPhone] = useState(false);
+  const [isEditingEmail, setIsEditingEmail] = useState(false);
   const [isEditingGender, setIsEditingGender] = useState(false);
   const [isEditingDob, setIsEditingDob] = useState(false);
   const [isEditingLocation, setIsEditingLocation] = useState(false);
@@ -45,6 +46,7 @@ export default function ProfileForm() {
   const [firstName, setFirstName] = useState(user?.first_name || "");
   const [lastName, setLastName] = useState(user?.last_name || "");
   const [phone, setPhone] = useState(user?.onboarding?.phone_number || "");
+  const [email, setEmail] = useState(user?.email || "");
   const [avatar, setAvatar] = useState<string | null>(
     user?.onboarding?.profile_img_url || null
   );
@@ -100,6 +102,7 @@ export default function ProfileForm() {
       setFirstName(user.first_name || "");
       setLastName(user.last_name || "");
       setPhone(user.onboarding?.phone_number || "");
+      setEmail(user.email || "");
       setAvatar(user.avatar || null);
       setTherapyReasonsDisplay(
         user.onboarding?.therapy_reasons?.join(", ") || ""
@@ -303,7 +306,7 @@ export default function ProfileForm() {
 
     return (
       <div
-        className="relative group py-2 px-3 border border-transparent rounded-md flex items-center justify-between hover:bg-gray-50 transition-colors duration-200"
+        className="relative group py-2 px-3 bg-muted/40 rounded-md flex items-center justify-between hover:bg-muted transition-colors duration-200"
         onMouseEnter={() => setShowEditIcon(true)}
         onMouseLeave={() => setShowEditIcon(false)}
         onClick={() => !isEditing && setIsEditing(true)}
@@ -370,7 +373,7 @@ export default function ProfileForm() {
       </div>
 
       {/* --- Personal Info Section --- */}
-      <div className="rounded-lg border p-6 bg-white space-y-6">
+      <div className="rounded-lg border p-6 bg-[var(--card-bg)] space-y-6">
         <h2 className="text-lg font-semibold mb-2">Personal Information</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -431,12 +434,30 @@ export default function ProfileForm() {
           </div>
           <div>
             <Label htmlFor="email">Email</Label>
-            <Input
+            {/* <Input
               id="email"
               value={user?.email || ""}
               readOnly
-              className="bg-gray-100"
+              className="bg-muted"
+            /> */}
+            <EditableField
+              id="email"
+              label="Email Address"
+              value={email}
+              isEditing={isEditingEmail}
+              setIsEditing={setIsEditingEmail}
+              type="email"
+              placeholder="e.g. example@mail.com"
+              onChange={(e) => setEmail(e.target.value)}
+              onBlur={() => setIsEditingEmail(false)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  setIsEditingEmail(false);
+                }
+              }}
             />
+
           </div>
           <div>
             <Label htmlFor="location">Location</Label>
@@ -480,18 +501,18 @@ export default function ProfileForm() {
       </div>
 
       {/* --- Therapy Details Section --- */}
-      <div className="rounded-lg border p-6 bg-white space-y-4">
+      <div className="rounded-lg border p-6 bg-[var(--card-bg)] space-y-4">
         <h2 className="text-lg font-semibold mb-2">Therapy Details</h2>
         <div>
           <Label htmlFor="therapyReasons">Therapy Reasons</Label>
-          <p className="py-2 px-3 border border-transparent rounded-md text-sm bg-gray-100">
+          <p className="py-2 px-3 rounded-md text-sm bg-muted/40">
             {therapyReasonsDisplay || <em>Not set</em>}
           </p>
         </div>
       </div>
 
       {/* --- Session Preferences Section --- */}
-      <div className="rounded-lg border p-6 bg-white space-y-4">
+      <div className="rounded-lg border p-6 bg-[var(--card-bg)] space-y-4">
         <h2 className="text-lg font-semibold mb-2">Session Preferences</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -518,7 +539,7 @@ export default function ProfileForm() {
       </div>
 
       {/* --- Social Media Links Section --- */}
-      <div className="rounded-lg border p-6 bg-white space-y-6">
+      <div className="rounded-lg border p-6 bg-[var(--card-bg)] space-y-6">
         <h2 className="text-lg font-semibold mb-2">Social Media Links</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -668,7 +689,7 @@ export default function ProfileForm() {
 
       {/* --- Security Section --- */}
       {authUser?.provider !== "google" && (
-        <div className="rounded-lg border p-6 bg-white space-y-4">
+        <div className="rounded-lg border p-6 bg-[var(--card-bg)] space-y-4">
           <h2 className="text-lg font-semibold mb-2">Security</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>

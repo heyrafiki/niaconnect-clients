@@ -30,7 +30,7 @@ export default function ProfileCompletionTracker({
   }, [user]);
 
   return (
-    <div className="mb-6 p-4 border-border rounded-lg bg-muted">
+    <div className="mb-6 p-4 border-border rounded-lg bg-[--card-bg] shadow-base shadow-[var(--card-shadow)]">
       <div className="flex justify-between items-center mb-2">
         <Label className="font-semibold">Profile Completion</Label>
         <span className="text-sm text-muted-foreground">
@@ -45,7 +45,7 @@ export default function ProfileCompletionTracker({
 
       {/* Section-wise completion */}
       <div className="space-y-3">
-        <div>
+        <div className="mb-2">
           <div className="flex justify-between items-center mb-1">
             <Label className="text-sm">Personal Information</Label>
             <span className="text-xs text-muted-foreground">
@@ -59,7 +59,7 @@ export default function ProfileCompletionTracker({
           />
         </div>
 
-        <div>
+        <div className="mb-2">
           <div className="flex justify-between items-center mb-1">
             <Label className="text-sm">Therapy Details</Label>
             <span className="text-xs text-muted-foreground">
@@ -73,7 +73,7 @@ export default function ProfileCompletionTracker({
           />
         </div>
 
-        <div>
+        <div className="mb-2">
           <div className="flex justify-between items-center mb-1">
             <Label className="text-sm">Session Preferences</Label>
             <span className="text-xs text-muted-foreground">
@@ -87,7 +87,7 @@ export default function ProfileCompletionTracker({
           />
         </div>
 
-        <div>
+        <div className="mb-2">
           <div className="flex justify-between items-center mb-1">
             <Label className="text-sm">Social Media</Label>
             <span className="text-xs text-muted-foreground">

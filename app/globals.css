@@ -9,6 +9,9 @@
     --card-border-color: #e5e7eb; 
     --google-hover: #f1f1f1;
     --onboarding-bg: rgb(235, 235, 235);
+    --layout-bg: #f7f7f7;
+    --grid-card-bg: #fff;
+
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
     --card: 0 0% 100%;
@@ -37,10 +40,12 @@
 
   .dark {
     --card-bg: hsl(222.2 84% 4.9%);
-    --card-shadow: rgb(29, 29, 29);
+    --card-shadow: rgb(56, 56, 56);
     --card-border-color: #1e232c;
     --google-hover: #161b25;
     --onboarding-bg: hsl(222.2 84% 4.9%);
+    --layout-bg: hsl(225, 38%, 10%);
+    --grid-card-bg: hsl(222.2 84% 4.9%);
 
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;

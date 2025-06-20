@@ -23,7 +23,7 @@ export default function ClientHeader({ onMenuClick }: { onMenuClick: () => void 
   const lastName = user.last_name || user.name?.split(" ")[1] || "";
 
   return (
-    <header className="w-full bg-white shadow-sm px-4 py-3 flex items-center justify-between relative">
+    <header className="w-full bg-[var(--card-bg)] shadow-sm shadow-[var(--card-shadow)] px-4 py-3 flex items-center justify-between relative">
       {/* Hamburger (left) */}
       <div className="flex items-center gap-3 min-w-[2.5rem]">
         <button className="lg:hidden" onClick={onMenuClick} aria-label="Open sidebar">
@@ -44,11 +44,11 @@ export default function ClientHeader({ onMenuClick }: { onMenuClick: () => void 
         <div className="hidden lg:flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="flex items-center gap-2 px-2 py-1 rounded-md hover:bg-gray-100 focus:outline-none">
-  <ProfileAvatar profileImgUrl={profileImgUrl} firstName={firstName} lastName={lastName} size={40} />
-  <span className="font-medium text-gray-800 text-base">{displayName}</span>
-  <ChevronDown className="w-4 h-4 text-gray-500" />
-</button>
+              <button className="flex items-center gap-2 px-2 py-1 rounded-md hover:bg-muted focus:outline-none">
+                <ProfileAvatar profileImgUrl={profileImgUrl} firstName={firstName} lastName={lastName} size={40} />
+                <span className="font-medium text-foreground/80 text-base">{displayName}</span>
+                <ChevronDown className="w-4 h-4 text-gray-500" />
+              </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
               <DropdownMenuLabel className="font-semibold">{displayName}</DropdownMenuLabel>
@@ -69,8 +69,8 @@ export default function ClientHeader({ onMenuClick }: { onMenuClick: () => void 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="focus:outline-none">
-  <ProfileAvatar profileImgUrl={profileImgUrl} firstName={firstName} lastName={lastName} size={36} />
-</button>
+                <ProfileAvatar profileImgUrl={profileImgUrl} firstName={firstName} lastName={lastName} size={36} />
+              </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
               <DropdownMenuLabel className="font-semibold">{displayName}</DropdownMenuLabel>

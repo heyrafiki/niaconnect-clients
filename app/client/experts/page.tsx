@@ -101,13 +101,13 @@ export default function ExpertsPage() {
     <div className="">
       {/* My Therapists Section */}
       <div className="mb-8">
-        <h2 className="text-2xl font-bold mb-3">My Therapists</h2>
+        <h2 className="text-2xl font-bold mb-3 text-foregound/85">My Therapists</h2>
         {myTherapistsLoading ? (
-          <div className="text-gray-500">Loading...</div>
+          <div className="text-foreground/60">Loading...</div>
         ) : myTherapists.length === 0 ? (
-          <div className="text-gray-400 text-sm">You haven't interacted with any therapists yet.</div>
+          <div className="text-foreground/60 text-sm">You haven't interacted with any therapists yet.</div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
             {myTherapists.map(event => {
               const expert = event.expert_id;
               const status = event.status;
@@ -124,7 +124,7 @@ export default function ExpertsPage() {
               return (
                 <div
                   key={expert._id || expert}
-                  className="bg-white border rounded-2xl shadow hover:shadow-lg transition cursor-pointer flex flex-col gap-3 p-5 h-full"
+                  className="bg-[var(--grid-card-bg)] border rounded-2xl shadow hover:shadow-lg hover:shadow-[var(--card-shadow)] transition cursor-pointer flex flex-col gap-3 p-5 h-full"
                   onClick={() => window.location.href = `/client/experts/${expert._id || expert}`}
                 >
                   <div className="flex items-center gap-4">
@@ -138,7 +138,7 @@ export default function ExpertsPage() {
                       )}
                     </Avatar>
                     <div className="flex-1">
-                      <div className="font-bold text-lg text-gray-900">{capitalize(expert.first_name)} {capitalize(expert.last_name)}</div>
+                      <div className="font-bold text-lg text-foreground/75">{capitalize(expert.first_name)} {capitalize(expert.last_name)}</div>
                       <div className="text-xs text-gray-500">{getExpertField(expert, "location")}</div>
                     </div>
                   </div>
@@ -150,21 +150,21 @@ export default function ExpertsPage() {
                       </span>
                     ))}
                   </div>
-                  <div className="text-xs text-gray-700 mt-2 min-h-[36px]">{truncate(getExpertField(expert, "bio"), 120)}</div> 
+                  <div className="text-xs text-foreground/65 mt-2 min-h-[36px]">{truncate(getExpertField(expert, "bio"), 120)}</div> 
 
-                  <div className="flex flex-col gap-1 mt-2 w-full border-[1.6px] border-gray-200 py-2 px-[8px] rounded-[10px]">
+                  <div className="flex flex-col gap-1 mt-2 w-full border-[1.6px] border-[var(--card-border-color)] py-2 px-[8px] rounded-[10px]">
                     <div className="flex justify-between py-2 w-full">
                       <span className={`px-2 rounded-full text-xs font-semibold w-fit ${statusColor}`}>{capitalize(status)}</span>
-                      <span className="text-xs text-gray-500">
+                      <span className="text-xs text-foreground/70">
                         {event.start_time ? new Date(event.start_time).toLocaleString() : event.requested_time ? new Date(event.requested_time).toLocaleString() : '-'}
                       </span>
                     </div>
 
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-foeground/60">
                       <b>Session Type:</b> {event.session_type || '-'}
                     </span>
                     {event.reason && (
-                      <span className="text-xs text-gray-500">
+                      <span className="text-xs text-foeground/60">
                         <b>Reason:</b> {event.reason}
                       </span>
                     )}
@@ -175,8 +175,8 @@ export default function ExpertsPage() {
           </div>
         )}
       </div>
-      <h1 className="text-2xl font-bold mb-2">Find the best mental health expert</h1>
-      <p className="mb-6 text-gray-600">Our experts will help you identify and navigate through your problems</p>
+      <h1 className="text-2xl font-bold mb-2 text-foregound/85">Find the best mental health expert</h1>
+      <p className="mb-6 text-foreground/70">Our experts will help you identify and navigate through your problems</p>
       {/* Filters */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-3 mb-6 items-center">
           <Select value={filters.specialization} onValueChange={v => setFilters(f => ({ ...f, specialization: v }))}>
@@ -253,20 +253,20 @@ export default function ExpertsPage() {
 
       {/* Expert Cards */}
       {loading ? (
-        <div className="text-center text-gray-500">Loading...</div>
+        <div className="text-center text-foreground/70">Loading...</div>
       ) : error ? (
         <div className="text-center text-red-500">{error}</div>
       ) : (
         <>
-          <div className="mb-2 text-sm text-gray-500">Showing {experts.length} mental health expert{experts.length !== 1 ? "s" : ""}</div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="mb-2 text-sm text-foreground/70">Showing {experts.length} mental health expert{experts.length !== 1 ? "s" : ""}</div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {experts.length === 0 ? (
-              <div className="col-span-full text-center text-gray-500">No experts found.</div>
+              <div className="col-span-full text-center text-foreground/70">No experts found.</div>
             ) : (
               experts.map(expert => (
                     <div
                   key={expert._id}
-                      className="bg-white border rounded-2xl shadow hover:shadow-lg transition cursor-pointer flex flex-col gap-3 p-5 h-full"
+                      className="bg-[var(--grid-card-bg)] border rounded-2xl shadow hover:shadow-lg hover:shadow-[var(--card-shadow)] transition cursor-pointer flex flex-col gap-3 p-5 h-full"
                   onClick={() => window.location.href = `/client/experts/${expert._id}`}
                     >
                       <div className="flex items-center gap-4">
@@ -280,21 +280,21 @@ export default function ExpertsPage() {
                           )}
                         </Avatar>
                         <div className="flex-1">
-                      <div className="font-bold text-lg text-gray-900">{capitalize(expert.first_name)} {capitalize(expert.last_name)}</div>
+                      <div className="font-bold text-lg text-foreground/75">{capitalize(expert.first_name)} {capitalize(expert.last_name)}</div>
                           <div className="text-xs text-gray-500">{getExpertField(expert, "location")}</div>
                         </div>
                       </div>
                       <div className="flex flex-wrap gap-1 mt-2">
                         {(getExpertField(expert, "specialties") || []).map((s: string) => (
-                          <span key={s} className="text-[10px] px-2 py-0.5 bg-primary/10 text-primary rounded-full font-medium">
+                          <span key={s} className="text-[10px] px-2 py-0.5 bg-primary/10 text-primary-accent rounded-full font-medium">
                             {capitalize(s)}
                           </span>
                         ))}
                       </div>
-                      <div className="text-xs text-gray-700 mt-2 min-h-[36px]">{truncate(getExpertField(expert, "bio"), 160)}</div>
+                      <div className="text-xs text-foreground/65 mt-2 min-h-[36px]">{truncate(getExpertField(expert, "bio"), 160)}</div>
                       <div className="flex flex-wrap gap-2 mt-2">
                         {(getExpertField(expert, "session_types") || []).map((type: string) => (
-                          <span key={type} className="text-[10px] px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full font-medium">
+                          <span key={type} className="text-[10px] px-2 py-0.5 bg-muted text-blue-700 rounded-full font-medium">
                             {type}
                           </span>
                         ))}

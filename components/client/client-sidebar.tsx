@@ -4,6 +4,7 @@ import Link from "next/link"
 import { useState } from "react"
 import { cn } from "@/lib/utils"
 import { Home, User, MessageCircle, Calendar, BookOpen, Users, FileText, CreditCard, BarChart2, Zap, Settings, LogOut, Menu } from "lucide-react"
+import SidebarThemeToggler from "../ui/SidebarThemeToggler"
 
 const links = [
   { name: "Home", icon: Home, href: "/client/dashboard" },
@@ -34,13 +35,13 @@ export default function ClientSidebar({ open, onClose }: { open: boolean, onClos
       />
       <aside
         className={cn(
-          "fixed z-50 top-0 left-0 min-h-[100vh] h-full w-64 bg-white shadow-lg transform transition-transform duration-300 lg:static lg:translate-x-0 lg:shadow-none lg:block",
+          "fixed z-50 top-0 left-0 min-h-[100vh] h-full w-64 bg-[var(--card-bg)] shadow-lg transform transition-transform duration-300 lg:static lg:translate-x-0 lg:shadow-none lg:block",
           open ? "translate-x-0" : "-translate-x-full",
           "lg:translate-x-0"
         )}
         aria-label="Sidebar"
       >
-        <div className="flex flex-col h-full py-6 px-4 border-r border-gray-200">
+        <div className="flex flex-col h-full py-6 px-4 border-r border-[var(--card-border-color)]">
           <div className="mb-8 flex items-center justify-center">
             <img src="/images/heyrafiki-logo.png" alt="Heyrafiki Logo" className="h-10 w-auto" />
           </div>
@@ -49,7 +50,7 @@ export default function ClientSidebar({ open, onClose }: { open: boolean, onClos
               <Link
                 key={link.name}
                 href={link.href}
-                className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-700 hover:bg-primary/10 transition-colors text-sm lg:text-base"
+                className="flex items-center gap-3 px-3 py-2 rounded-md text-foreground/80 hover:bg-primary/10 transition-colors text-sm lg:text-base"
                 onClick={onClose}
               >
                 <link.icon className="w-4 h-4 lg:w-5 lg:h-5" />
@@ -57,8 +58,11 @@ export default function ClientSidebar({ open, onClose }: { open: boolean, onClos
               </Link>
             ))}
           </nav>
+          <div className="mt-auto pt-6 px-3">
+            <SidebarThemeToggler />
+          </div>
           <div className="mt-auto pt-6">
-            <button className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-700 hover:bg-primary/10 w-full text-sm lg:text-base">
+            <button className="flex items-center gap-3 px-3 py-2 rounded-md text-foreground/80 hover:bg-primary/10 w-full text-sm lg:text-base">
               <LogOut className="w-4 h-4 lg:w-5 lg:h-5" />
               <span className="font-medium">Log out</span>
             </button>
