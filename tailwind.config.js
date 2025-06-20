@@ -33,13 +33,13 @@ module.exports = {
           bright: "hsl(var(--green-bright))",
           foreground: "hsl(var(--primary-foreground))",
         },
-        'green-primary': {
+        "green-primary": {
           DEFAULT: "hsl(var(--green-primary))",
         },
-        'green-accent': {
+        "green-accent": {
           DEFAULT: "hsl(var(--green-accent))",
         },
-        'green-bright': {
+        "green-bright": {
           DEFAULT: "hsl(var(--green-bright))",
         },
         secondary: {
@@ -88,5 +88,5 @@ module.exports = {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [require("tailwindcss-animate"), require("tailwind-scrollbar")],
 };

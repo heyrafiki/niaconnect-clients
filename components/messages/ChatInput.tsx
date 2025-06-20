@@ -1,45 +1,48 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { useState } from "react";
+import { Send } from "lucide-react";
+import { useState, KeyboardEvent } from "react";
 
-export default function ChatInput({
-  onSend,
-}: {
-  onSend?: (msg: string) => void;
-}) {
+interface ChatInputProps {
+  onSendMessage: (message: string) => void;
+}
+
+export default function ChatInput({ onSendMessage }: ChatInputProps) {
   const [message, setMessage] = useState("");
 
   const handleSend = () => {
-    if (message.trim()) {
-      onSend?.(message);
+    const trimmedMessage = message.trim();
+    if (trimmedMessage) {
+      onSendMessage(trimmedMessage);
       setMessage("");
     }
   };
 
+  const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
   return (
-    <div className="w-full bg-white border-t flex items-center gap-2 px-4 py-3 shadow-md rounded-b-xl">
+    <div className="w-full bg-white border-t border-gray-200 flex items-end gap-2 p-4">
       <Textarea
         value={message}
         onChange={(e) => setMessage(e.target.value)}
-        placeholder="Type out something"
-        className="flex-1 resize-none border-none focus:ring-0 focus:outline-none bg-gray-50 rounded-lg text-sm min-h-[40px] max-h-24"
+        onKeyDown={handleKeyDown}
+        placeholder="Type your message..."
+        className="flex-1 resize-none border-gray-200 focus:ring-[#256E4D] focus:border-transparent min-h-[44px] py-3 px-4"
         rows={1}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" && !e.shiftKey) {
-            e.preventDefault();
-            handleSend();
-          }
-        }}
       />
       <Button
         onClick={handleSend}
-        className="ml-2 px-4 py-2 bg-[#3AB47D] hover:bg-[#319e6c] text-white rounded-lg shadow transition-colors"
-        size="icon"
-        aria-label="Send message"
+        disabled={!message.trim()}
+        className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl px-4 py-2.5 h-auto transition-colors duration-200"
       >
-        <svg width="24" height="24" fill="none" viewBox="0 0 24 24">
-          <path d="M3 20l18-8-18-8v6l14 2-14 2v6z" fill="currentColor" />
-        </svg>
+        <Send className="h-5 w-5" />
       </Button>
     </div>
   );

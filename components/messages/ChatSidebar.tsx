@@ -1,110 +1,172 @@
+"use client";
+
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Search, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 
-// Mock data for conversations
-const conversations = [
+interface Conversation {
+  id: string;
+  name: string;
+  profile_img_url: string;
+  lastMessage: string;
+  timestamp: string;
+  isOnline?: boolean;
+  unreadCount?: number;
+}
+
+const mockConversations: Conversation[] = [
   {
     id: "1",
     name: "John Ndegwa",
-    avatar: "/avatars/1.png",
+    profile_img_url: "https://randomuser.me/api/portraits/men/32.jpg",
     lastMessage: "Thank you! I've been practicing the relaxation",
-    time: "2 mins ago",
-    unread: true,
+    timestamp: "2 mins ago",
+    unreadCount: 2,
   },
   {
     id: "2",
     name: "Grace Muthoni",
-    avatar: "/avatars/2.png",
-    lastMessage:
-      "Hi! I've been feeling slightly better, especially with the...",
-    time: "10 mins ago",
-    unread: false,
+    profile_img_url: "https://randomuser.me/api/portraits/women/44.jpg",
+    lastMessage: "Hi! I've been feeling slightly better, especially with the",
+    timestamp: "10 mins ago",
+    isOnline: true,
   },
   {
     id: "3",
     name: "Peter Mwangi",
-    avatar: "/avatars/3.png",
+    profile_img_url: "/placeholder.svg?height=48&width=48",
     lastMessage: "Got it. I'll make sure to update it every evening.",
-    time: "25 mins ago",
-    unread: false,
+    timestamp: "25 mins ago",
   },
   {
     id: "4",
     name: "Lucy Wambui",
-    avatar: "/avatars/4.png",
+    profile_img_url: "/placeholder.svg?height=48&width=48",
     lastMessage: "Hi Lucy, can we reschedule our session to Thursday",
-    time: "45 mins ago",
-    unread: false,
+    timestamp: "45 mins ago",
   },
-  // ...add more mock conversations as needed
+  {
+    id: "5",
+    name: "Samuel Karanja",
+    profile_img_url: "/placeholder.svg?height=48&width=48",
+    lastMessage: "Good morning Samuel, have you had a chance to try",
+    timestamp: "3 hours ago",
+  },
+  {
+    id: "6",
+    name: "Mary Waithera",
+    profile_img_url: "/placeholder.svg?height=48&width=48",
+    lastMessage: "Hi, it's been a tough week, but the stress management",
+    timestamp: "1 day ago",
+  },
+  {
+    id: "7",
+    name: "David Otieno",
+    profile_img_url: "/placeholder.svg?height=48&width=48",
+    lastMessage: "Hi David, please remember to bring your completed",
+    timestamp: "3 days ago",
+  },
 ];
 
-type ChatSidebarProps = {
-  selectedId?: string;
-  onSelect: (id: string) => void;
-};
+interface ChatSidebarProps {
+  selectedId: string | null;
+  onSelect: (conversationId: string) => void;
+}
 
 export default function ChatSidebar({
   selectedId,
   onSelect,
 }: ChatSidebarProps) {
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredConversations = mockConversations.filter(
+    (conversation) =>
+      conversation.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      conversation.lastMessage.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
-    <aside className="w-full md:w-1/3 max-w-xs h-full bg-white border-r shadow-md flex flex-col">
-      <div className="p-4 pb-2 border-b flex items-center justify-between">
-        <h2 className="text-lg font-semibold">Messages</h2>
-        <button
-          className="rounded-full p-2 hover:bg-gray-100 transition-colors"
-          aria-label="New conversation"
-        >
-          <span className="text-2xl text-[#3AB47D]">+</span>
-        </button>
+    <div className="flex flex-col h-full bg-white">
+      {/* Header */}
+      <div className="px-6 py-5 border-b border-gray-100">
+        <div className="flex items-center justify-between mb-5">
+          <h1 className="text-xl font-semibold text-gray-900">Messages</h1>
+          <Button
+            size="sm"
+            variant="ghost"
+            className="h-8 w-8 p-0 rounded-full transition-colors duration-200"
+          >
+            <Plus className="h-5 w-5 text-[#256E4D]" />
+          </Button>
+        </div>
       </div>
-      <div className="px-4 py-2">
-        <input
-          type="text"
-          placeholder="Search for a conversation"
-          className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#3AB47D] bg-gray-50 text-sm"
-        />
+
+      {/* Search */}
+      <div className="px-6 pb-4">
+        <div className="relative">
+          <Search className="absolute left-3.5 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Input
+            placeholder="Search for a conversation"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10 h-11 bg-white border border-gray-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 rounded-lg text-sm"
+          />
+        </div>
       </div>
-      <div className="flex-1 overflow-y-auto">
-        {conversations.map((conv) => (
-          <Card
-            key={conv.id}
-            onClick={() => onSelect(conv.id)}
+
+      {/* Conversations List */}
+      <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 scrollbar-thumb-rounded-full min-h-0">
+        {filteredConversations.map((conversation) => (
+          <div
+            key={conversation.id}
+            onClick={() => onSelect(conversation.id)}
             className={cn(
-              "flex items-center gap-3 px-4 py-3 mb-1 cursor-pointer transition-all border border-transparent",
-              selectedId === conv.id
-                ? "bg-[#E6F7F0] border-[#3AB47D] shadow-sm"
-                : "hover:bg-gray-50"
+              "flex items-center gap-3 px-6 py-4 hover:bg-accent cursor-pointer transition-all duration-200 border-l-2 border-transparent relative",
+              selectedId === conversation.id &&
+                "bg-blue-50/50 border-l-[#256E4D]"
             )}
           >
-            <Avatar className="h-10 w-10">
-              <AvatarImage src={conv.avatar} alt={conv.name} />
-              <AvatarFallback>{conv.name[0]}</AvatarFallback>
-            </Avatar>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between">
-                <span className="font-medium text-sm truncate">
-                  {conv.name}
-                </span>
-                <span className="text-xs text-gray-400 ml-2 whitespace-nowrap">
-                  {conv.time}
-                </span>
-              </div>
-              <div className="text-xs text-gray-600 truncate">
-                {conv.lastMessage}
-              </div>
+            <div className="relative flex-shrink-0">
+              <Avatar className="h-12 w-12">
+                <AvatarImage
+                  src={conversation.profile_img_url}
+                  alt={conversation.name}
+                />
+                <AvatarFallback className="bg-[#256E4D] text-white">
+                  {conversation.name
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")}
+                </AvatarFallback>
+              </Avatar>
             </div>
-            {conv.unread && (
-              <span className="ml-2 w-5 h-5 flex items-center justify-center rounded-full bg-[#3AB47D] text-white text-xs font-bold">
-                2
+
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold text-gray-800 truncate text-base">
+                {conversation.name}
+              </h3>
+              <p className="text-sm text-gray-500 truncate">
+                {conversation.lastMessage}
+              </p>
+            </div>
+
+            <div className="flex flex-col items-end gap-1 flex-shrink-0">
+              <span className="text-xs text-gray-500">
+                {conversation.timestamp}
               </span>
-            )}
-          </Card>
+              {conversation.unreadCount && (
+                <div className="h-5 w-5 bg-green-500 text-white text-xs rounded-full flex items-center justify-center font-semibold">
+                  {conversation.unreadCount}
+                </div>
+              )}
+            </div>
+          </div>
         ))}
       </div>
-    </aside>
+    </div>
   );
 }
