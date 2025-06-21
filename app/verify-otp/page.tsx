@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 
 import { useEffect } from "react";
 import ThemeToggle from "@/components/ui/ThemeToggle";
+import HeyrafikiLogo from "@/components/HeyrafikiLogo"
 
 export default function VerifyOTP() {
   const router = useRouter();
@@ -148,7 +149,7 @@ export default function VerifyOTP() {
             {/* Heyrafiki Logo */}
             <CardHeader className="text-center space-y-2 pb-4">
               <div className="flex justify-center mb-4">
-                <Image src="/images/heyrafiki-logo.png" alt="Heyrafiki Logo" width={180} height={72} className="h-10 w-auto" />
+                <HeyrafikiLogo />
               </div>
               <CardTitle className="text-lg font-bold text-foreground/90">Verify Your Email</CardTitle>
               <CardDescription className="text-gray-600 font-secondary text-sm">

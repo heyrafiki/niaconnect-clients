@@ -2,6 +2,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import ThemeToggle from "@/components/ui/ThemeToggle"
+import HeyrafikiLogo from "@/components/HeyrafikiLogo"
 
 export default function HomePage() {
   return (
@@ -19,13 +20,7 @@ export default function HomePage() {
       </svg>
 
       <div className="rounded-3xl shadow-2xl shadow-[var(--card-shadow)] p-8 md:p-12 max-w-3xl w-full flex flex-col items-center z-20 bg-[var(--card-bg)]">
-        <Image
-          src="/images/heyrafiki-logo.png"
-          alt="Heyrafiki Logo"
-          width={80}
-          height={40}
-          className="mb-6"
-        />
+        <HeyrafikiLogo />
         <Image
           src="/images/client-banner.png"
           alt="Client Banner"

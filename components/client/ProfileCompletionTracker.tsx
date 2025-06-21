@@ -30,7 +30,7 @@ export default function ProfileCompletionTracker({
   }, [user]);
 
   return (
-    <div className="mb-6 p-4 border-border rounded-lg bg-[--card-bg] shadow-base shadow-[var(--card-shadow)]">
+    <div className="mb-6 p-4 border-border rounded-lg bg-[--card-bg] shadow-lg shadow-[var(--card-shadow)]">
       <div className="flex justify-between items-center mb-2">
         <Label className="font-semibold">Profile Completion</Label>
         <span className="text-sm text-muted-foreground">

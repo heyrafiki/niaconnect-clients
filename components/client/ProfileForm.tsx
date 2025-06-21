@@ -190,6 +190,7 @@ export default function ProfileForm() {
       firstName,
       lastName,
       phone,
+      email,
       avatar,
       password: password || undefined,
       sessionTypes: sessionTypes,
@@ -213,6 +214,7 @@ export default function ProfileForm() {
         setIsEditingFirstName(false);
         setIsEditingLastName(false);
         setIsEditingPhone(false);
+        setIsEditingEmail(false);
         setIsEditingLocation(false);
         setIsEditingPostalAddress(false);
         setIsEditingSocialMedia({
@@ -244,6 +246,7 @@ export default function ProfileForm() {
       setFirstName(user.first_name || "");
       setLastName(user.last_name || "");
       setPhone(user.onboarding?.phone_number || "");
+      setEmail(user.email|| "");
       setAvatar(user.avatar || null);
       setPassword("");
       setConfirmPassword("");
@@ -434,12 +437,6 @@ export default function ProfileForm() {
           </div>
           <div>
             <Label htmlFor="email">Email</Label>
-            {/* <Input
-              id="email"
-              value={user?.email || ""}
-              readOnly
-              className="bg-muted"
-            /> */}
             <EditableField
               id="email"
               label="Email Address"

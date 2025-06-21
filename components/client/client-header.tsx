@@ -13,6 +13,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
+import HeyrafikiLogo from "@/components/HeyrafikiLogo"
+
 
 export default function ClientHeader({ onMenuClick }: { onMenuClick: () => void }) {
   const { data: session } = useSession()
@@ -33,7 +35,7 @@ export default function ClientHeader({ onMenuClick }: { onMenuClick: () => void 
       {/* Centered logo for mobile only */}
       <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 lg:static lg:translate-x-0 lg:translate-y-0 lg:hidden">
         <Link href="/client/dashboard">
-          <img src="/images/heyrafiki-logo.png" alt="Heyrafiki Logo" className="h-8 w-auto" />
+          <HeyrafikiLogo />
         </Link>
       </div>
       {/* Hide logo on large screens (sidebar visible) */}

@@ -4,6 +4,7 @@ import type React from "react"
 import Image from "next/image"
 import Link from "next/link"
 import ThemeToggle from "@/components/ui/ThemeToggle"
+import HeyrafikiLogo from "@/components/HeyrafikiLogo"
 
 export default function OnboardingLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -30,13 +31,7 @@ export default function OnboardingLayout({ children }: { children: React.ReactNo
           {/* Header */}
           <div className="flex justify-between items-center mb-8">
             <Link href="/" className="transition-transform hover:scale-105">
-              <Image
-                src="/images/heyrafiki-logo.png"
-                alt="Heyrafiki Logo"
-                width={180}
-                height={72}
-                className="h-10 w-auto"
-              />
+              <HeyrafikiLogo />
             </Link>
 
             <div className="flex items-center">

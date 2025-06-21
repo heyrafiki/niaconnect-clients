@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { figtree, plusJakartaSans } from "@/lib/fonts";
 import "./globals.css";
 import Providers from "@/components/Providers";
+import { cn } from '@/lib/utils' 
 
 export const metadata: Metadata = {
   title: "Heyrafiki - Mental Health Support",
@@ -18,7 +19,8 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${figtree.variable} ${plusJakartaSans.variable}`}
+      className={cn(`${figtree.variable} ${plusJakartaSans.variable}`)}
+      suppressHydrationWarning
     >
       <body className={figtree.className}>
         <Providers>
@@ -28,3 +30,4 @@ export default function RootLayout({
     </html>
   );
 }
+

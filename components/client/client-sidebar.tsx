@@ -5,6 +5,7 @@ import { useState } from "react"
 import { cn } from "@/lib/utils"
 import { Home, User, MessageCircle, Calendar, BookOpen, Users, FileText, CreditCard, BarChart2, Zap, Settings, LogOut, Menu } from "lucide-react"
 import SidebarThemeToggler from "../ui/SidebarThemeToggler"
+import HeyrafikiLogo from "@/components/HeyrafikiLogo"
 
 const links = [
   { name: "Home", icon: Home, href: "/client/dashboard" },
@@ -43,7 +44,7 @@ export default function ClientSidebar({ open, onClose }: { open: boolean, onClos
       >
         <div className="flex flex-col h-full py-6 px-4 border-r border-[var(--card-border-color)]">
           <div className="mb-8 flex items-center justify-center">
-            <img src="/images/heyrafiki-logo.png" alt="Heyrafiki Logo" className="h-10 w-auto" />
+            <HeyrafikiLogo />
           </div>
           <nav className="flex-1 space-y-2 overflow-y-auto lg:overflow-y-visible">
             {links.map(link => (

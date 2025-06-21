@@ -14,6 +14,8 @@ import { useAuth } from "@/lib/auth-context"
 import ThemeToggle from "@/components/ui/ThemeToggle"
 import { useRouter } from "next/navigation"
 import { signIn } from "next-auth/react"
+import HeyrafikiLogo from "@/components/HeyrafikiLogo"
+
 
 export default function ClientAuth() {
   const router = useRouter()
@@ -107,13 +109,7 @@ export default function ClientAuth() {
           <Card className="shadow-2xl shadow-[var(--card-shadow)] rounded-3xl">
             <CardHeader className="text-center space-y-2 pb-4">
               <div className="flex justify-center mb-4">
-                <Image
-                  src="/images/heyrafiki-logo.png"
-                  alt="Heyrafiki Logo"
-                  width={180}
-                  height={72}
-                  className="h-10 w-auto"
-                />
+                <HeyrafikiLogo />
               </div>
               <CardTitle className="text-lg font-bold text-foreground/90">
                 {isSignUp ? "Start Your Journey" : "Welcome Back"}
