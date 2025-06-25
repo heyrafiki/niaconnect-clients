@@ -2,8 +2,8 @@ import type React from "react";
 import type { Metadata } from "next";
 import { figtree, plusJakartaSans } from "@/lib/fonts";
 import "./globals.css";
-import Providers from "@/components/Providers";
-import { cn } from '@/lib/utils' 
+import ClientProviders from "./client-providers";
+import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Heyrafiki - Mental Health Support",
@@ -23,11 +23,8 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className={figtree.className}>
-        <Providers>
-          {children}
-        </Providers>
+        <ClientProviders>{children}</ClientProviders>
       </body>
     </html>
   );
 }
-
