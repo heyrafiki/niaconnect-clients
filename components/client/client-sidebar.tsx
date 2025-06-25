@@ -1,18 +1,31 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { useState } from "react"
-import { cn } from "@/lib/utils"
-import { Home, User, MessageCircle, Calendar, BookOpen, Users, FileText, CreditCard, BarChart2, Zap, Settings, LogOut, Menu } from "lucide-react"
-import SidebarThemeToggler from "../ui/SidebarThemeToggler"
-import HeyrafikiLogo from "@/components/HeyrafikiLogo"
+import Link from "next/link";
+import { useState } from "react";
+import { cn } from "@/lib/utils";
+import {
+  Home,
+  User,
+  MessageCircle,
+  Calendar,
+  BookOpen,
+  Users,
+  FileText,
+  CreditCard,
+  BarChart2,
+  Zap,
+  Settings,
+  LogOut,
+  Menu,
+} from "lucide-react";
+import SidebarThemeToggler from "../ui/SidebarThemeToggler";
 
 const links = [
   { name: "Home", icon: Home, href: "/client/dashboard" },
   { name: "Therapists", icon: Users, href: "/client/experts" },
   { name: "Sessions", icon: BookOpen, href: "/client/sessions" },
   { name: "Calendar", icon: Calendar, href: "/client/calendar" },
-  { name: "Messages", icon: MessageCircle, href: "#" },
+  { name: "Messages", icon: MessageCircle, href: "/client/messages" },
   { name: "Journal", icon: FileText, href: "#" },
   { name: "Resources", icon: BookOpen, href: "#" },
   { name: "Billing", icon: CreditCard, href: "#" },
@@ -20,9 +33,15 @@ const links = [
   { name: "Community", icon: Users, href: "#" },
   { name: "Integrations", icon: Zap, href: "#" },
   { name: "Settings", icon: Settings, href: "#" },
-]
+];
 
-export default function ClientSidebar({ open, onClose }: { open: boolean, onClose: () => void }) {
+export default function ClientSidebar({
+  open,
+  onClose,
+}: {
+  open: boolean;
+  onClose: () => void;
+}) {
   return (
     <>
       {/* Overlay for mobile */}
@@ -44,10 +63,14 @@ export default function ClientSidebar({ open, onClose }: { open: boolean, onClos
       >
         <div className="flex flex-col h-full py-6 px-4 border-r border-[var(--card-border-color)]">
           <div className="mb-8 flex items-center justify-center">
-            <HeyrafikiLogo />
+            <img
+              src="/images/heyrafiki-logo.png"
+              alt="Heyrafiki Logo"
+              className="h-10 w-auto"
+            />
           </div>
           <nav className="flex-1 space-y-2 overflow-y-auto lg:overflow-y-visible">
-            {links.map(link => (
+            {links.map((link) => (
               <Link
                 key={link.name}
                 href={link.href}
@@ -71,5 +94,5 @@ export default function ClientSidebar({ open, onClose }: { open: boolean, onClos
         </div>
       </aside>
     </>
-  )
-} 
+  );
+}
