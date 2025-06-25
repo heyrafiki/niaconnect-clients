@@ -38,13 +38,17 @@ export default function MentalHealthScaleStep() {
   // Gather all onboarding data from localStorage/session
   const getOnboardingData = () => {
     // Step 1
-    let step1 = {};
+    let step1: any = {};
     const saved1 = localStorage.getItem("onboarding_step1");
     if (saved1) {
       try {
         const { data } = JSON.parse(saved1);
         step1 = data || {};
       } catch {}
+    }
+    // Convert dateOfBirth string to Date object
+    if (step1.dateOfBirth && typeof step1.dateOfBirth === 'string') {
+      step1.dateOfBirth = new Date(step1.dateOfBirth);
     }
     // Step 2
     let step2 = {};

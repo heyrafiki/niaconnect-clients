@@ -7,9 +7,27 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, CalendarClock, Ban, CheckCircle2, CircleDashed, Edit, Trash2, ArrowRight } from 'lucide-react';
 import { Session, SessionRequest } from '@/types/expert'; // Assuming these types are correct and shared
 import { format, isFuture, isPast } from 'date-fns';
-import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogClose, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, DialogClose } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogAction,
+  AlertDialogCancel,
+} from '@/components/ui/alert-dialog';
+import { Calendar } from '@/components/ui/calendar';
 
 // Helper to capitalize strings for display
 function capitalize(str: string) {
@@ -42,6 +60,15 @@ export default function SessionsPage() {
   const [actionError, setActionError] = useState<string | null>(null);
   const [actionSuccess, setActionSuccess] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [rescheduleModalOpen, setRescheduleModalOpen] = useState(false);
+  const [currentSession, setCurrentSession] = useState<Session | null>(null);
+  const [rescheduleAvailability, setRescheduleAvailability] = useState<any[]>([]);
+  const [rescheduleSlot, setRescheduleSlot] = useState<string>("");
+  const [rescheduleReason, setRescheduleReason] = useState("");
+  const [rescheduleLoading, setRescheduleLoading] = useState(false);
+  const [editRequestedDate, setEditRequestedDate] = useState<Date | null>(null);
+  const [editAvailableTimes, setEditAvailableTimes] = useState<string[]>([]);
+  const [editRequestedSlot, setEditRequestedSlot] = useState<{ start: string; end: string } | null>(null);
 
   const fetchEvents = async () => {
     if (!session?.user?.id) return;
@@ -140,8 +167,41 @@ export default function SessionsPage() {
     return deduped;
   }, [events, filterStatus]);
 
+  // Helper: get status tag
+  function getStatusTag(event) {
+    const isSession = (event as Session).start_time !== undefined;
+    const status = event.status;
+    if (status === 'completed') return <span className="px-2 py-0.5 rounded bg-green-100 text-green-700 text-xs">complete</span>;
+    if (status === 'scheduled') {
+      const now = new Date();
+      const start = new Date((event as Session).start_time);
+      const end = (event as Session).end_time ? new Date((event as Session).end_time) : null;
+      if ((end && now > end) || (!end && now > start)) {
+        return <span className="px-2 py-0.5 rounded bg-yellow-100 text-yellow-700 text-xs">passed</span>;
+      }
+      return <span className="px-2 py-0.5 rounded bg-blue-100 text-blue-700 text-xs">scheduled</span>;
+    }
+    return null;
+  }
+
+  // Helper to fetch available times for a date and expert
+  async function fetchEditAvailableTimesForDate(date: Date, expertId: string) {
+    const res = await fetch(`/api/experts/${expertId}/availability`);
+    const data = await res.json();
+    const dayOfWeek = date.getDay();
+    const slots = (data.availability || []).filter((slot: any) => slot.day_of_week === dayOfWeek);
+    const times: string[] = [];
+    slots.forEach((slot: any) => {
+      slot.time_slots.forEach((t: any) => {
+        times.push(`${t.start_time} - ${t.end_time}`);
+      });
+    });
+    setEditAvailableTimes(times);
+    return times;
+  }
+
   return (
-    <div className="">
+    <div className="px-2 md:px-8 py-6 min-h-screen bg-background text-foreground">
       <h1 className="text-2xl font-bold text-foreground/80 mb-4">My Sessions & Requests</h1>
       <p className="mb-6 text-foreground/65">View and manage all your scheduled sessions and pending requests with experts.</p>
 
@@ -188,6 +248,8 @@ export default function SessionsPage() {
             const isScheduled = status === 'scheduled';
             const isCompleted = status === 'completed';
             const isCancelled = status === 'cancelled';
+            const isFuture = isSession ? new Date((event as Session).start_time) > new Date() : new Date((event as SessionRequest).requested_time) > new Date();
+            const canJoin = isSession && event.meeting_url && new Date() >= new Date(event.start_time) && new Date() <= new Date(event.end_time);
 
             let statusColor = 'text-gray-600';
             let statusBg = 'bg-gray-100';
@@ -244,9 +306,7 @@ export default function SessionsPage() {
                       </div>
 
                       {/* Status badge */}
-                      <span className={`px-2 py-1 rounded-full text-xs font-semibold ${statusColor} ${statusBg} inline-flex items-center gap-1`}>
-                        {statusIcon} {capitalize(status)}
-                      </span>
+                      {getStatusTag(event)}
                     </div>
                     
                     {/* Expert info */}
@@ -294,43 +354,19 @@ export default function SessionsPage() {
                   {/* Action buttons */}
                   {isManageableRequest && (
                     <div className="mt-4 flex gap-2">
-                      <Dialog open={editModalOpen && currentRequest?._id === event._id} onOpenChange={setEditModalOpen}>
-                        <DialogTrigger asChild>
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            className="flex-1 border-primary text-primary hover:bg-primary/10"
-                            onClick={() => {
-                              setCurrentRequest(event as SessionRequest);
-                              setNewRequestedTime(format(dateTime, "yyyy-MM-dd'T'HH:mm"));
-                              setNewReason((event as SessionRequest).reason || '');
-                              setActionError(null);
-                              setActionSuccess(null);
-                            }}
-                          >
-                            <Edit className="w-4 h-4 mr-1" /> Edit
-                          </Button>
-                        </DialogTrigger>
-                        {/* Dialog content remains the same */}
-                      </Dialog>
-                      
-                      <Dialog open={deleteModalOpen && currentRequest?._id === event._id} onOpenChange={setDeleteModalOpen}>
-                        <DialogTrigger asChild>
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            className="flex-1 border-red-500 text-red-500 hover:bg-red-50"
-                            onClick={() => {
-                              setCurrentRequest(event as SessionRequest);
-                              setActionError(null);
-                              setActionSuccess(null);
-                            }}
-                          >
-                            <Trash2 className="w-4 h-4 mr-1" /> Delete
-                          </Button>
-                        </DialogTrigger>
-                        {/* Dialog content remains the same */}
-                      </Dialog>
+                      <Button variant="outline" onClick={async () => {
+                        setCurrentRequest(event as SessionRequest);
+                        setEditModalOpen(true);
+                        const reqTime = (event as SessionRequest).requested_time;
+                        const date = reqTime ? new Date(reqTime) : null;
+                        setEditRequestedDate(date);
+                        setEditRequestedSlot(null);
+                        setNewReason(event.reason || '');
+                        if (date) await fetchEditAvailableTimesForDate(date, (event as SessionRequest).expert_id?._id || (event as SessionRequest).expert_id);
+                      }}>
+                        Edit
+                      </Button>
+                      <Button variant="destructive" onClick={() => { setCurrentRequest(event as SessionRequest); setDeleteModalOpen(true); }}>Delete</Button>
                     </div>
                   )}
                 </CardContent>
@@ -339,6 +375,195 @@ export default function SessionsPage() {
           })}
         </div>
       )}
+
+      {/* Edit Modal */}
+      <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Session Request</DialogTitle>
+            <DialogDescription>Change the requested date, time, and reason for this session.</DialogDescription>
+          </DialogHeader>
+          <div className="mb-4">
+            <label className="block text-xs font-medium text-foreground mb-1">Date</label>
+            <Calendar
+              selected={editRequestedDate}
+              onSelect={async date => {
+                setEditRequestedDate(date);
+                setEditRequestedSlot(null);
+                if (date && currentRequest) await fetchEditAvailableTimesForDate(date, currentRequest.expert_id?._id || currentRequest.expert_id);
+              }}
+              disabled={date => {
+                if (!currentRequest) return true;
+                const dayOfWeek = date.getDay();
+                return !editAvailableTimes.length && !date;
+              }}
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-xs font-medium text-foreground mb-1">Time Slot</label>
+            <Select value={editRequestedSlot ? `${editRequestedSlot.start} - ${editRequestedSlot.end}` : ''} onValueChange={val => {
+              const [start, end] = val.split(' - ');
+              setEditRequestedSlot({ start, end });
+            }}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select time slot" />
+              </SelectTrigger>
+              <SelectContent>
+                {editAvailableTimes.map((time, idx) => (
+                  <SelectItem key={idx} value={time}>{time}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <Textarea
+            value={newReason}
+            onChange={e => setNewReason(e.target.value)}
+            placeholder="Reason for session"
+            className="min-h-[80px] mb-3"
+          />
+          {actionError && <div className="text-xs text-destructive mb-2">{actionError}</div>}
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="outline">Cancel</Button>
+            </DialogClose>
+            <Button onClick={async () => {
+              setActionLoading(true);
+              setActionError(null);
+              try {
+                if (!editRequestedDate || !editRequestedSlot) throw new Error('Please select a date and time slot.');
+                const date = new Date(editRequestedDate);
+                const [startHour, startMinute] = editRequestedSlot.start.split(":").map(Number);
+                date.setHours(startHour, startMinute, 0, 0);
+                const requested_time = date.toISOString();
+                // PATCH session to reschedule
+                const res = await fetch(`/api/session-requests/${currentRequest?._id}`, {
+                  method: 'PATCH',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    requested_time,
+                    reason: newReason,
+                    status: 'rescheduled',
+                  }),
+                });
+                if (!res.ok) throw new Error((await res.json()).error || 'Failed to update.');
+                setEditModalOpen(false);
+                setCurrentRequest(null);
+                setEditRequestedDate(null);
+                setEditRequestedSlot(null);
+                setNewReason("");
+                setActionError(null);
+                fetchEvents();
+              } catch (err: any) {
+                setActionError(err.message || 'Failed to update.');
+              } finally {
+                setActionLoading(false);
+              }
+            }} disabled={actionLoading || !editRequestedDate || !editRequestedSlot}>
+              {actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save Changes'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Modal */}
+      <AlertDialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Session Request</AlertDialogTitle>
+            <AlertDialogDescription>Are you sure you want to delete this session request? This action cannot be undone.</AlertDialogDescription>
+          </AlertDialogHeader>
+          {actionError && <div className="text-xs text-destructive mb-2">{actionError}</div>}
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteRequest} disabled={actionLoading}>{actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Delete'}</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Reschedule Modal */}
+      <Dialog open={rescheduleModalOpen} onOpenChange={setRescheduleModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reschedule Session</DialogTitle>
+            <DialogDescription>Select a new available slot and provide a reason.</DialogDescription>
+          </DialogHeader>
+          {rescheduleLoading ? (
+            <div className="flex justify-center items-center py-6"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>
+          ) : (
+            <>
+              <div className="mb-4">
+                <label className="block text-xs font-medium text-foreground mb-1">Available Slots</label>
+                <Select value={rescheduleSlot} onValueChange={setRescheduleSlot}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select slot" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {rescheduleAvailability.flatMap((slot: any) =>
+                      slot.time_slots.map((t: any, idx: number) => (
+                        <SelectItem key={slot.day_of_week + '-' + idx} value={JSON.stringify({ day: slot.day_of_week, start: t.start_time, end: t.end_time })}>
+                          {['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][slot.day_of_week]}: {t.start_time} - {t.end_time}
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
+              <Textarea
+                value={rescheduleReason}
+                onChange={e => setRescheduleReason(e.target.value)}
+                placeholder="Reason for rescheduling"
+                className="min-h-[80px] mb-3"
+              />
+              {actionError && <div className="text-xs text-destructive mb-2">{actionError}</div>}
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button variant="outline">Cancel</Button>
+                </DialogClose>
+                <Button
+                  onClick={async () => {
+                    setActionLoading(true);
+                    setActionError(null);
+                    try {
+                      if (!rescheduleSlot) throw new Error('Please select a slot.');
+                      const slot = JSON.parse(rescheduleSlot);
+                      // Compose new requested_time
+                      const now = new Date();
+                      const today = now.getDay();
+                      let daysToAdd = slot.day - today;
+                      if (daysToAdd < 0) daysToAdd += 7;
+                      const nextDate = new Date(now);
+                      nextDate.setDate(now.getDate() + daysToAdd);
+                      const [startHour, startMinute] = slot.start.split(":").map(Number);
+                      nextDate.setHours(startHour, startMinute, 0, 0);
+                      const requested_time = nextDate.toISOString();
+                      // PATCH session to reschedule
+                      const res = await fetch(`/api/session-requests/${currentSession?._id}`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          requested_time,
+                          reason: rescheduleReason,
+                          status: 'rescheduled',
+                        }),
+                      });
+                      if (!res.ok) throw new Error((await res.json()).error || 'Failed to reschedule.');
+                      setRescheduleModalOpen(false);
+                      fetchEvents();
+                    } catch (err: any) {
+                      setActionError(err.message || 'Failed to reschedule.');
+                    } finally {
+                      setActionLoading(false);
+                    }
+                  }}
+                  disabled={actionLoading || !rescheduleSlot || !rescheduleReason.trim()}
+                >
+                  {actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Reschedule'}
+                </Button>
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
