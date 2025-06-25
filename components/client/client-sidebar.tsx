@@ -55,11 +55,7 @@ export default function ClientSidebar({ open, onClose }: { open: boolean, onClos
       >
         <div className="flex flex-col h-full py-6 px-4 border-r border-[var(--card-border-color)]">
           <div className="mb-8 flex items-center justify-center">
-            <img
-              src="/images/heyrafiki-logo.png"
-              alt="Heyrafiki Logo"
-              className="h-10 w-auto"
-            />
+            < HeyrafikiLogo/>
           </div>
           <nav className="flex-1 space-y-2 overflow-y-auto lg:overflow-y-visible">
             {links.map((link) => (
