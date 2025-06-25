@@ -13,7 +13,7 @@ export interface IClient extends Document {
     completed: boolean;
     phone_number?: string;
     gender?: string;
-    date_of_birth?: string;
+    date_of_birth?: Date;
     location?: string;
     profile_img_url?: string;
     therapy_reasons?: string[];
@@ -52,7 +52,7 @@ const ClientSchema = new Schema<IClient>({
       completed: { type: Boolean, default: false },
       phone_number: { type: String },
       gender: { type: String },
-      date_of_birth: { type: String },
+      date_of_birth: { type: Date },
       location: { type: String },
       profile_img_url: { type: String },
       therapy_reasons: [{ type: String }],
