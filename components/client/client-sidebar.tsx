@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import Link from "next/link"
 import { useState } from "react"
@@ -13,7 +13,7 @@ const links = [
   { name: "Therapists", icon: Users, href: "/client/experts" },
   { name: "Sessions", icon: BookOpen, href: "/client/sessions" },
   { name: "Calendar", icon: Calendar, href: "/client/calendar" },
-  { name: "Messages", icon: MessageCircle, href: "#" },
+  { name: "Messages", icon: MessageCircle, href: "/client/messages" },
   { name: "Journal", icon: FileText, href: "#" },
   { name: "Resources", icon: BookOpen, href: "#" },
   { name: "Billing", icon: CreditCard, href: "#" },
@@ -21,7 +21,7 @@ const links = [
   { name: "Community", icon: Users, href: "#" },
   { name: "Integrations", icon: Zap, href: "#" },
   { name: "Settings", icon: Settings, href: "#" },
-]
+];
 
 export default function ClientSidebar({ open, onClose }: { open: boolean, onClose: () => void }) {
   const pathname = usePathname();
@@ -55,10 +55,10 @@ export default function ClientSidebar({ open, onClose }: { open: boolean, onClos
       >
         <div className="flex flex-col h-full py-6 px-4 border-r border-[var(--card-border-color)]">
           <div className="mb-8 flex items-center justify-center">
-            <HeyrafikiLogo />
+            < HeyrafikiLogo/>
           </div>
           <nav className="flex-1 space-y-2 overflow-y-auto lg:overflow-y-visible">
-            {links.map(link => (
+            {links.map((link) => (
               <Link
                 key={link.name}
                 href={link.href}
@@ -85,5 +85,5 @@ export default function ClientSidebar({ open, onClose }: { open: boolean, onClos
         </div>
       </aside>
     </>
-  )
-} 
+  );
+}

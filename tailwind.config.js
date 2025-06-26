@@ -33,13 +33,13 @@ module.exports = {
           bright: "hsl(var(--green-bright))",
           foreground: "hsl(var(--primary-foreground))",
         },
-        'green-primary': {
+        "green-primary": {
           DEFAULT: "hsl(var(--green-primary))",
         },
-        'green-accent': {
+        "green-accent": {
           DEFAULT: "hsl(var(--green-accent))",
         },
-        'green-bright': {
+        "green-bright": {
           DEFAULT: "hsl(var(--green-bright))",
         },
         secondary: {
@@ -66,6 +66,17 @@ module.exports = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        session: {
+          scheduled: "hsl(var(--session-scheduled))",
+          completed: "hsl(var(--session-completed))",
+          cancelled: "hsl(var(--session-cancelled))",
+        },
+        request: {
+          pending: "hsl(var(--request-pending))",
+          accepted: "hsl(var(--request-accepted))",
+          declined: "hsl(var(--request-declined))",
+          rescheduled: "hsl(var(--request-rescheduled))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -88,5 +99,5 @@ module.exports = {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [require("tailwindcss-animate"), require("tailwind-scrollbar")],
 };
