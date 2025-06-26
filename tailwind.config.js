@@ -66,6 +66,17 @@ module.exports = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        session: {
+          scheduled: "hsl(var(--session-scheduled))",
+          completed: "hsl(var(--session-completed))",
+          cancelled: "hsl(var(--session-cancelled))",
+        },
+        request: {
+          pending: "hsl(var(--request-pending))",
+          accepted: "hsl(var(--request-accepted))",
+          declined: "hsl(var(--request-declined))",
+          rescheduled: "hsl(var(--request-rescheduled))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",

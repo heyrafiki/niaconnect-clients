@@ -36,6 +36,15 @@
     --green-primary: 158 90% 20%; /* #066338 */
     --green-accent: 153 100% 32%; /* #00a65f */
     --green-bright: 156 100% 39%; /* #00c570 */
+    /* Session Status Colors */
+    --session-scheduled: 158 90% 20%; /* green - scheduled */
+    --session-completed: 215 16% 80%; /* gray - completed */
+    --session-cancelled: 0 84% 60%;   /* red - cancelled */
+    /* Session Request Status Colors */
+    --request-pending: 45 100% 51%;   /* yellow - pending */
+    --request-accepted: 220 80% 60%;  /* blue - accepted */
+    --request-declined: 0 84% 60%;    /* red - declined */
+    --request-rescheduled: 270 70% 60%; /* purple - rescheduled */
   }
 
   .dark {
