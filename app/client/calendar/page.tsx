@@ -60,18 +60,6 @@ export default function CalendarPage() {
       });
   }, [session?.user?.id]);
 
-  useEffect(() => {
-    // Wait for the DOM to update
-    const timeout = setTimeout(() => {
-      const calendarEl = document.querySelector('.fc');
-      if (calendarEl && calendarEl.classList) {
-        calendarEl.classList.remove('fc-theme-light', 'fc-theme-dark');
-        calendarEl.classList.add(currentTheme === 'dark' ? 'fc-theme-dark' : 'fc-theme-light');
-      }
-    }, 10);
-    return () => clearTimeout(timeout);
-  }, [currentTheme]);
-
   // Extract unique experts for filter dropdown
   const expertOptions = Array.from(
     new Set(events.map(e => e.expert_id?._id && `${e.expert_id._id}|${e.expert_id.first_name} ${e.expert_id.last_name}`))
@@ -85,8 +73,23 @@ export default function CalendarPage() {
     return statusMatch && expertMatch && dateMatch;
   });
 
+  // Deduplicate accepted requests if a scheduled session exists for the same expert, client, and start_time
+  const dedupedEvents = filteredEvents.filter((event, idx, arr) => {
+    if (event.status === 'accepted' && event.requested_time) {
+      // Find a scheduled session with the same expert, client, and start_time
+      return !arr.some(e =>
+        e.status === 'scheduled' &&
+        e.expert_id?._id === event.expert_id?._id &&
+        e.client_id?._id === event.client_id?._id &&
+        // Compare times (allowing for possible string/Date differences)
+        (e.start_time && new Date(e.start_time).getTime() === new Date(event.requested_time).getTime())
+      );
+    }
+    return true;
+  });
+
   // Map all events (sessions and requests) to FullCalendar events
-  const calendarEvents = filteredEvents.map((event: any) => {
+  const calendarEvents = dedupedEvents.map((event: any) => {
     let title = '';
     let start = '';
     let end = '';
@@ -130,22 +133,19 @@ export default function CalendarPage() {
   });
 
   return (
-    <div className="relative min-h-screen bg-layout-bg p-2 sm:p-6 overflow-x-auto">
-      {/* SVG Backgrounds for visual polish */}
-      <svg className="absolute left-[-120px] top-[-120px] w-[500px] h-[500px] z-0" viewBox="0 0 600 600" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M300,80 Q400,120 480,220 Q560,320 480,420 Q400,520 300,480 Q200,440 120,340 Q40,240 120,140 Q200,40 300,80Z" fill="hsl(var(--green-bright))" fillOpacity="0.13" />
-      </svg>
-      <svg className="absolute right-[-120px] bottom-[-120px] w-[500px] h-[500px] z-0" viewBox="0 0 600 600" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M300,520 Q400,480 480,380 Q560,280 480,180 Q400,80 300,120 Q200,160 120,260 Q40,360 120,460 Q200,560 300,520Z" fill="hsl(var(--green-accent))" fillOpacity="0.10" />
-      </svg>
+    <div className="relative min-h-screen bg-layout-bg p-2 sm:p-6 -m-4 -mx-6 lg:-m-8 p-4 md:p-6">
       <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
         <div>
           <h1 className="text-2xl font-bold mb-1">My Calendar</h1>
           <p className="text-gray-600 text-sm">All your upcoming and past sessions and requests are shown here. Click on an event for more details.</p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" className="flex items-center gap-2 shadow"><Filter size={16}/> Filter</Button>
-          <Button className="flex items-center gap-2 bg-primary hover:bg-primary/90 shadow"><Plus size={16}/> Add New Session</Button>
+        <div className="flex gap-2 flex-wrap">
+          <Button
+            className="flex items-center gap-2 bg-primary-accent hover:bg-primary-accent/90 shadow px-2 py-1 text-xs sm:text-sm h-8 sm:h-10 min-w-[2rem] sm:min-w-[2.5rem]"
+          >
+            <span className="font-semibold text-xs sm:text-base">+</span>
+            <span className="hidden sm:inline">Add New Session</span>
+          </Button>
         </div>
       </div>
       {/* Color Legend */}
@@ -159,9 +159,11 @@ export default function CalendarPage() {
         <LegendItem color="request-rescheduled" label="Rescheduled Request" />
       </div>
       {/* Filter Bar */}
-      <div className="flex flex-wrap gap-2 mb-4 z-10 relative">
+      <div className="flex flex-wrap gap-2 mb-4 z-10 relative text-xs sm:text-base">
         <Select value={filterStatus} onValueChange={setFilterStatus}>
-          <SelectTrigger className="w-40"><SelectValue placeholder="All Statuses" /></SelectTrigger>
+          <SelectTrigger className="w-24 sm:w-40 h-8 sm:h-10 text-xs sm:text-sm">
+            <SelectValue placeholder="All Statuses" />
+          </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Statuses</SelectItem>
             <SelectItem value="scheduled">Scheduled</SelectItem>
@@ -174,7 +176,9 @@ export default function CalendarPage() {
           </SelectContent>
         </Select>
         <Select value={filterExpert} onValueChange={setFilterExpert}>
-          <SelectTrigger className="w-40"><SelectValue placeholder="All Experts" /></SelectTrigger>
+          <SelectTrigger className="w-24 sm:w-40 h-8 sm:h-10 text-xs sm:text-sm">
+            <SelectValue placeholder="All Experts" />
+          </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Experts</SelectItem>
             {expertOptions.map(opt => {
@@ -183,51 +187,15 @@ export default function CalendarPage() {
             })}
           </SelectContent>
         </Select>
-        <input type="date" className="border rounded px-2 py-1 dark:bg-background dark:text-foreground" value={filterDate} onChange={e => setFilterDate(e.target.value)} />
+        <input type="date" className="border rounded px-2 py-1 h-8 sm:h-10 text-xs sm:text-sm dark:bg-background dark:text-foreground" value={filterDate} onChange={e => setFilterDate(e.target.value)} />
       </div>
-      <style jsx global>{`
-        .fc-theme-light .fc-toolbar, .fc-theme-dark .fc-toolbar {
-          background: transparent;
-        }
-        .fc-theme-light .fc-button, .fc-theme-dark .fc-button {
-          background: hsl(var(--green-primary));
-          color: #fff;
-          border: none;
-        }
-        .fc-theme-dark .fc-button {
-          background: hsl(var(--green-accent));
-        }
-        .fc-theme-light .fc-today, .fc-theme-dark .fc-today {
-          background: hsl(var(--green-bright));
-          color: #fff;
-        }
-        .fc-theme-light .fc-event, .fc-theme-dark .fc-event {
-          background: hsl(var(--green-primary));
-          color: #fff;
-          border-radius: 0.5rem;
-          border: none;
-        }
-        .fc-theme-dark .fc-event {
-          background: hsl(var(--green-accent));
-        }
-        .fc-theme-light .fc-daygrid-day-number, .fc-theme-dark .fc-daygrid-day-number {
-          color: inherit;
-        }
-        .fc-theme-dark .fc {
-          background: #18181b;
-          color: #e5e7eb;
-        }
-        .fc-theme-light .fc {
-          background: #fff;
-          color: #222;
-        }
-      `}</style>
+
       {loading ? (
         <div className="text-center text-gray-500">Loading calendar...</div>
       ) : error ? (
         <div className="text-center text-red-500">{error}</div>
       ) : (
-        <div className="bg-white rounded-2xl shadow p-2 sm:p-6 z-10 relative">
+        <div className="bg-background rounded-2xl shadow p-2 sm:p-6 z-10 relative">
           <FullCalendar
               ref={calendarRef}
               plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
@@ -250,8 +218,7 @@ export default function CalendarPage() {
               fixedWeekCount={false}
               eventDisplay="block"
               nowIndicator={true}
-              className="calendar-full w-full"
-            />
+          />
         </div>
       )}
       {/* Event/Session Details Modal */}
@@ -259,21 +226,20 @@ export default function CalendarPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{selectedEvent ? (selectedEvent.start_time ? "Session Details" : "Session Request Details") : ""}</DialogTitle>
-            <DialogDescription>
-              {selectedEvent && (
-                <div className="space-y-2">
-                  <div><b>Expert:</b> {selectedEvent.expert_id?.first_name} {selectedEvent.expert_id?.last_name}</div>
-                  <div><b>Status:</b> {selectedEvent.status}</div>
-                  <div><b>Type:</b> {selectedEvent.session_type}</div>
-                  <div><b>Date/Time:</b> {selectedEvent.start_time ? format(new Date(selectedEvent.start_time), 'PPpp') : format(new Date(selectedEvent.requested_time), 'PPpp')}</div>
-                  {selectedEvent.reason && <div><b>Reason:</b> {selectedEvent.reason}</div>}
-                  {selectedEvent.notes && <div><b>Notes:</b> {selectedEvent.notes}</div>}
-                  {selectedEvent.meeting_url && <div><b>Meeting URL:</b> <a href={selectedEvent.meeting_url} className="text-blue-600 underline" target="_blank" rel="noopener noreferrer">Join</a></div>}
-                  {selectedEvent.feedback && <div><b>Feedback:</b> {selectedEvent.feedback.comment} (Rating: {selectedEvent.feedback.rating})</div>}
-                  {/* Add more fields as needed */}
-                </div>
-              )}
-            </DialogDescription>
+
+            {selectedEvent && (
+              <div className="space-y-2 mt-2">
+                <div><b>Practicioner:</b> {selectedEvent.expert_id?.first_name} {selectedEvent.expert_id?.last_name}</div>
+                <div><b>Status:</b> {selectedEvent.status}</div>
+                <div><b>Type:</b> {selectedEvent.session_type}</div>
+                <div><b>Date/Time:</b> {selectedEvent.start_time ? format(new Date(selectedEvent.start_time), 'PPpp') : format(new Date(selectedEvent.requested_time), 'PPpp')}</div>
+                {selectedEvent.reason && <div><b>Reason:</b> {selectedEvent.reason}</div>}
+                {selectedEvent.notes && <div><b>Notes:</b> {selectedEvent.notes}</div>}
+                {selectedEvent.meeting_url && <div><b>Meeting URL:</b> <a href={selectedEvent.meeting_url} className="text-blue-600 underline" target="_blank" rel="noopener noreferrer">Join</a></div>}
+                {selectedEvent.feedback && <div><b>Feedback:</b> {selectedEvent.feedback.comment} (Rating: {selectedEvent.feedback.rating})</div>}
+                {/* Add more fields as needed */}
+              </div>
+            )}
           </DialogHeader>
           <DialogFooter>
             {/* Contextual actions based on status/type */}
@@ -285,16 +251,42 @@ export default function CalendarPage() {
         </DialogContent>
       </Dialog>
       <div className="mt-8 text-center text-xs text-gray-400 z-10 relative">This page shows all your session bookings and requests in a calendar view. You can view details, status, and manage your appointments here.</div>
+      <style jsx global>{`
+        /* Calendar toolbar and nav buttons for mobile */
+        @media (max-width: 640px) {
+          .fc .fc-button, .fc .fc-toolbar-chunk > button, .fc .fc-toolbar-chunk > .fc-button-group > button {
+            font-size: 0.8rem !important;
+            min-width: 1.5rem !important;
+            height: 1.5rem !important;
+            padding: 0.1rem 0.2rem !important;
+            border-radius: 0.25rem !important;
+          }
+          .fc .fc-toolbar-title {
+            font-size: 1rem !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }
 
 function renderEventContent(eventInfo: any) {
   return (
-    <div className="flex flex-col text-xs">
+    <div
+      className="flex flex-col text-xs px-2 py-1 h-full text-foreground/80"
+      style={{
+        backgroundColor: 'hsl(var(--muted))',
+        borderLeft: `3px solid ${eventInfo.event.backgroundColor}`,
+      }}
+    >
       <span className="font-semibold truncate" title={eventInfo.event.title}>{eventInfo.event.title}</span>
-      <span className="text-gray-500">{eventInfo.timeText}</span>
-      <span className="text-[10px]" style={{ color: eventInfo.event.backgroundColor }}>{eventInfo.event.extendedProps.status}</span>
+      <span className="text-[10px]">{eventInfo.timeText}</span>
+      <span
+        className="text-[10px] font-semibold"
+        style={{ color: eventInfo.event.backgroundColor }}
+      >
+        {eventInfo.event.extendedProps.status}
+      </span>
     </div>
   );
 }
@@ -306,4 +298,4 @@ function LegendItem({ color, label }: { color: string, label: string }) {
       <span>{label}</span>
     </div>
   );
-} 
+}
