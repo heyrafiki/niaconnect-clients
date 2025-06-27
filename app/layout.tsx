@@ -1,8 +1,7 @@
-import type React from "react";
 import type { Metadata } from "next";
 import { figtree, plusJakartaSans } from "@/lib/fonts";
 import "./globals.css";
-import ClientProviders from "./client-providers";
+import Providers from "@/components/Providers";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
@@ -23,7 +22,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className={figtree.className}>
-        <ClientProviders>{children}</ClientProviders>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
