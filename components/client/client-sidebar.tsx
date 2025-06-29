@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils"
 import { Home, User, MessageCircle, Calendar, BookOpen, Users, FileText, CreditCard, BarChart2, Zap, Settings, LogOut, Menu } from "lucide-react"
 import SidebarThemeToggler from "../ui/SidebarThemeToggler"
 import HeyrafikiLogo from "@/components/HeyrafikiLogo"
+import { useIsMobile } from "@/hooks/use-mobile"
 
 const links = [
   { name: "Dashboard", icon: Home, href: "/client/dashboard" },
@@ -25,6 +26,7 @@ const links = [
 
 export default function ClientSidebar({ open, onClose }: { open: boolean, onClose: () => void }) {
   const pathname = usePathname();
+  const isMobile = useIsMobile();
 
   const isActive = (href: string) => {
     if (href === "/client/experts") {
@@ -33,23 +35,23 @@ export default function ClientSidebar({ open, onClose }: { open: boolean, onClos
     return pathname === href;
   };
 
-
   return (
     <>
       {/* Overlay for mobile */}
-      <div
-        className={cn(
-          "fixed inset-0 z-40 bg-black bg-opacity-40 transition-opacity lg:hidden",
-          open ? "block" : "hidden"
-        )}
-        onClick={onClose}
-        aria-hidden="true"
-      />
+      {isMobile && (
+        <div
+          className={cn(
+            "fixed inset-0 z-40 bg-black bg-opacity-40 transition-opacity",
+            open ? "block" : "hidden"
+          )}
+          onClick={onClose}
+          aria-hidden="true"
+        />
+      )}
       <aside
         className={cn(
-          "fixed z-50 top-0 left-0 min-h-[100vh] h-full w-64 bg-[var(--card-bg)] shadow-lg transform transition-transform duration-300 lg:static lg:translate-x-0 lg:shadow-none lg:block",
-          open ? "translate-x-0" : "-translate-x-full",
-          "lg:translate-x-0"
+          "fixed z-50 top-0 left-0 min-h-[100vh] h-full w-64 bg-[var(--card-bg)] shadow-lg transform transition-transform duration-300",
+          isMobile ? (open ? "translate-x-0" : "-translate-x-full") : "static translate-x-0 shadow-none block"
         )}
         aria-label="Sidebar"
       >
