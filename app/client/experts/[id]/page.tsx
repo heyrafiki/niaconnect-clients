@@ -17,6 +17,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Calendar } from '@/components/ui/calendar';
+import SessionRequestModal from '@/components/sessions/SessionRequest';
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
 
 function capitalize(str: string) {
   return str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
@@ -52,6 +54,20 @@ export default function ExpertDetailsPage() {
   const [actionLoading, setActionLoading] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
 
+  // Helper to get the first available date
+  const firstAvailableDay = React.useMemo(() => {
+    if (!availability.length) return undefined;
+    const today = new Date();
+    for (let i = 0; i < 60; i++) {
+      const d = new Date(today);
+      d.setDate(today.getDate() + i);
+      if (availability.some(slot => slot.day_of_week === d.getDay())) {
+        return d;
+      }
+    }
+    return today;
+  }, [availability]);
+
   useEffect(() => {
     if (!id) return;
     setLoading(true);
@@ -64,7 +80,8 @@ export default function ExpertDetailsPage() {
         setAvailability(availData.availability || []);
         setLoading(false);
       })
-      .catch(() => {
+      .catch((error) => {
+        console.error('Error loading expert data:', error);
         setError("Failed to load expert details.");
         setLoading(false);
       });
@@ -132,6 +149,12 @@ export default function ExpertDetailsPage() {
     return times;
   }
 
+  // Helper to check if a date has availability
+  function hasAvailabilityForDate(date: Date) {
+    const dayOfWeek = date.getDay();
+    return availability.some((slot: any) => slot.day_of_week === dayOfWeek);
+  }
+
   return (
     <div className="min-h-screen text-foreground">
       {/* Breadcrumb */}
@@ -147,28 +170,30 @@ export default function ExpertDetailsPage() {
         </BreadcrumbList>
       </Breadcrumb>
 
-      {/* HEADER SECTION */}
-      <section className="grid grid-cols-1 md:grid-cols-4 md:gap-8 w-full mb-10 bg-background p-4 md:py-8 md:px-6 rounded-xl">
-        <div className="flex flex-col items-center col-span-1 gap-4 border-[1.6px] rounded-xl p-4 border-border w-full mb-4 md:mb-[0]">
-          <Avatar className="h-28 w-28 mb-2">
-            {getExpertField("profile_img_url") ? (
-              <AvatarImage src={getExpertField("profile_img_url")} alt={getExpertField("first_name")} />
-            ) : (
-              <AvatarFallback className="text-4xl font-bold bg-primary/10 text-primary">
-                {capitalize(getExpertField("first_name")?.[0] || "?")}
-              </AvatarFallback>
-            )}
-          </Avatar>
-          <div className="">
-            <div className="font-bold text-2xl md:text-3xl text-foreground mb-1 text-center">{capitalize(getExpertField("first_name"))} {capitalize(getExpertField("last_name"))}</div>
-            <div className="text-sm text-muted-foreground mb-2 text-center">{getExpertField("location")}</div>
-            <div className="text-xs sm:text-sm mt-4 text-foreground/70"><b>License: </b>{getExpertField("license_type")} ({getExpertField("license_number")})</div>
-            <div className="text-xs sm:text-sm text-foreground/70"><b>Experience: </b>{getExpertField("years_of_experience")} years</div>
-          </div>
-          <Button className="mt-2 w-full" variant="secondary">Send Message</Button>
-        </div>
+      {/* Responsive Grid Layout */}
+      <div className="flex flex-col lg:flex-row gap-6 w-full">
+        {/* LEFT PANEL: Expert Details (65%) */}
+        <div className="w-full lg:w-[65%] p-2 lg:border lg:border-border rounded-xl lg:py-6 lg:px-4 flex-shrink-0 flex flex-col gap-6 bg-background">
+          {/* HEADER SECTION */}
+          <section className="p-4 md:py-8 md:px-6 rounded-xl border border-border flex flex-col items-center gap-4">
+            <Avatar className="h-28 w-28 mb-2">
+              {getExpertField("profile_img_url") ? (
+                <AvatarImage src={getExpertField("profile_img_url")} alt={getExpertField("first_name")} />
+              ) : (
+                <AvatarFallback className="text-4xl font-bold bg-primary/10 text-primary">
+                  {capitalize(getExpertField("first_name")?.[0] || "?")}
+                </AvatarFallback>
+              )}
+            </Avatar>
+            <div className="w-full flex flex-col items-center">
+              <div className="font-bold text-2xl md:text-3xl text-foreground mb-1 text-center">{capitalize(getExpertField("first_name"))} {capitalize(getExpertField("last_name"))}</div>
+              <div className="text-sm text-muted-foreground mb-2 text-center">{getExpertField("location")}</div>
+              <div className="text-xs sm:text-sm mt-4 text-foreground/70"><b>License: </b>{getExpertField("license_type")} ({getExpertField("license_number")})</div>
+              <div className="text-xs sm:text-sm text-foreground/70"><b>Experience: </b>{getExpertField("years_of_experience")} years</div>
+            </div>
+            <Button className="mt-2 w-full max-w-xs" variant="secondary">Send Message</Button>
+          </section>
 
-        <div className="col-span-3 flex flex-col gap-6 w-full">
           {/* ABOUT & EXPERTISE */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             <section>
@@ -226,7 +251,7 @@ export default function ExpertDetailsPage() {
             <h2 className="font-semibold text-primary mb-1">Availability</h2>
             <div className="flex flex-col gap-1">
               {availability.length === 0 ? (
-                <span className="text-xs text-muted-foreground">No availability info.</span>
+                <span className="text-xs text-muted-foreground">No availability set. Please contact the expert directly.</span>
               ) : (
                 availability.map((slot, idx) => (
                   <span key={idx} className="text-xs text-foreground">
@@ -239,288 +264,192 @@ export default function ExpertDetailsPage() {
             </div>
           </section>
         </div>
-      </section>
 
-      {/* SESSIONS SECTION */}
-      <section className="mt-8 mb-12">
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-2 gap-2">
-          <h2 className="font-semibold text-primary text-lg">Your Sessions with this Expert</h2>
-          <Button onClick={() => setModalOpen(true)} className="w-full md:w-auto">Book Session</Button>
+        {/* RIGHT PANEL: Sessions (35%) */}
+        <div className="w-full lg:w-[35%] p-2 flex flex-col gap-4 lg:border lg:border-border rounded-xl lg:py-6 lg:px-4 bg-background">
+          <div className="flex flex-col md:flex-row md:items-center justify-between mb-2 gap-2">
+            <h2 className="font-semibold text-foreground/65 text-lg">Your Sessions with this Expert</h2>
+            <Button 
+              onClick={() => setModalOpen(true)} 
+              className="w-full md:w-auto bg-primary-accent hover:bg-primary-bright"
+              disabled={availability.length === 0}
+            >
+              {availability.length === 0 ? 'No Availability' : 'Book Session'}
+            </Button>
+          </div>
+          <div className="rounded-xl border border-border bg-card p-2 shadow-sm overflow-x-auto min-h-[120px] h-full">
+            {sessionsLoading ? (
+              <div className="text-xs text-muted-foreground">Loading...</div>
+            ) : dedupedSessions.length === 0 ? (
+              <div className="text-xs text-muted-foreground">You have no sessions or requests with this expert yet.</div>
+            ) : (
+              <div className="flex flex-col gap-3">
+                {dedupedSessions.map((event, i) => {
+                  // --- Begin: Compact Card Design (copied from sessions/page.tsx) ---
+                  const isSession = !!event.start_time;
+                  const expertObj = isSession ? event.expert_id : event.expert_id;
+                  const dateTime = isSession ? new Date(event.start_time) : new Date(event.requested_time);
+                  const status = event.status === 'accepted' ? 'scheduled' : event.status;
+                  const isPending = status === 'pending';
+                  const isAccepted = status === 'accepted';
+                  const isDeclined = status === 'declined';
+                  const isRescheduled = status === 'rescheduled';
+                  const isScheduled = status === 'scheduled';
+                  const isCompleted = status === 'completed';
+                  const isCancelled = status === 'cancelled';
+                  const isFuture = isSession ? new Date(event.start_time) > new Date() : new Date(event.requested_time) > new Date();
+                  const canJoin = isSession && event.meeting_url && new Date() >= new Date(event.start_time) && new Date() <= new Date(event.end_time);
+
+                  let statusColor = '';
+                  let statusBorderColor = '';
+                  if (isSession) {
+                    switch (status) {
+                      case 'scheduled': statusColor = 'hsl(var(--session-scheduled))'; statusBorderColor = 'border-green-500'; break;
+                      case 'completed': statusColor = 'hsl(var(--session-completed))'; statusBorderColor = 'border-gray-500'; break;
+                      case 'cancelled': statusColor = 'hsl(var(--session-cancelled))'; statusBorderColor = 'border-red-500'; break;
+                    }
+                  } else {
+                    switch (status) {
+                      case 'pending': statusColor = 'hsl(var(--request-pending))'; statusBorderColor = 'border-yellow-500'; break;
+                      case 'accepted': statusColor = 'hsl(var(--request-accepted))'; statusBorderColor = 'border-blue-500'; break;
+                      case 'declined': statusColor = 'hsl(var(--request-declined))'; statusBorderColor = 'border-red-500'; break;
+                      case 'rescheduled': statusColor = 'hsl(var(--request-rescheduled))'; statusBorderColor = 'border-purple-500'; break;
+                    }
+                  }
+                  const isManageableRequest = !isSession && (isPending || isRescheduled);
+                  // --- End: Compact Card Design ---
+                  return (
+                    <Card key={event._id || i} className={`group border-l-4 ${statusBorderColor} rounded-[10px] shadow-sm hover:shadow-md transition-shadow duration-150 flex flex-col relative overflow-hidden bg-card/90`}>
+                      <div className="absolute inset-y-0 left-0 w-1.5" style={{ backgroundColor: statusColor }}></div>
+                      <CardHeader className="flex-row items-center justify-between gap-2 p-3 pb-1 space-y-0">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="truncate text-base font-semibold text-foreground/85">{dateTime.toLocaleString()}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="px-2 py-0.5 rounded text-xs" style={{ backgroundColor: statusColor, color: '#fff' }}>{status.charAt(0).toUpperCase() + status.slice(1)}</span>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="px-3 pt-0 pb-3 flex flex-col gap-1">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <h3 className="truncate text-sm font-medium text-foreground/80">
+                            {capitalize(getExpertField("first_name"))} {capitalize(getExpertField("last_name"))}
+                          </h3>
+                          <span className="text-xs text-gray-400">• {isSession ? 'Session' : 'Request'} • {event.session_type}</span>
+                        </div>
+                        {event.reason && (
+                          <div className="text-xs text-gray-500 italic truncate" title={event.reason || event.notes}>
+                            {event.reason}
+                          </div>
+                        )}
+                        {!isSession && isDeclined && event.reason && (
+                          <div className="mt-1 p-1 bg-red-50 border border-red-200 rounded text-red-700 text-xs">
+                            <span className="font-semibold">Declined Reason:</span> {event.reason}
+                          </div>
+                        )}
+                        {isSession && (isScheduled || isCompleted) && event.meeting_url && (
+                          <div className="mt-1">
+                            <a 
+                              href={event.meeting_url} 
+                              target="_blank" 
+                              rel="noopener noreferrer" 
+                              className="text-primary hover:underline inline-flex items-center text-xs font-medium"
+                            >
+                              Join Session
+                            </a>
+                          </div>
+                        )}
+                        {isManageableRequest && (
+                          <div className="mt-2 flex gap-2">
+                            <Button variant="outline" size="sm" className="px-2 py-1 h-7 text-xs" onClick={() => {
+                              setCurrentRequest(event);
+                              setEditModalOpen(true);
+                              setNewRequestedDate(event.requested_time ? new Date(event.requested_time) : null);
+                              setNewReason(event.reason || "");
+                              fetchAvailableTimesForDate(new Date(event.requested_time));
+                            }}>
+                              Edit
+                            </Button>
+                            <Button variant="destructive" size="sm" className="px-2 py-1 h-7 text-xs" onClick={() => { setCurrentRequest(event); setDeleteModalOpen(true); }}>Delete</Button>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
-        <div className="rounded-xl border border-border bg-card p-4 shadow-sm overflow-x-auto">
-          {sessionsLoading ? (
-            <div className="text-xs text-muted-foreground">Loading...</div>
-          ) : dedupedSessions.length === 0 ? (
-            <div className="text-xs text-muted-foreground">You have no sessions or requests with this expert yet.</div>
-          ) : (
-            <ul className="space-y-3">
-              {dedupedSessions.map((s, i) => {
-                const isSession = !!s.start_time;
-                const status = s.status === 'accepted' ? 'scheduled' : s.status;
-                const isPending = status === 'pending';
-                const isScheduled = status === 'scheduled';
-                const isCompleted = status === 'completed';
-                const isDeclined = status === 'declined';
-                const isCancelled = status === 'cancelled';
-                const isRescheduled = status === 'rescheduled';
-                const isFuture = new Date(isSession ? s.start_time : s.requested_time) > new Date();
-                return (
-                  <li key={s._id || i} className="flex flex-col md:flex-row md:items-center md:gap-4 gap-1 border-b last:border-b-0 border-border pb-2">
-                    <div className="flex-1 flex flex-col md:flex-row md:items-center gap-2">
-                      <span className="font-medium capitalize text-foreground">{status}</span>
-                      <span className="text-muted-foreground">{isSession ? new Date(s.start_time).toLocaleString() : (s.requested_time ? new Date(s.requested_time).toLocaleString() : "-")}</span>
-                      <span className="text-muted-foreground">{s.session_type}</span>
-                    </div>
-                    <div className="flex gap-2 mt-1 md:mt-0">
-                      {isPending && (
-                        <>
-                          <Button size="sm" variant="outline" onClick={() => { setCurrentRequest(s); setEditModalOpen(true); setNewRequestedDate(s.requested_time ? new Date(s.requested_time) : null); setNewReason(s.reason || ""); fetchAvailableTimesForDate(new Date(s.requested_time)); }}>Edit</Button>
-                          <Button size="sm" variant="destructive" onClick={() => { setCurrentRequest(s); setDeleteModalOpen(true); }}>Delete</Button>
-                        </>
-                      )}
-                      {isScheduled && isFuture && (
-                        <>
-                          {s.meeting_url && <Button size="sm" variant="default" onClick={() => window.open(s.meeting_url, '_blank')}>Join</Button>}
-                          <Button size="sm" variant="outline" onClick={() => { setCurrentRequest(s); setRescheduleModalOpen(true); setNewRequestedDate(s.start_time ? new Date(s.start_time) : null); setNewReason(s.reason || ""); fetchAvailableTimesForDate(new Date(s.start_time)); }}>Reschedule</Button>
-                          <Button size="sm" variant="destructive" onClick={() => { setCurrentRequest(s); setDeleteModalOpen(true); }}>Cancel</Button>
-                        </>
-                      )}
-                      {isCompleted && (
-                        <Button size="sm" variant="outline" onClick={() => {/* TODO: feedback modal */}}>Give Feedback</Button>
-                      )}
-                      {(isDeclined || isCancelled || isRescheduled) && (
-                        <Button size="sm" variant="default" onClick={() => setModalOpen(true)}>Book Again</Button>
-                      )}
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </div>
-      </section>
+      </div>
 
       {/* BOOKING DIALOG */}
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
         <DialogContent className="max-w-lg">
           <DialogTitle>Book a Session with {capitalize(getExpertField("first_name"))}</DialogTitle>
-          <DialogDescription className="mb-4 text-xs text-muted-foreground">Select an available slot, session type, and provide a reason for your session request.</DialogDescription>
-          {/* Session Type Selection */}
-          <div className="mb-4">
-            <label className="block text-xs font-medium text-foreground mb-1">Session Type</label>
-            <Select value={selectedSessionType} onValueChange={setSelectedSessionType}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select session type" />
-              </SelectTrigger>
-              <SelectContent>
-                {(getExpertField("session_types") || []).map((type: string) => (
-                  <SelectItem key={type} value={type}>{type}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          {/* Date Selection */}
-          <div className="mb-4">
-            <label className="block text-xs font-medium text-foreground mb-1">Date</label>
-            <Calendar
-              selected={selectedDate}
-              onSelect={date => {
-                setSelectedDate(date);
-                // Find available slots for this date
-                if (!date) return setAvailableTimesForDate([]);
-                const dayOfWeek = date.getDay();
-                const slots = availability.filter((slot: any) => slot.day_of_week === dayOfWeek);
-                const times: string[] = [];
-                slots.forEach((slot: any) => {
-                  slot.time_slots.forEach((t: any) => {
-                    times.push(`${t.start_time} - ${t.end_time}`);
+          <DialogDescription className="mb-4 text-xs text-muted-foreground">
+            Select an available slot, session type, and provide a reason for your session request.
+          </DialogDescription>
+          <SessionRequestModal
+            expertId={id as string}
+            sessionTypes={getExpertField("session_types") || []}
+            open={modalOpen}
+            onOpenChange={setModalOpen}
+            clientId={session?.user?.id}
+            mode="create"
+            onSuccess={() => {
+              // Refetch sessions after booking
+              fetch(`/api/sessions?client_id=${session.user.id}`)
+                .then(res => res.json())
+                .then(data => {
+                  const filtered = (data.events || []).filter((ev: any) => {
+                    const expertId = ev.expert_id?._id || ev.expert_id;
+                    return String(expertId) === String(id);
                   });
-                });
-                setAvailableTimesForDate(times);
-              }}
-              disabled={date => {
-                // Only enable days with availability
-                const dayOfWeek = date.getDay();
-                return !availability.some((slot: any) => slot.day_of_week === dayOfWeek);
-              }}
-            />
-          </div>
-          {/* Time Slot Selection */}
-          <div className="mb-4">
-            <label className="block text-xs font-medium text-foreground mb-1">Time Slot</label>
-            <Select value={selectedSlot ? `${selectedSlot.start} - ${selectedSlot.end}` : ''} onValueChange={val => {
-              const [start, end] = val.split(' - ');
-              setSelectedSlot(selectedDate ? { day: selectedDate.getDay(), start, end } : null);
-            }}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select time slot" />
-              </SelectTrigger>
-              <SelectContent>
-                {availableTimesForDate.map((time, idx) => (
-                  <SelectItem key={idx} value={time}>{time}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          {/* Reason Input */}
-          <div className="mb-4">
-            <label className="block text-xs font-medium text-foreground mb-1">Reason for session</label>
-            <Textarea
-              value={reason}
-              onChange={e => setReason(e.target.value)}
-              placeholder="Describe why you want to book this session..."
-              className="min-h-[80px] bg-background text-foreground"
-            />
-          </div>
-          {submitError && <div className="text-xs text-destructive mb-2">{submitError}</div>}
-          {submitSuccess && <div className="text-xs text-green-600 mb-2">Session request submitted successfully!</div>}
-          <div className="flex gap-2 justify-end">
-            <DialogClose asChild>
-              <Button variant="outline" size="sm">Cancel</Button>
-            </DialogClose>
-            <Button
-              size="sm"
-              className="bg-primary text-primary-foreground"
-              disabled={submitting || !selectedSlot || !reason.trim() || !selectedSessionType}
-              onClick={async () => {
-                setSubmitting(true);
-                setSubmitError(null);
-                setSubmitSuccess(false);
-                try {
-                  const slot = selectedSlot;
-                  const sessionType = selectedSessionType;
-                  if (!slot || !sessionType) throw new Error("Please select a slot and session type.");
-                  // Compose start and end time as Date objects for the next occurrence of the selected day
-                  const now = new Date();
-                  const today = now.getDay();
-                  let daysToAdd = slot.day - today;
-                  if (daysToAdd < 0) daysToAdd += 7;
-                  const nextDate = new Date(now);
-                  nextDate.setDate(now.getDate() + daysToAdd);
-                  // Set start time
-                  const [startHour, startMinute] = slot.start.split(":").map(Number);
-                  nextDate.setHours(startHour, startMinute, 0, 0);
-                  const startTime = new Date(nextDate);
-                  // Set end time
-                  const [endHour, endMinute] = slot.end.split(":").map(Number);
-                  const endTime = new Date(nextDate);
-                  endTime.setHours(endHour, endMinute, 0, 0);
-                  // Submit session request
-                  const res = await fetch(`/api/session-requests`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                      expert_id: id,
-                      client_id: session.user.id,
-                      session_type: sessionType,
-                      reason: reason.trim(),
-                      requested_time: startTime.toISOString(),
-                    }),
-                  });
-                  if (!res.ok) throw new Error((await res.json()).error || "Failed to submit session request.");
-                  setSubmitSuccess(true);
-                  setModalOpen(false);
-                  setSelectedSlot(null);
-                  setSelectedSessionType("");
-                  setReason("");
-                  // Optionally refetch sessions
-                } catch (err: any) {
-                  setSubmitError(err.message || "Failed to submit session request.");
-                } finally {
-                  setSubmitting(false);
-                }
-              }}
-            >
-              {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Submit"}
-            </Button>
-          </div>
+                  setClientSessions(filtered);
+                })
+                .catch(() => {});
+            }}
+          />
         </DialogContent>
       </Dialog>
 
       {/* Edit Modal */}
       <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Edit Session Request</DialogTitle>
-            <DialogDescription>Change the requested date, time, and reason for this session.</DialogDescription>
-          </DialogHeader>
-          <div className="mb-4">
-            <label className="block text-xs font-medium text-foreground mb-1">Date</label>
-            <Calendar
-              selected={newRequestedDate}
-              onSelect={async date => {
-                setNewRequestedDate(date);
-                if (date) await fetchAvailableTimesForDate(date);
+        <DialogContent className="max-w-lg">
+          <DialogTitle>Edit Session Request</DialogTitle>
+          <DialogDescription className="mb-4 text-xs text-muted-foreground">
+            Change the requested date, time, and reason for this session.
+          </DialogDescription>
+          {currentRequest && (
+            <SessionRequestModal
+              expertId={id as string}
+              sessionTypes={getExpertField("session_types") || []}
+              open={editModalOpen}
+              onOpenChange={setEditModalOpen}
+              clientId={session?.user?.id}
+              mode="edit"
+              initialData={{
+                sessionType: currentRequest.session_type,
+                date: currentRequest.requested_time ? new Date(currentRequest.requested_time) : null,
+                timeSlot: null, // Will be set by user
+                reason: currentRequest.reason || '',
+                requestId: currentRequest._id,
               }}
-              disabled={date => {
-                const dayOfWeek = date.getDay();
-                return !availability.some((slot: any) => slot.day_of_week === dayOfWeek);
+              onSuccess={() => {
+                // Refetch sessions after edit
+                fetch(`/api/sessions?client_id=${session.user.id}`)
+                  .then(res => res.json())
+                  .then(data => {
+                    const filtered = (data.events || []).filter((ev: any) => {
+                      const expertId = ev.expert_id?._id || ev.expert_id;
+                      return String(expertId) === String(id);
+                    });
+                    setClientSessions(filtered);
+                  })
+                  .catch(() => {});
               }}
             />
-          </div>
-          <div className="mb-4">
-            <label className="block text-xs font-medium text-foreground mb-1">Time Slot</label>
-            <Select value={newRequestedSlot ? `${newRequestedSlot.start} - ${newRequestedSlot.end}` : ''} onValueChange={val => {
-              const [start, end] = val.split(' - ');
-              setNewRequestedSlot({ start, end });
-            }}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select time slot" />
-              </SelectTrigger>
-              <SelectContent>
-                {newAvailableTimes.map((time, idx) => (
-                  <SelectItem key={idx} value={time}>{time}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <Textarea
-            value={newReason}
-            onChange={e => setNewReason(e.target.value)}
-            placeholder="Reason for session"
-            className="min-h-[80px] mb-3"
-          />
-          {actionError && <div className="text-xs text-destructive mb-2">{actionError}</div>}
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
-            </DialogClose>
-            <Button onClick={async () => {
-              setActionLoading(true);
-              setActionError(null);
-              try {
-                if (!newRequestedDate || !newRequestedSlot) throw new Error('Please select a date and time slot.');
-                const date = new Date(newRequestedDate);
-                const [startHour, startMinute] = newRequestedSlot.start.split(":").map(Number);
-                date.setHours(startHour, startMinute, 0, 0);
-                const requested_time = date.toISOString();
-                // PATCH session to reschedule
-                const res = await fetch(`/api/session-requests/${currentRequest?._id}`, {
-                  method: 'PATCH',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    requested_time,
-                    reason: newReason,
-                    status: 'rescheduled',
-                  }),
-                });
-                if (!res.ok) throw new Error((await res.json()).error || 'Failed to update.');
-                setEditModalOpen(false);
-                setCurrentRequest(null);
-                setNewRequestedDate(null);
-                setNewRequestedSlot(null);
-                setNewReason("");
-                setActionError(null);
-                // Optionally refetch sessions
-              } catch (err: any) {
-                setActionError(err.message || 'Failed to update.');
-              } finally {
-                setActionLoading(false);
-              }
-            }} disabled={actionLoading || !newRequestedDate || !newRequestedSlot}>
-              {actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save Changes'}
-            </Button>
-          </DialogFooter>
+          )}
         </DialogContent>
       </Dialog>
 
@@ -547,7 +476,17 @@ export default function ExpertDetailsPage() {
                 if (!res.ok) throw new Error((await res.json()).error || 'Failed to delete.');
                 setDeleteModalOpen(false);
                 setCurrentRequest(null);
-                // Optionally refetch sessions
+                // Refetch sessions to update the list
+                fetch(`/api/sessions?client_id=${session.user.id}`)
+                  .then(res => res.json())
+                  .then(data => {
+                    const filtered = (data.events || []).filter((ev: any) => {
+                      const expertId = ev.expert_id?._id || ev.expert_id;
+                      return String(expertId) === String(id);
+                    });
+                    setClientSessions(filtered);
+                  })
+                  .catch(() => {});
               } catch (err: any) {
                 setActionError(err.message || 'Failed to delete.');
               } finally {
@@ -561,7 +500,18 @@ export default function ExpertDetailsPage() {
       </Dialog>
 
       {/* Reschedule Modal */}
-      <Dialog open={rescheduleModalOpen} onOpenChange={setRescheduleModalOpen}>
+      <Dialog open={rescheduleModalOpen} onOpenChange={(open) => {
+        setRescheduleModalOpen(open);
+        if (!open) {
+          // Clean up state when modal is closed
+          setCurrentRequest(null);
+          setNewRequestedDate(null);
+          setNewRequestedSlot(null);
+          setNewReason("");
+          setNewAvailableTimes([]);
+          setActionError(null);
+        }
+      }}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Reschedule Session</DialogTitle>
@@ -569,33 +519,42 @@ export default function ExpertDetailsPage() {
           </DialogHeader>
           <div className="mb-4">
             <label className="block text-xs font-medium text-foreground mb-1">Date</label>
-            <Calendar
-              selected={newRequestedDate}
-              onSelect={async date => {
-                setNewRequestedDate(date);
-                if (date) await fetchAvailableTimesForDate(date);
-              }}
-              disabled={date => {
-                const dayOfWeek = date.getDay();
-                return !availability.some((slot: any) => slot.day_of_week === dayOfWeek);
-              }}
-            />
+            {loading ? <div>Loading...</div> : (
+              <Calendar
+                key={availability.map(a => a.day_of_week).join(',')}
+                defaultMonth={firstAvailableDay}
+                selected={newRequestedDate}
+                onSelect={async date => {
+                  setNewRequestedDate(date);
+                  if (date) await fetchAvailableTimesForDate(date);
+                }}
+                disabled={date => {
+                  return !hasAvailabilityForDate(date);
+                }}
+              />
+            )}
           </div>
           <div className="mb-4">
             <label className="block text-xs font-medium text-foreground mb-1">Time Slot</label>
-            <Select value={newRequestedSlot ? `${newRequestedSlot.start} - ${newRequestedSlot.end}` : ''} onValueChange={val => {
-              const [start, end] = val.split(' - ');
-              setNewRequestedSlot({ start, end });
-            }}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select time slot" />
-              </SelectTrigger>
-              <SelectContent>
-                {newAvailableTimes.map((time, idx) => (
-                  <SelectItem key={idx} value={time}>{time}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            {newAvailableTimes.length === 0 ? (
+              <div className="text-xs text-muted-foreground p-2 bg-muted rounded">
+                {newRequestedDate ? 'No time slots available for this date.' : 'Please select a date first.'}
+              </div>
+            ) : (
+              <Select value={newRequestedSlot ? `${newRequestedSlot.start} - ${newRequestedSlot.end}` : ''} onValueChange={val => {
+                const [start, end] = val.split(' - ');
+                setNewRequestedSlot({ start, end });
+              }}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select time slot" />
+                </SelectTrigger>
+                <SelectContent>
+                  {newAvailableTimes.map((time, idx) => (
+                    <SelectItem key={idx} value={time}>{time}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
           </div>
           <Textarea
             value={newReason}
@@ -634,7 +593,17 @@ export default function ExpertDetailsPage() {
                 setNewRequestedSlot(null);
                 setNewReason("");
                 setActionError(null);
-                // Optionally refetch sessions
+                // Refetch sessions to update the list
+                fetch(`/api/sessions?client_id=${session.user.id}`)
+                  .then(res => res.json())
+                  .then(data => {
+                    const filtered = (data.events || []).filter((ev: any) => {
+                      const expertId = ev.expert_id?._id || ev.expert_id;
+                      return String(expertId) === String(id);
+                    });
+                    setClientSessions(filtered);
+                  })
+                  .catch(() => {});
               } catch (err: any) {
                 setActionError(err.message || 'Failed to update.');
               } finally {
@@ -648,14 +617,4 @@ export default function ExpertDetailsPage() {
       </Dialog>
     </div>
   );
-}
-
-// Helper to get the next date for a given day of week and time (returns ISO string)
-function getNextDateForDay(dayOfWeek: number, time: string) {
-  const now = new Date();
-  const result = new Date(now);
-  result.setDate(now.getDate() + ((7 + dayOfWeek - now.getDay()) % 7));
-  const [hours, minutes] = time.split(":").map(Number);
-  result.setHours(hours, minutes, 0, 0);
-  return result.toISOString();
 } 

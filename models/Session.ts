@@ -6,6 +6,11 @@ export interface ISession extends Document {
   session_type: string;
   reason?: string;
   notes?: string;
+  tasks?: {
+    title: string;
+    description: string;
+    status: 'pending' | 'completed';
+  }[];
   start_time: Date;
   end_time: Date;
   meeting_url?: string;
@@ -24,6 +29,11 @@ const SessionSchema = new Schema<ISession>({
   session_type: { type: String, required: true },
   reason: { type: String },
   notes: { type: String },
+  tasks: [{
+    title: { type: String },
+    description: { type: String },
+    status: { type: String, enum: ['pending', 'completed'], default: 'pending' }
+  }],
   start_time: { type: Date, required: true },
   end_time: { type: Date, required: true },
   meeting_url: { type: String },
