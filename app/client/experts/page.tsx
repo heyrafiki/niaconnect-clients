@@ -152,7 +152,7 @@ export default function ExpertsPage() {
                   </div>
                   <div className="text-xs text-foreground/65 mt-2 min-h-[36px]">{truncate(getExpertField(expert, "bio"), 120)}</div> 
 
-                  <div className="flex flex-col gap-1 mt-2 w-full border-[1.6px] border-[var(--card-border-color)] py-2 px-[8px] rounded-[10px]">
+                  {/* <div className="flex flex-col gap-1 mt-2 w-full border-[1.6px] border-[var(--card-border-color)] py-2 px-[8px] rounded-[10px]">
                     <div className="flex justify-between py-2 w-full">
                       <span className={`px-2 rounded-full text-xs font-semibold w-fit ${statusColor}`}>{capitalize(status)}</span>
                       <span className="text-xs text-foreground/70">
@@ -168,7 +168,7 @@ export default function ExpertsPage() {
                         <b>Reason:</b> {event.reason}
                       </span>
                     )}
-                  </div>
+                  </div> */}
                 </div>
               );
             })}
@@ -179,28 +179,28 @@ export default function ExpertsPage() {
       <p className="mb-6 text-foreground/70">Our experts will help you identify and navigate through your problems</p>
       {/* Filters */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-3 mb-6 items-center">
-          <Select value={filters.specialization} onValueChange={v => setFilters(f => ({ ...f, specialization: v }))}>
-            <SelectTrigger>
-              <SelectValue placeholder="Specialization" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Specializations</SelectItem>
-              {specializations.map(s => (
-                <SelectItem key={s} value={s}>{capitalize(s)}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select value={filters.location} onValueChange={v => setFilters(f => ({ ...f, location: v }))}>
-            <SelectTrigger>
-              <SelectValue placeholder="Location" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Locations</SelectItem>
-              {locations.map(l => (
-                <SelectItem key={l} value={l}>{l}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <Select value={filters.specialization} onValueChange={v => setFilters(f => ({ ...f, specialization: v }))}>
+          <SelectTrigger>
+            <SelectValue placeholder="Specialization" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Specializations</SelectItem>
+            {specializations.map(s => (
+              <SelectItem key={s} value={s}>{capitalize(s)}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select value={filters.location} onValueChange={v => setFilters(f => ({ ...f, location: v }))}>
+          <SelectTrigger>
+            <SelectValue placeholder="Location" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Locations</SelectItem>
+            {locations.map(l => (
+              <SelectItem key={l} value={l}>{l}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <Select value={filters.sessionType} onValueChange={v => setFilters(f => ({ ...f, sessionType: v }))}>
           <SelectTrigger>
             <SelectValue placeholder="Session Type" />
